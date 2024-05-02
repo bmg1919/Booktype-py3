@@ -1,4 +1,3 @@
-version: '3'
 services:
   db:
     image: postgres
@@ -9,20 +8,14 @@ services:
       - POSTGRES_USER=booktype
       - POSTGRES_PASSWORD=booktype
       - POSTGRES_DB=booktype
-    ports:
-      - 5432:5432
   redis:
     image: redis
     environment:
       - RABBITMQ_DEFAULT_USER=guest
       - RABBITMQ_DEFAULT_PASS=guest
-    ports:
-      - 6379:6379
 
   rabbit:
     image: rabbitmq
-    ports:
-      - 5672:5672
   bt:
     build: .
     # networks:
