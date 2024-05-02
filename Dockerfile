@@ -1,7 +1,7 @@
 FROM python:3
 
 RUN DEBIAN_FRONTEND=noninteractive apt update && apt upgrade -y \
-    && apt install nginx supervisor composer -y
+    && apt install nginx supervisor composer zip pandoc php-cli php-gd -y
 
 # create booktype group, booktype user and assign it to the group
 RUN groupadd booktype && useradd booktype -g booktype -u 1000
@@ -38,20 +38,20 @@ COPY . /code/Booktype/
 
 COPY bt/scripts/ /code/scripts/
 
-# RUN python3 -m venv venv && . venv/bin/activate \
-#     && pip install pip setuptools wheel -U \
-#     && pip install -r Booktype/requirements/req_prod.txt \
-#     && ./Booktype/scripts/createbooktype --database postgresql ${INSTANCENAME}
 RUN pip install pip setuptools wheel uwsgi -U \
     && pip install --no-cache-dir -r Booktype/requirements/req_prod.txt \
     && Booktype/scripts/createbooktype --database postgresql ${INSTANCENAME}
+
+# Install more recent mpdf without including in source
+RUN cd /code/${INSTANCENAME} && composer require mpdf/mpdf:8.2.3
 
 # make scripts executable
 RUN chmod ug+x scripts/celery.sh scripts/web.sh scripts/manage_py.sh scripts/wait-for-it.sh ${INSTANCENAME}/manage_prod.py
 
 RUN chown -R booktype:booktype /code/ \
     && chmod -R 775 /code/${INSTANCENAME}/logs \
-    && chmod -R 775 /code/${INSTANCENAME}/data
+    && chmod -R 775 /code/${INSTANCENAME}/data \
+    && chmod -R 775 /code/${INSTANCENAME}/vendor
 
 # copy configs
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
@@ -87,7 +87,3 @@ USER booktype
 
 CMD ./scripts/wait-for-it.sh -t 60 db:5432 -- ./scripts/manage_py.sh \
     && /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
-
-# RUN ./scripts/manage_py.sh
-
-# CMD /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
