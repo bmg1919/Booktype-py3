@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from booki.editor.models import Book, Language
 
@@ -20,7 +20,7 @@ class Permission(models.Model):
         max_length=255
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return self.label
 
     class Meta:
@@ -59,10 +59,10 @@ class Role(models.Model):
     )
     permissions = models.ManyToManyField(
         Permission, verbose_name=_('permissions'),
-        blank=True, null=True
+        blank=True,  # null=True
     )
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % self.name
 
     class Meta:
@@ -81,16 +81,16 @@ class BookRole(models.Model):
     Roles scoped by the desired Book
     """
 
-    role = models.ForeignKey(Role, verbose_name=_('role'))
-    book = models.ForeignKey(Book, verbose_name=_('book'))
+    role = models.ForeignKey(Role, verbose_name=_('role'), on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, verbose_name=_('book'), on_delete=models.CASCADE)
     members = models.ManyToManyField(
         User, verbose_name=_('users'),
-        blank=True, null=True,
+        blank=True,  # null=True,
         related_name='roles'
     )
 
-    def __unicode__(self):
-        return u'%s %s' % (self.book.title, self.role.name)
+    def __str__(self):
+        return '%s %s' % (self.book.title, self.role.name)
 
     class Meta:
         verbose_name = _('Book Role')
@@ -120,7 +120,7 @@ class BookSkeleton(models.Model):
         _('description'), max_length=255, blank=True)
 
     language = models.ForeignKey(
-        Language, verbose_name=_('Language'))
+        Language, verbose_name=_('Language'), on_delete=models.CASCADE)
 
     skeleton_type = models.IntegerField(
         choices=SKELETON_TYPES,
@@ -130,8 +130,8 @@ class BookSkeleton(models.Model):
         upload_to=SKELETON_UPLOAD_DIR,
         verbose_name=_('File'))
 
-    def __unicode__(self):
-        return u'{0} - {1}'.format(self.name, self.language)
+    def __str__(self):
+        return '{0} - {1}'.format(self.name, self.language)
 
     class Meta:
         verbose_name = _('Book Skeleton')

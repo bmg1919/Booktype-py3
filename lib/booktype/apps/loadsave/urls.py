@@ -14,11 +14,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Booktype.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url
+from django.urls import path
 
 from .views import SaveView, SaveAsEpubSkeleton
 
+app_name = 'loadsave'
+
 urlpatterns = [
-    url(r'^_export/$', SaveView.as_view(), name='save_book'),
-    url(r'^_save_as_skeleton/$', SaveAsEpubSkeleton.as_view(), name='save_as_skeleton'),
+    path('_export/', SaveView.as_view(), name='save_book'),
+    path('_save_as_skeleton/', SaveAsEpubSkeleton.as_view(), name='save_as_skeleton'),
 ]

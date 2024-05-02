@@ -1,5 +1,5 @@
 <?php
-error_reporting(0);
+error_reporting();
 
 /* Parse the arguments */
 
@@ -18,7 +18,7 @@ $file_input  = $options["dir"] . "/body.html";
 $file_output = $options["output"];
 
 /* Include mPDF library */
-include $options["mpdf"] . "/mpdf.php";
+// include $options["mpdf"] . "/mpdf.php";
 
 if (file_exists($options["dir"] . "/config.json")) {
     $data   = file_get_contents($options["dir"] . "/config.json");
@@ -37,7 +37,10 @@ $config["config"]["settings"]["top_margin"], $config["config"]["settings"]["bott
 $config["config"]["settings"]["header_margin"], $config["config"]["settings"]["footer_margin"]);
  */
 
-$mpdf = new mPDF();
+// $mpdf = new mPDF();
+require_once __DIR__ . '/vendor/autoload.php';
+
+$mpdf = new \Mpdf\Mpdf();
 
 // Specify whether to substitute missing characters in UTF-8 (multibyte) documents
 $mpdf->useSubstitutions = false;

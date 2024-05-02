@@ -1,4 +1,4 @@
-{% load i18n staticfiles %}
+{% load i18n static %}
 
 <div class="modal fade addBookGroup" id="addBookModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="false">
 
@@ -9,7 +9,7 @@
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
                 <h2 class="modal-title" id="myModalLabel">{% trans "Select books to add" %}</h2>
             </div>
-            <div class="modal-body">            
+            <div class="modal-body">
                 <section id="basic">
                     <form method="post" action="{% url 'portal:add_book' user_group.url_name %}" target="hidden_frame" enctype="multipart/form-data">
                         {% csrf_token %}
@@ -48,6 +48,6 @@
             <h3>{% trans "Anonymous user" %}</h3>
                 <p>
                   {% trans "You have to log in to add books." %}
-                </p>   
+                </p>
     {% endif %}
 </div>

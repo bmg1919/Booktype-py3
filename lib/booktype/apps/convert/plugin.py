@@ -382,7 +382,7 @@ def load_theme_plugin(convert_type, theme_name):
             module = importlib.import_module(module_name)
             plgn = module.__convert__.get(convert_type, None)
             return plgn
-    except:
+    except Exception:
         logger.exception('Can not load the theme plugin.')
 
     return plgn

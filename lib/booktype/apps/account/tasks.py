@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 from __future__ import unicode_literals, print_function, absolute_import
 
-import celery
+from celery import shared_task
 import logging
 from collections import namedtuple
 
 from django.conf import settings
 from django.core import signing
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.mail import send_mass_mail
 
 
 logger = logging.getLogger('booktype.apps.account')
 
 
-@celery.task
+@shared_task(name='Send Invites')
 def send_invite_emails(email_list, message, book_ids, role_ids, *args, **kwargs):
     mail_list = []
     mail_tuple = namedtuple('mail_tuple', ('subject', 'message', 'from_email', 'recipient_list'))

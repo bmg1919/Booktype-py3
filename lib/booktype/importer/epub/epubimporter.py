@@ -17,11 +17,10 @@
 import os
 import uuid
 import pprint
-import urllib
 import difflib
 import logging
 import hashlib
-import urlparse
+from urllib.parse import urlparse, unquote, urljoin, quote
 import datetime
 
 import lxml.html
@@ -31,9 +30,10 @@ import ebooklib
 import ebooklib.epub
 import ebooklib.utils
 
-from django.utils.timezone import utc
+# from django.utils.timezone import utc
 from django.core.files.base import ContentFile
-from django.utils.translation import ugettext as _
+from django.core.files.uploadedfile import TemporaryUploadedFile
+from django.utils.translation import gettext as _
 
 from booki.editor import models
 from booki.utils.log import logChapterHistory, logBookHistory
@@ -77,7 +77,7 @@ class EpubImporter(object):
             file_path, options=reader_options)
 
         epub_book = epub_reader.load()
-        epub_reader.process()
+        # epub_reader.process()
 
         self.delegate.notifier = self.notifier
 
@@ -102,8 +102,8 @@ class EpubImporter(object):
                         (1, _elem[0].title, unique_id, parent))
                     _parse_toc(_elem[1], unique_id)
                 elif isinstance(_elem, ebooklib.epub.Link):
-                    _urlp = urlparse.urlparse(_elem.href)
-                    _name = os.path.normpath(urllib.unquote(_urlp.path))
+                    _urlp = urlparse(_elem.href)
+                    _name = os.path.normpath(unquote(_urlp.path))
 
                     # check in case _name is an empty string
                     if not _name:
@@ -117,7 +117,7 @@ class EpubImporter(object):
         self.notifier.debug(
             "TOC structure: \n{}".format(pprint.pformat(toc, indent=4)))
 
-        now = datetime.datetime.utcnow().replace(tzinfo=utc)
+        now = datetime.datetime.now(datetime.UTC)
         default_status = get_default_book_status()
         stat = models.BookStatus.objects.filter(book=book, name=default_status)[0]
 
@@ -228,15 +228,15 @@ class EpubImporter(object):
                 "Imported chapter: {} -> {}".format(document, chapter))
 
         # fix links to chapters
-        for file_name, chapter in self._chapters.iteritems():
+        for file_name, chapter in self._chapters.items():
             self._fix_links(chapter, base_path=os.path.dirname(file_name))
 
         # create TOC objects
         self._make_toc(book, toc)
 
     def _create_content(self, document, title):
-        if not isinstance(title, unicode):
-            title = unicode(title, 'utf-8')
+        if not isinstance(title, str):
+            title = str(title, 'utf-8')
 
         content = document.get_body_content()
 
@@ -265,7 +265,7 @@ class EpubImporter(object):
             self.notifier.warning(_('Broken endnotes markers in "{0}".'.format(chapter)))
 
         tree_str = etree.tostring(
-            tree, pretty_print=True, encoding='utf-8', xml_declaration=False)
+            tree, pretty_print=True, encoding='unicode', xml_declaration=False)
 
         a = len("<div>")
         b = tree_str.rfind("</div>")
@@ -288,10 +288,7 @@ class EpubImporter(object):
             return None
 
         def matches(heading):
-            heading_text = unicode(
-                etree.tostring(heading, method='text', encoding='utf-8'),
-                'utf-8'
-            )
+            heading_text = etree.tostring(heading, method='text', encoding='unicode')
             return difflib.SequenceMatcher(
                 None, heading_text, title).ratio() > 0.8
 
@@ -450,7 +447,7 @@ class EpubImporter(object):
         """
         try:
             tree = ebooklib.utils.parse_html_string(chapter.content)
-        except:
+        except Exception:
             return
 
         body = tree.find('body')
@@ -466,13 +463,13 @@ class EpubImporter(object):
             if href is None:
                 continue
 
-            urlp = urlparse.urlparse(href)
+            urlp = urlparse(href)
             name = os.path.normpath(
-                os.path.join(base_path, urllib.unquote(urlp.path)))
+                os.path.join(base_path, unquote(urlp.path)))
 
             if name in self._chapters:
                 title = self._chapters[name].url_title
-                fixed_href = urlparse.urljoin(href, '../{}/'.format(title))
+                fixed_href = urljoin(href, '../{}/'.format(title))
 
                 if urlp.fragment:
                     fixed_href = "{}#{}".format(fixed_href, urlp.fragment)
@@ -486,9 +483,9 @@ class EpubImporter(object):
             if src is None:
                 continue
 
-            urlp = urlparse.urlparse(src)
+            urlp = urlparse(src)
             name = os.path.normpath(
-                os.path.join(base_path, urllib.unquote(urlp.path)))
+                os.path.join(base_path, unquote(urlp.path)))
 
             if urlp.netloc:
                 continue
@@ -498,7 +495,7 @@ class EpubImporter(object):
                     self._attachments[name].attachment.name)
                 attName, attExt = os.path.splitext(file_name)
 
-                fixed_src = urllib.quote(
+                fixed_src = quote(
                     'static/{}{}'.format(booktype_slugify(attName), attExt))
                 image.set('src', fixed_src)
                 to_save = True
@@ -506,7 +503,7 @@ class EpubImporter(object):
         if to_save:
             chapter.content = etree.tostring(
                 tree, pretty_print=True,
-                encoding='utf-8', xml_declaration=True
+                encoding='unicode', xml_declaration=False
             )
             chapter.save()
 

@@ -35,7 +35,7 @@ class Command(BaseCommand):
             self.stderr.write('Does not have BOOKTYPE_CONFIG in settings.py file.')
             return False
 
-        for name in settings.BOOKTYPE_CONFIG.iterkeys():
+        for name in settings.BOOKTYPE_CONFIG.keys():
             s = name
 
             if options['values']:
@@ -43,10 +43,10 @@ class Command(BaseCommand):
 
                 s += ' = '
 
-                if type(value) == type(' '):
+                if type(value) is type(' '):
                     s += '"%s"' % value
-                elif type(value) == type(u' '):
-                    s += '"%s"' % value.encode('utf8')
+                # elif type(value) == type(u' '):
+                #     s += '"%s"' % value.encode('utf8')
                 else:
                     # this part could create problems
                     s += str(value)

@@ -1,20 +1,22 @@
 import os
 import django
-from unipath import Path
+from pathlib import Path
 
-BASE_DIR = Path(os.path.abspath(__file__))
+USE_TZ = False
+
+BASE_DIR = Path(os.path.dirname(__file__))
 
 BOOKTYPE_SITE_NAME = ''
 BOOKTYPE_SITE_DIR = 'tests'
 THIS_BOOKTYPE_SERVER = ''
 BOOKTYPE_URL = ''
 
-BOOKTYPE_ROOT = BASE_DIR.parent
+BOOKTYPE_ROOT = BASE_DIR
 
-STATIC_ROOT = BASE_DIR.parent.child("static")
+STATIC_ROOT = BASE_DIR / "static"
 STATIC_URL = '{}/static/'.format(BOOKTYPE_URL)
 
-DATA_ROOT = BASE_DIR.parent.child("data")
+DATA_ROOT = BASE_DIR / "data"
 DATA_URL = '{}/data/'.format(BOOKTYPE_URL)
 
 MEDIA_ROOT = DATA_ROOT
@@ -28,7 +30,7 @@ PROFILE_ACTIVE = 'test'
 
 if django.VERSION[:2] < (1, 6):
     TEST_RUNNER = 'discover_runner.DiscoverRunner'
-    TEST_DISCOVER_TOP_LEVEL = BASE_DIR.parent.parent.child('lib')
+    TEST_DISCOVER_TOP_LEVEL = BASE_DIR.parent / 'lib'
     TEST_DISCOVER_PATTERN = 'test*.py'
 
 ROOT_URLCONF = 'urls'
@@ -60,6 +62,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': ':memory:',
+        # 'NAME': 'db.sqlite3',
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
@@ -73,13 +76,13 @@ REDIS_PORT = 6379
 REDIS_DB = 0
 REDIS_PASSWORD = None
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.middleware.transaction.TransactionMiddleware',
+    # 'django.middleware.transaction.TransactionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'booktype.apps.core.middleware.SecurityMiddleware',
 )
@@ -94,6 +97,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
 
     'django_celery_results',
+    'compressor',
 
     # list of booki apps
     'booki.editor',
@@ -182,7 +186,58 @@ LOGGING = {
 
 BOOKTYPE_NAME = BOOKTYPE_SITE_NAME
 BOOKI_NAME = BOOKTYPE_NAME
-BOOKI_ROOT = BOOKTYPE_ROOT
+# BOOKI_ROOT = BOOKTYPE_ROOT
 BOOKI_URL = BOOKTYPE_URL
 THIS_BOOKI_SERVER = THIS_BOOKTYPE_SERVER
 BOOKI_MAINTENANCE_MODE = False
+
+STATICFILES_FINDERS = (
+    # 'django.contrib.staticfiles.finders.FileSystemFinder',
+    # 'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    # 'booktype.apps.themes.finder.ThemeFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    'compressor.finders.CompressorFinder',
+)
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            BOOKTYPE_ROOT / BOOKTYPE_SITE_DIR / 'templates/'
+        ],
+        'OPTIONS': {
+            'context_processors': [
+                'django.contrib.auth.context_processors.auth',
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
+                'django.template.context_processors.tz',
+                'django.template.context_processors.request',
+                'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.csrf',
+                'booktype.apps.core.context_processors.settings_variables'
+            ],
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
+                # 'django.template.loaders.eggs.Loader',
+                'booktype.apps.themes.loaders.Loader'
+            ],
+            'debug': False
+        },
+    },
+]
+BOOKTYPE_DEFAULT_ROLES = {
+    'anonymous_users': [
+        'reader.can_view_full_page',
+        'reader.can_view_draft'
+    ],
+    'registered_users': [
+        'reader.can_view_full_page',
+        'reader.can_view_draft',
+        'account.can_upload_book',
+    ]
+}

@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='chapter',
             name='assigned',
-            field=models.CharField(blank=True, default=b'', max_length=100, verbose_name='assigned'),
+            field=models.CharField(blank=True, default='', max_length=100, verbose_name='assigned'),
         ),
     ]

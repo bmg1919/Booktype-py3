@@ -125,6 +125,7 @@ def print_stack(*extra):
     for e in extra:
         logError(e)
 
+
 # legacy support
 # we should define a depration warning or something
 printStack = print_stack

@@ -143,7 +143,7 @@ def ErrorPage(request, template_file, args={}, status=200, content_type='text/ht
     return HttpResponse(t.render(c), status=status, content_type=content_type)
 
 
-def error404(request):
+def error404(request, response):
     return render(request, 'errors/404.html', status=status.HTTP_404_NOT_FOUND)
 
 
@@ -151,9 +151,9 @@ def error500(request):
     return render(request, 'errors/500.html', status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-def error403(request):
+def error403(request, exception):
     return render(request, 'errors/403.html', status=status.HTTP_403_FORBIDDEN)
 
 
-def error400(request):
+def error400(request, exception):
     return render(request, 'errors/400.html', status=status.HTTP_400_BAD_REQUEST)

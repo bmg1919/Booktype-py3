@@ -34,7 +34,7 @@ try:
     import json
     if not hasattr(json, 'loads'):
         raise ImportError('accidentally imported the wrong json module.')
-except ImportError, e:
+except ImportError as e:
     from warnings import warn
     warn('json not found: "%s", trying simplejson' % e)
     del warn

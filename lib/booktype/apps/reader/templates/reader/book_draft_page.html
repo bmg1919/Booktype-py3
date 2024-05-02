@@ -1,5 +1,5 @@
 {% extends "core/base.html" %}
-{% load i18n staticfiles reader_tags booktype_tags %}
+{% load i18n static reader_tags booktype_tags %}
 
 {% block extra_header %}
   <script type="text/javascript" src="{% static 'core/js/utils.js' %}"></script>
@@ -22,7 +22,7 @@
                 <h2 class="box-title">{% trans "Table of Contents" %}</h2>
 
                 <div class="toc_wrap">
-                    {% assign created_ul False %}                   
+                    {% assign created_ul False %}
 
                     {% for item in toc_items %}
                         {% if item.is_section %}

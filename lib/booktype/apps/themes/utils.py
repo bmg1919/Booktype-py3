@@ -29,7 +29,7 @@ def get_body(theme_name, profile):
             if 'body' in data['output'][profile]:
                 return 'themes/{}/{}'.format(theme_name, data['output'][profile]['body'])
 
-    return u'themes/body_{}.html'.format(profile)
+    return 'themes/body_{}.html'.format(profile)
 
 
 def get_single_frontmatter(theme_name, profile):
@@ -97,7 +97,7 @@ def read_theme_style(theme_name, profile):
     if os.path.isdir('{}/themes/{}/'.format(settings.BOOKTYPE_ROOT, theme_name)):
         style_file = '{}/themes/{}/{}.css'.format(settings.BOOKTYPE_ROOT, theme_name, profile)
         if os.path.exists(style_file):
-            f = codecs.open(style_file, 'rt', 'utf8')
+            f = codecs.open(style_file, 'rt')
             theme_style = f.read()
             f.close()
 
@@ -141,7 +141,7 @@ def read_theme_asset_content(theme_name, file_name):
     if os.path.exists(file_name):
         if os.path.normpath(file_name).startswith(base_dir):
             try:
-                f = file(file_name, 'rb')
+                f = open(file_name, 'rb')
                 return f.read()
             except IOError:
                 return None
@@ -155,7 +155,7 @@ def read_theme_info(file_path):
     try:
         f = codecs.open(file_path, 'r', 'utf8')
         data = json.loads(f.read())
-    except:
+    except Exception:
         logger.exception('Could not read theme info file.')
 
     return data

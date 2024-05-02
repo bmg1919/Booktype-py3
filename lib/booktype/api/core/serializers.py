@@ -8,7 +8,7 @@ from ..account.serializers import SimpleUserSerializer
 try:
     from django.urls import reverse
 except ImportError:
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
 
 
 class RoleListSerializer(serializers.ModelSerializer):

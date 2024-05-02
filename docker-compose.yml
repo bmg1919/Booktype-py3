@@ -1,0 +1,39 @@
+version: '3'
+services:
+  db:
+    image: postgres
+    # volumes:
+    #   - pg_data:/var/lib/postgresql/data
+    #   - pg_backups:/pg_backups
+    environment:
+      - POSTGRES_USER=booktype
+      - POSTGRES_PASSWORD=booktype
+      - POSTGRES_DB=booktype
+    ports:
+      - 5432:5432
+  redis:
+    image: redis
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+      - 6379:6379
+
+  rabbit:
+    image: rabbitmq
+    ports:
+      - 5672:5672
+  bt:
+    build: .
+    # networks:
+    #   - my_network
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+      - rabbit
+      - db
+    # links:
+    #   - redis
+    #   - rabbit
+    #   - db

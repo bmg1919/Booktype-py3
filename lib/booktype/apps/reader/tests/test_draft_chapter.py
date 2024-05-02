@@ -1,6 +1,6 @@
 from rest_framework import status
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from booktype.tests import TestCase
 from booktype.tests.factory_models import (BookFactory, BookVersionFactory, ChapterFactory, BookTocFactory,
@@ -32,7 +32,7 @@ class DraftChapterTest(TestCase):
         response = self.client.get(self.dispatcher)
 
         # response status code should be 200
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_can_edit_logged_in(self):
         # first login as book owner user
@@ -44,4 +44,4 @@ class DraftChapterTest(TestCase):
         response = self.client.get(self.dispatcher)
 
         # as anonymous user you can't edit the book
-        self.assertEquals(response.context['security'].can_edit(), True)
+        self.assertEqual(response.context['security'].can_edit(), True)

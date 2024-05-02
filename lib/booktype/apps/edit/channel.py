@@ -28,7 +28,7 @@ from django.db import transaction
 from django.db.utils import IntegrityError
 from django.contrib.auth.models import User
 from django.utils.timezone import datetime as django_datetime
-from django.utils.translation import ugettext, ugettext_lazy as _lazy
+from django.utils.translation import gettext, gettext_lazy as _lazy
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied, SuspiciousOperation
 
 import sputnik
@@ -41,11 +41,7 @@ from booktype.apps.themes.models import BookTheme
 
 from .utils import send_notification, clean_chapter_html
 from .models import ChatMessage
-
-try:
-    from PIL import Image
-except ImportError:
-    import Image
+from PIL import Image
 
 
 logger = logging.getLogger('sputnik.edit.channel')
@@ -207,7 +203,7 @@ def get_hold_chapters(book_version):
     return [_to_tuple(ch) for ch in hold_chapters]
 
 
-def get_attachments(book_version, size=(100, 100), aspect_ratio=False):
+def get_attachments(book_version, size=(150, 150), aspect_ratio=False):
     """
     Function returns list of attachments for L{book_version}. Elements of
     list are dictionaries and are sorted by attachment name. Each dictionary has keys:
@@ -226,12 +222,17 @@ def get_attachments(book_version, size=(100, 100), aspect_ratio=False):
 
     def _get_dimension(att):
         try:
-            im = Image.open(att.attachment.name)
+            im = Image.open(att.attachment.path)
             return im.size
-        except:
-            pass
+        except Exception:
+            # pass
+            # Just picked a size. Needs rewrite to pull image size from svg tag
+            # so the upload file dialog in editor (not tab) doesn't complain or croak.
+            # No present need to render svg or import extra libraries.
+            # Export testing may prove me wrong.
+            return (50, 50)
 
-        return None
+        # return None
 
     attachments = [{"id": att.id,
                     "dimension": _get_dimension(att),
@@ -356,7 +357,7 @@ def remote_init_editor(request, message, bookid, version):
 
     try:
         users = [_get_username(m) for m in list(sputnik.smembers("sputnik:channel:%s:channel" % message["channel"]))]
-    except:
+    except Exception:
         users = []
 
     # get workflow statuses
@@ -365,7 +366,7 @@ def remote_init_editor(request, message, bookid, version):
     # get attachments
     try:
         attachments = get_attachments(book_version)
-    except:
+    except Exception:
         attachments = []
 
     # get metadata
@@ -385,7 +386,7 @@ def remote_init_editor(request, message, bookid, version):
     # get online users
     try:
         _online_users = sputnik.smembers("sputnik:channel:%s:users" % message["channel"])
-    except:
+    except Exception:
         _online_users = []
 
     if request.user.username not in _online_users:
@@ -393,7 +394,7 @@ def remote_init_editor(request, message, bookid, version):
         try:
             sputnik.sadd("sputnik:channel:%s:users" % message["channel"], request.user.username)
             _online_users.append(request.user.username)
-        except:
+        except Exception:
             pass
 
         # set notifications to other clients
@@ -427,10 +428,10 @@ def remote_init_editor(request, message, bookid, version):
                 'last_name': _u.last_name,
                 'mood': _u.profile.mood
             }
-        except:
+        except Exception:
             return None
 
-    online_users = filter(bool, [x for x in [_get_user(x) for x in _online_users] if x])
+    online_users = list(filter(bool, [x for x in [_get_user(x) for x in _online_users] if x]))
 
     available_themes = get_available_themes()
     theme_active = available_themes[0]
@@ -475,20 +476,20 @@ def remote_init_editor(request, message, bookid, version):
     }
 
     return {
-            "licenses": licenses,
-            "chapters": chapters,
-            "metadata": metadata,
-            "hold": hold_chapters,
-            "users": users,
-            "statuses": statuses,
-            "attachments": attachments,
-            "theme": theme_active,
-            # Check for errors in the future
-            "theme_custom": json.loads(theme.custom),
-            "onlineUsers": list(online_users),
-            "current_user": current_user,
-            "chatMessages": chat_messages
-        }
+        "licenses": licenses,
+        "chapters": chapters,
+        "metadata": metadata,
+        "hold": hold_chapters,
+        "users": users,
+        "statuses": statuses,
+        "attachments": attachments,
+        "theme": theme_active,
+        # Check for errors in the future
+        "theme_custom": json.loads(theme.custom),
+        "onlineUsers": list(online_users),
+        "current_user": current_user,
+        "chatMessages": chat_messages
+    }
 
 
 def remote_attachments_list(request, message, bookid, version):
@@ -511,7 +512,7 @@ def remote_attachments_list(request, message, bookid, version):
     book, book_version, book_security = get_book(request, bookid, version)
 
     # define default options for thumbnails
-    size = (100, 100)
+    size = (150, 150)
     aspect_ratio = False
 
     # overwrite default options for thumbnails
@@ -524,7 +525,7 @@ def remote_attachments_list(request, message, bookid, version):
 
     try:
         attachments = get_attachments(book_version, size, aspect_ratio)
-    except:
+    except Exception:
         attachments = []
 
     return {"attachments": attachments}
@@ -625,7 +626,7 @@ def remote_attachment_rename(request, message, bookid, version):
                 should_update_content = True
 
             if should_update_content:
-                cont = etree.tostring(root, method='html', encoding='utf-8')[12:-14]
+                cont = etree.tostring(root, method='html', encoding='unicode')[12:-14]
                 chapter.chapter.content = cont
                 chapter.chapter.save()
 
@@ -778,8 +779,8 @@ def remote_change_status(request, message, bookid, version):
         # check access
         if not book_security.has_perm('edit.edit_locked_chapter'):
             raise PermissionDenied
-        elif not book_security.is_admin() and (chapter.lock.type == models.ChapterLock.LOCK_EVERYONE
-                                               and chapter.lock.user != request.user):
+        elif not book_security.is_admin() and (
+                chapter.lock.type == models.ChapterLock.LOCK_EVERYONE and chapter.lock.user != request.user):
             raise PermissionDenied
 
     chapter.status = status
@@ -913,8 +914,7 @@ def remote_chapter_save(request, message, bookid, version):
     if chapter.is_locked():
         if not book_security.has_perm('edit.edit_locked_chapter'):
             raise PermissionDenied
-        elif not book_security.is_admin() and (chapter.lock.type == models.ChapterLock.LOCK_EVERYONE
-                                               and chapter.lock.user != request.user):
+        elif not book_security.is_admin() and (chapter.lock.type == models.ChapterLock.LOCK_EVERYONE and chapter.lock.user != request.user):
             raise PermissionDenied
 
     content = message['content']
@@ -958,16 +958,17 @@ def remote_chapter_save(request, message, bookid, version):
 
     # TODO: not sure if this ever gets evaluated as true.
     # Check it later and remove if not used
-    if not message.get('continue'):
-        sputnik.addMessageToChannel(
-            request, "/booktype/book/%s/%s/" % (bookid, version), {
-                "command": "chapter_status",
-                "chapterID": message["chapterID"],
-                "status": "normal",
-                "username": request.user.username
-            })
+    # if not message.get('continue'):
+    #     sputnik.addMessageToChannel(
+    #         request, "/booktype/book/%s/%s/" % (bookid, version), {
+    #             "command": "chapter_status",
+    #             "chapterID": message["chapterID"],
+    #             "status": "normal",
+    #             "username": request.user.username
+    #         })
 
-        sputnik.rdelete("type:%s:edit:%s:locks:%s:%s" % (bookid, message["chapterID"], request.user.username))
+    #     # sputnik.rdelete("type:%s:edit:%s:locks:%s:%s" % (bookid, message["chapterID"], request.user.username))
+    #     sputnik.rdelete("type:%s:editlocks:%s:%s" % (bookid, message["chapterID"], request.user.username))
 
     # fire the signal
     import booki.editor.signals
@@ -1019,8 +1020,7 @@ def remote_chapter_delete(request, message, bookid, version):
         # check access
         if not book_security.has_perm('edit.edit_locked_chapter'):
             raise PermissionDenied
-        elif not book_security.is_admin() and (chap.lock.type == models.ChapterLock.LOCK_EVERYONE
-                                               and chap.lock.user != request.user):
+        elif not book_security.is_admin() and (chap.lock.type == models.ChapterLock.LOCK_EVERYONE and chap.lock.user != request.user):
             raise PermissionDenied
 
     chap.delete()
@@ -1193,8 +1193,7 @@ def remote_chapter_rename(request, message, bookid, version):
         # check access
         if not book_security.has_perm('edit.edit_locked_chapter'):
             raise PermissionDenied
-        elif not book_security.is_admin() and (chapter.lock.type == models.ChapterLock.LOCK_EVERYONE
-                                               and chapter.lock.user != request.user):
+        elif not book_security.is_admin() and (chapter.lock.type == models.ChapterLock.LOCK_EVERYONE and chapter.lock.user != request.user):
             raise PermissionDenied
 
     old_title = chapter.title
@@ -1355,18 +1354,18 @@ def remote_chapters_changed(request, message, bookid, version):
                         id__exact=int(chap[1]),
                         version=book_version
                     )
-                except Exception, e:
+                except Exception as e:
                     pass
 
             toc_item.parent = parent
             toc_item.save()
-        except Exception, e:
-            print e
+        except Exception as e:
+            print(e)
 
         weight -= 1
 
     if message["kind"] == "remove":
-        if type(message["chapter_id"]) == type(u' ') and message["chapter_id"][0] == 's':
+        if type(message["chapter_id"]) is type(' ') and message["chapter_id"][0] == 's':
             m = models.BookToc.objects.get(id__exact=message["chapter_id"][1:], version=book_version)
             m.delete()
         else:
@@ -1412,8 +1411,7 @@ def remote_chapter_hold(request, message, bookid, version):
         # check access
         if not book_security.has_perm('edit.edit_locked_chapter'):
             raise PermissionDenied
-        elif not book_security.is_admin() and (toc_item.chapter.lock.type == models.ChapterLock.LOCK_EVERYONE
-                                               and toc_item.chapter.lock.user != request.user):
+        elif not book_security.is_admin() and (toc_item.chapter.lock.type == models.ChapterLock.LOCK_EVERYONE and toc_item.chapter.lock.user != request.user):
             raise PermissionDenied
 
     toc_id = toc_item.id
@@ -1452,8 +1450,7 @@ def remote_chapter_unhold(request, message, bookid, version):
         # check access
         if not book_security.has_perm('edit.edit_locked_chapter'):
             raise PermissionDenied
-        elif not book_security.is_admin() and (chptr.lock.type == models.ChapterLock.LOCK_EVERYONE
-                                               and chptr.lock.user != request.user):
+        elif not book_security.is_admin() and (chptr.lock.type == models.ChapterLock.LOCK_EVERYONE and chptr.lock.user != request.user):
             raise PermissionDenied
 
     # chapter can be only in one toc in single moment
@@ -1561,8 +1558,7 @@ def remote_chapter_unlock(request, message, bookid, version):
     # check access
     if not book_security.has_perm('edit.lock_chapter'):
         raise PermissionDenied
-    elif not book_security.is_admin() and (chapter.lock.type == models.ChapterLock.LOCK_EVERYONE
-                                           and chapter.lock.user != request.user):
+    elif not book_security.is_admin() and (chapter.lock.type == models.ChapterLock.LOCK_EVERYONE and chapter.lock.user != request.user):
         raise PermissionDenied
 
     # remove lock
@@ -1612,7 +1608,7 @@ def remote_export_chapter_html(request, message, bookid, version):
 
     try:
         content = {'content': clean_chapter_html(chapter.content), 'error': False}
-    except:
+    except Exception:
         content = {'content': '', 'error': True}
 
     return content
@@ -1626,29 +1622,28 @@ def remote_split_chapter(request, message, bookid, version):
         book, book_version, book_security = get_book(request, bookid, version)
         current_chapter = models.Chapter.objects.get(id=int(message["chapterID"]), version=book_version)
     except (models.Chapter.DoesNotExist, PermissionDenied):
-        res["reason"] = ugettext("You have no permissions for splitting the chapter.")
+        res["reason"] = gettext("You have no permissions for splitting the chapter.")
         return res
 
     # check if user has permission for creating chapter
     if not book_security.has_perm('edit.create_chapter'):
-        res["reason"] = ugettext("You have no permissions for splitting the chapter.")
+        res["reason"] = gettext("You have no permissions for splitting the chapter.")
         return res
 
     # if chapter under edit by another user -> decline
     editor_username = current_chapter.get_current_editor_username()
     if editor_username and editor_username != request.user.username:
-        res["reason"] = ugettext("Chapter is under edit.")
+        res["reason"] = gettext("Chapter is under edit.")
         return res
 
     # if chapter is locked -> check access
     if current_chapter.is_locked():
         # check access
         if not book_security.has_perm('edit.edit_locked_chapter'):
-            res["reason"] = ugettext("You have no permissions for splitting locked chapter.")
+            res["reason"] = gettext("You have no permissions for splitting locked chapter.")
             return res
-        elif not book_security.is_admin() and (current_chapter.lock.type == models.ChapterLock.LOCK_EVERYONE
-                                               and current_chapter.lock.user != request.user):
-            res["reason"] = ugettext("You have no permissions for splitting locked chapter.")
+        elif not book_security.is_admin() and (current_chapter.lock.type == models.ChapterLock.LOCK_EVERYONE and current_chapter.lock.user != request.user):
+            res["reason"] = gettext("You have no permissions for splitting locked chapter.")
             return res
 
     # set access after all permissions were checked
@@ -1657,11 +1652,11 @@ def remote_split_chapter(request, message, bookid, version):
     url_title = booktype_slugify(message["title"])
 
     if len(url_title) == 0:
-        res["reason"] = ugettext("You have selected invalid title name.")
+        res["reason"] = gettext("You have selected invalid title name.")
         return res
 
     if models.Chapter.objects.filter(book=book, version=book_version, url_title=url_title).exists():
-        res["reason"] = ugettext("Chapter with this title already exists.")
+        res["reason"] = gettext("Chapter with this title already exists.")
         return res
 
     try:
@@ -1808,7 +1803,7 @@ def remote_get_chapter(request, message, bookid, version):
         chapter = models.Chapter.objects.get(id=int(message["chapterID"]), version=book_version)
     except (models.Chapter.DoesNotExist, PermissionDenied):
         # book_security.can_edit() is not implemented yet
-        res["reason"] = ugettext("You have no permissions for editing this chapter.")
+        res["reason"] = gettext("You have no permissions for editing this chapter.")
         return res
 
     # TODO clarify about read only mode
@@ -1817,16 +1812,15 @@ def remote_get_chapter(request, message, bookid, version):
         editor_username = chapter.get_current_editor_username()
 
         if editor_username and editor_username != request.user.username:
-            res["reason"] = ugettext("Chapter currently being edited.")
+            res["reason"] = gettext("Chapter currently being edited.")
             return res
 
         if chapter.is_locked():
             if not book_security.has_perm('edit.edit_locked_chapter'):
-                res["reason"] = ugettext("You have no permissions for editing chapters under lock.")
+                res["reason"] = gettext("You have no permissions for editing chapters under lock.")
                 return res
-            elif not book_security.is_admin() and (chapter.lock.type == models.ChapterLock.LOCK_EVERYONE
-                                                   and chapter.lock.user != request.user):
-                res["reason"] = ugettext("Chapter currently is locked from everyone.")
+            elif not book_security.is_admin() and (chapter.lock.type == models.ChapterLock.LOCK_EVERYONE and chapter.lock.user != request.user):
+                res["reason"] = gettext("Chapter currently is locked from everyone.")
                 return res
 
     res["access"] = True
@@ -2149,7 +2143,7 @@ def remote_covers_data(request, message, bookid, version):
         try:
             im = Image.open(cover.attachment.name)
             return im.size
-        except:
+        except Exception:
             pass
 
         return None
@@ -2406,7 +2400,7 @@ def remote_cover_load(request, message, bookid, version):
         size = im.size
 
         filetype = cover.filename.split('.')[-1].upper()
-    except:
+    except Exception:
         pass
 
     # temporary data
@@ -2440,15 +2434,17 @@ def remote_publish_book(request, message, bookid, version):
 
     if not (set(config.get_configuration('PUBLISH_OPTIONS')) >= set(message['formats'])):
         return {'result': False,
-                'reason': ugettext('One of the selected formats was disabled. Try to reload page.')}
+                'reason': gettext('One of the selected formats was disabled. Try to reload page.')}
 
-    from . import tasks
-    tasks.publish_book.apply_async((1, ), dict(bookid=bookid,
-                                               version=version,
-                                               username=request.user.username,
-                                               clientid=request.clientID,
-                                               sputnikid=request.sputnikID,
-                                               formats=message["formats"]))
+    # from . import tasks
+    from .tasks import publish_book
+    publish_book.apply_async((1, ), dict(
+        bookid=bookid,
+        version=version,
+        username=request.user.username,
+        clientid=request.clientID,
+        sputnikid=request.sputnikID,
+        formats=message["formats"]))
 
     return {'result': True}
 
@@ -2691,9 +2687,9 @@ def remote_book_status_remove(request, message, bookid, version):
         myself=False)
 
     return {
-            "result": result,
-            "statuses": all_statuses
-        }
+        "result": result,
+        "statuses": all_statuses
+    }
 
 
 def remote_book_status_create(request, message, bookid, version):
@@ -2910,7 +2906,7 @@ def remote_get_history(request, message, bookid, version):
     @return: Returns history entries
     """
 
-    from booki.editor.common import parseJSON
+    # from booki.editor.common import parseJSON
 
     book, book_version, book_security = get_book(request, bookid, version)
 
@@ -2957,12 +2953,14 @@ def remote_get_history(request, message, bookid, version):
                             "kind": temp.get(entry.kind, '')})
         elif entry.kind in [11, 12]:
             history.append({"modified": entry.modified.strftime("%d.%m.%Y %H:%M:%S"),
-                            "version": parseJSON(entry.args),
+                            # "version": parseJSON(entry.args),
+                            "version": json.loads(entry.args),
                             "user": entry.user.username,
                             "kind": temp.get(entry.kind, '')})
         elif entry.kind in [13, 14, 16, 17, 18]:
             history.append({"modified": entry.modified.strftime("%d.%m.%Y %H:%M:%S"),
-                            "args": parseJSON(entry.args),
+                            # "args": parseJSON(entry.args),
+                            "args": json.loads(entry.args),
                             "user": entry.user.username,
                             "kind": temp.get(entry.kind, '')})
         elif entry.kind in [15]:
@@ -2973,7 +2971,8 @@ def remote_get_history(request, message, bookid, version):
                             "user": entry.user.username,
                             "kind": temp.get(entry.kind, '')})
         elif entry.kind in [19]:
-            history.append({"args": parseJSON(entry.args),
+            history.append({"args": json.loads(entry.args),
+                            # "args": parseJSON(entry.args),
                             "modified": entry.modified.strftime("%d.%m.%Y %H:%M:%S"),
                             "user": entry.user.username,
                             "kind": temp.get(entry.kind, '')})
@@ -3240,7 +3239,7 @@ def remote_chapter_kill_editlock(request, message, bookid, version):
 
     if book_security.is_admin():
         for key in sputnik.rkeys("booktype:%s:%s:editlocks:%s:*" % (bookid, version, message["chapterID"])):
-            m = re.match("booktype:(\d+):(\d+).(\d+):editlocks:(\d+):(\w+)", key)
+            m = re.match(r"booktype:(\d+):(\d+).(\d+):editlocks:(\d+):(\w+)", key)
             if m:
                 username = m.group(5)
                 sputnik.set("booktype:%s:%s:killeditlocks:%s:%s" % (bookid, version, message["chapterID"], username), 1)
@@ -3555,7 +3554,6 @@ def remote_set_theme(request, message, bookid, version):
         },
         myself=False
     )
-
 
     send_notification(request, bookid, version, "notification_theme_was_changed", message['theme'])
 
@@ -4001,7 +3999,7 @@ def remote_section_settings_get(request, message, bookid, version):
         settings = json.loads(section.settings)
     except models.BookToc.DoesNotExist:
         return {'result': False}
-    except:
+    except Exception:
         settings = {}
 
     return {
@@ -4031,7 +4029,7 @@ def remote_section_settings_set(request, message, bookid, version):
         section.save()
 
         return {'result': True}
-    except:
+    except Exception:
         return {'result': False}
 
 

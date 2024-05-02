@@ -7,10 +7,10 @@ from django.utils import timezone
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.views.generic import DeleteView
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.exceptions import PermissionDenied
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.http import HttpResponse, HttpResponseRedirect
 from django.views.generic.edit import CreateView, UpdateView
 
@@ -47,7 +47,7 @@ class FrontPageView(views.SecurityMixin, PageView):
     def get_context_data(self, **kwargs):
         context = super(FrontPageView, self).get_context_data(**kwargs)
 
-        if config.get_configuration('BOOKTYPE_FRONTPAGE_USE_ANONYMOUS_PAGE') and self.request.user.is_anonymous():
+        if config.get_configuration('BOOKTYPE_FRONTPAGE_USE_ANONYMOUS_PAGE') and self.request.user.is_anonymous:
             self.template_name = "portal/anonymous_frontpage.html"
             context['anonymous_message'] = config.get_configuration('BOOKTYPE_FRONTPAGE_ANONYMOUS_MESSAGE')
             context['anonymous_email'] = config.get_configuration('BOOKTYPE_FRONTPAGE_ANONYMOUS_EMAIL')
@@ -66,7 +66,7 @@ class FrontPageView(views.SecurityMixin, PageView):
         b_query = Book.objects.all()
 
         if not self.request.user.is_superuser:
-            if self.request.user.is_authenticated():
+            if self.request.user.is_authenticated:
                 b_query = b_query.filter(Q(hidden=False) | Q(owner=self.request.user))
             else:
                 b_query = b_query.filter(hidden=False)
@@ -82,7 +82,7 @@ class FrontPageView(views.SecurityMixin, PageView):
             'num_members': g.members.count(),
             'num_books': g.book_set.count(),
             'small_group_image': g.get_group_image
-            } for g in booki_group5]
+        } for g in booki_group5]
 
         context['recent_activities'] = BookHistory.objects.filter(kind__in=[1, 10], book__hidden=False).order_by('-modified')[:5]
 
@@ -199,7 +199,7 @@ class AllGroupsPageView(views.SecurityMixin, GroupManipulation):
         lista = []
         for i in booki_groups_list_page:
             num_books = 0
-            book_count = filter(lambda x: x['group__url_name'] == i.url_name, book_group_sizes)
+            book_count = list(filter(lambda x: x['group__url_name'] == i.url_name, book_group_sizes))
             if len(book_count) > 0:
                 num_books = book_count[0]['id__count']
             lista.append({'url_name': i.url_name,
@@ -218,10 +218,10 @@ class AllGroupsPageView(views.SecurityMixin, GroupManipulation):
         lista = []
         for i in book_history_activity:
             num_books = 0
-            book_count = filter(lambda x: x['group__url_name'] == i.book.group.url_name, book_group_sizes)
+            book_count = list(filter(lambda x: x['group__url_name'] == i.book.group.url_name, book_group_sizes))
             if len(book_count) > 0:
                 num_books = book_count[0]['id__count']
-            if len(filter(lambda x: x['url_name'] == i.book.group.url_name, lista)) == 0:
+            if len(list(filter(lambda x: x['url_name'] == i.book.group.url_name, lista))) == 0:
                 lista.append({'url_name': i.book.group.url_name,
                               'name': i.book.group.name,
                               'description': i.book.group.description,
@@ -258,7 +258,8 @@ class GroupCreateView(LoginRequiredMixin, BasePageView, CreateView):
         to a modal window
         """
 
-        if request.is_ajax():
+        # if request.is_ajax():
+        if request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
             self.template_name = "portal/group_create_modal.html"
 
         return super(GroupCreateView, self).dispatch(request, *args, **kwargs)
@@ -341,7 +342,7 @@ class GroupDeleteView(LoginRequiredMixin, DeleteView):
             try:
                 group.remove_group_images()
             except Exception as e:
-                print e
+                print(e)
 
             messages.success(self.request, _('Group successfully deleted.'))
         return super(GroupDeleteView, self).delete(request, *args, **kwargs)
@@ -422,7 +423,7 @@ class AddBooksView(PageView):
     template_name = "portal/portal_add_book_modal.html"
 
     def post(self, request, groupid):
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             if "task" not in request.POST:
                 return views.ErrorPage(request, "errors/500.html")
 

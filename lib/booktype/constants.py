@@ -15,7 +15,7 @@
 # along with Booktype.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-from django.utils.translation import ugettext_noop
+from django.utils.translation import gettext_noop
 
 # SSL cert verification during request using 'requests' lib
 REQUESTS_VERIFY_SSL_CERT = True
@@ -28,10 +28,10 @@ BOOK_TRACK_CHANGES = False
 
 # CHAPTER STATUS RELATED
 CHAPTER_STATUS_LIST = [
-    {'name': ugettext_noop('new'), 'color': '#3a87ad'},
-    {'name': ugettext_noop('needs content'), 'color': '#ff0000'},
-    {'name': ugettext_noop('completed'), 'color': '#5cb85c'},
-    {'name': ugettext_noop('to be proofed'), 'color': '#f0ad4e'}
+    {'name': gettext_noop('new'), 'color': '#3a87ad'},
+    {'name': gettext_noop('needs content'), 'color': '#ff0000'},
+    {'name': gettext_noop('completed'), 'color': '#5cb85c'},
+    {'name': gettext_noop('to be proofed'), 'color': '#f0ad4e'}
 ]
 
 CHAPTER_STATUS_DEFAULT = CHAPTER_STATUS_LIST[0]['name']
@@ -343,9 +343,9 @@ PAGE_SIZE_DATA = {
     "uk broadsheet":  (18 * INCH_TO_MM, 24 * INCH_TO_MM),
     "us broadsheet":  (15 * INCH_TO_MM, 22.75 * INCH_TO_MM),
 
-    "berliner"     :  (315, 470),
+    "berliner":  (315, 470),
     "foolscap (f4)":  (210, 330),
-    "oamaru broadsheet" :(382, 540),
+    "oamaru broadsheet": (382, 540),
     "oamaru tabloid": (265, 380),
 }
 

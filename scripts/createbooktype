@@ -29,12 +29,12 @@ verbose = 0
 
 def log(msg):
     if verbose:
-        print msg,
+        print(msg)
 
 
 def logln(msg):
     if verbose:
-        print msg
+        print(msg)
 
 
 def show_info():
@@ -118,8 +118,8 @@ def check_python_version():
     if major == 2:
         if minor < 7:
             raise MajorError("You have old version of Python. Please upgrade.")
-    elif major == 3:
-        raise MajorError("I don't think i can work with Python 3.")
+    elif major == 2:
+        raise MajorError("I don't think i can work with Python 2.")
     else:
         logln("You should upgrade your python installation....")
 
@@ -556,18 +556,19 @@ import os
 import sys
 
 # EDIT THIS VALUE
-VIRTUAL_PATH='%(virtual_env)s'
+# VIRTUAL_PATH='%(virtual_env)s'
 
-if VIRTUAL_PATH != '':
-    activate_this = '{}/bin/activate_this.py'.format(VIRTUAL_PATH)
-    execfile(activate_this, dict(__file__=activate_this))
+# if VIRTUAL_PATH != '':
+#     activate_this = '{}/bin/activate'.format(VIRTUAL_PATH)
+#     # execfile(activate_this, dict(__file__=activate_this))
+#     exec(open(activate_this).read())
 
-from unipath import Path
+from pathlib import Path
 
-BASE_DIR = Path(os.path.abspath(__file__)).ancestor(2)
+BASE_DIR = Path(os.path.abspath(__file__)).parent.parent
 
-sys.path.insert(0, BASE_DIR)
-sys.path.insert(0, BASE_DIR.child("lib"))
+sys.path.insert(0, str(BASE_DIR))
+sys.path.insert(0, str(BASE_DIR / "lib"))
 sys.path.insert(0, '%(booki_path)s/')
 
 # We defer to a DJANGO_SETTINGS_MODULE already in the environment. This breaks
@@ -593,6 +594,7 @@ application = get_wsgi_application()
     else:
         logln("[OK]")
 
+
 def include_celery(destination):
     log("+ Import celery in {}_site __init__ file".format(get_project_name(destination)))
     try:
@@ -615,7 +617,7 @@ __all__ = ['celery_app']
 
 
 def create_celery(destination):
-    log("+ Creating celery.py file.  ".format(profile))
+    log("{} + Creating celery.py file.  ".format(profile))
 
     import booki
     booki_path = os.path.abspath(os.path.dirname(booki.__file__) + '/..')
@@ -627,13 +629,13 @@ from __future__ import absolute_import, unicode_literals
 
 import os
 import sys
-from unipath import Path
+from pathlib import Path
 from celery import Celery
 
-BASE_DIR = Path(os.path.abspath(__file__)).ancestor(2)
+BASE_DIR = Path(os.path.abspath(__file__)).parent.parent
 
-sys.path.insert(0, BASE_DIR)
-sys.path.insert(0, BASE_DIR.child("lib"))
+sys.path.insert(0, str(BASE_DIR))
+sys.path.insert(0, str(BASE_DIR / "lib"))
 sys.path.insert(0, '{booki_path}')
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', '{project_name}_site.settings.dev')
@@ -654,9 +656,6 @@ app.autodiscover_tasks()
         raise InstallError()
     else:
         logln("[OK]")
-
-
-
 
 
 def create_supervisor(destination, profile, virtual_env):
@@ -941,9 +940,10 @@ if __name__ == '__main__':
         if '-' in project_name:
             raise MajorError("Minus not allowed in project name. Try to use '_' instead.")
 
-        if args.virtual_env:
-            activate_this = '{}/bin/activate_this.py'.format(args.virtual_env)
-            execfile(activate_this, dict(__file__=activate_this))
+        # if args.virtual_env:
+        #     activate_this = '{}/bin/activate'.format(args.virtual_env)
+        #     # execfile(activate_this, dict(__file__=activate_this))
+        #     exec(open(activate_this, 'rb').read())
 
         # check versions of software
         if args.check_versions:
@@ -965,7 +965,7 @@ if __name__ == '__main__':
                     raise MajorError("\nBooktype project does exist [%s]. I don't know what to do now. Choose another directory or manualy fix issues. Sorry about that.\n" % project_destination)
                 else:
                     while True:
-                        proceed_anyway = raw_input("\nProject directory does exist [%s]. Directory might be already created by administrator and you just need to populate it with booktype project files...\n * If that is the case, type 'yes'.\n * If you are not sure, type 'no'.\nProceed anyway [yes/no] ? : " % project_destination)
+                        proceed_anyway = input("\nProject directory does exist [%s]. Directory might be already created by administrator and you just need to populate it with booktype project files...\n * If that is the case, type 'yes'.\n * If you are not sure, type 'no'.\nProceed anyway [yes/no] ? : " % project_destination)
                         if proceed_anyway.strip().lower() == 'no':
                             sys.exit(-1)
                         elif proceed_anyway.strip().lower() == 'yes':
@@ -1033,9 +1033,9 @@ if __name__ == '__main__':
 
         # show after message
         show_after(project_destination, project_name)
-    except InstallError, e:
+    except InstallError as e:
         logln("[ERROR]")
         sys.exit(-1)
-    except MajorError, e:
+    except MajorError as e:
         logln(e.description)
         sys.exit(-1)

@@ -2,7 +2,7 @@
 import os
 import sys
 
-from unipath import Path
+from pathlib import Path
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "func_settings")

@@ -1,6 +1,6 @@
 {% extends "core/base.html" %}
 
-{% load i18n staticfiles booktype_tags profile messaging_tags reader_tags compress %}
+{% load i18n static booktype_tags profile messaging_tags reader_tags compress %}
 {% block extra_header %}
     {% compress js %}
     <script type="text/javascript" src="{% static 'core/js/jquery.steps.min.js' %}"></script>

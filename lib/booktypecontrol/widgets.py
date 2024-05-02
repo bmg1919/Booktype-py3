@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from django import forms
-from django.utils.html import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.safestring import mark_safe
+from django.utils.translation import gettext_lazy as _
 
 
 class BkFileWidget(forms.FileInput):
@@ -14,7 +14,7 @@ class BkFileWidget(forms.FileInput):
     def __init__(self, attrs={}):
         super(BkFileWidget, self).__init__(attrs)
 
-    def render(self, name, value, attrs=None):
+    def render(self, name, value, attrs=None, renderer=None):
         output = []
         if value and hasattr(value, "url"):
             output.append(
@@ -22,4 +22,4 @@ class BkFileWidget(forms.FileInput):
                     _('Currently:'), value.url, value))
 
         output.append(super(BkFileWidget, self).render(name, value, attrs))
-        return mark_safe(u''.join(output))
+        return mark_safe(''.join(output))

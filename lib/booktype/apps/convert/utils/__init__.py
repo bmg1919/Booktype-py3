@@ -28,7 +28,7 @@ def get_converter_module_names():
 
 def path2url(path, base=None):
     if base is None:
-        base_path, base_url = settings.MEDIA_ROOT, settings.MEDIA_URL
+        base_path, base_url = str(settings.MEDIA_ROOT), settings.MEDIA_URL
     else:
         base_path, base_url = base
 

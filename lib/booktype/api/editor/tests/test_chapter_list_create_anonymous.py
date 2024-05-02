@@ -1,15 +1,15 @@
 import pytest
 
 from rest_framework import status
-from rest_framework.test import APIClient
+from rest_framework.test import APIClient, DjangoClient
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 @pytest.mark.django_db
 class TestChapterListCreateAnonymous(object):
     def test_list_chapters_no_book(self):
-        response = APIClient().get(
+        response = DjangoClient().get(
             reverse("v1:editor_chapter_list_create_api", kwargs={'pk': 1})
         )
 

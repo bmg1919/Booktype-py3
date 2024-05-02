@@ -50,7 +50,7 @@ class RequestData(object):
         self.assets = data.get("assets", {})  # TODO: check type is dict
         self.input = data["input"]
         self.outputs = {
-            k: OutputData(v) for (k, v) in data["outputs"].iteritems()
+            k: OutputData(v) for (k, v) in data["outputs"].items()
         }
 
 
@@ -72,7 +72,7 @@ class ConvertView(RestrictExport, View):
         # name:path for all uploaded files
         request_data.files = {
             field_name: _file.file_path()
-            for (field_name, _file) in request.FILES.iteritems()
+            for (field_name, _file) in request.FILES.items()
         }
 
         # start the task in the background
@@ -87,7 +87,7 @@ class ConvertView(RestrictExport, View):
                             content_type="application/json")
 
     def get(self, request, task_id):
-        task_id = sputnik.rcon.get("convert:task_id:" + task_id)
+        task_id = sputnik.rcon.get("convert:task_id:" + task_id).decode()
 
         if task_id is None:
             raise Http404
@@ -96,12 +96,13 @@ class ConvertView(RestrictExport, View):
             return async_result.task_id.split(':')[0]
 
         async_result = celery.current_app.AsyncResult(task_id)
+
         task_info = get_task_info(async_result)
         task_result = task_info.get("result")
         if task_result:
             task_info["result"] = {
                 get_task_name(subtask): get_task_info(subtask)
-                for (_n, subtask) in task_result.iteritems()
+                for (_n, subtask) in task_result.items()
             }
 
         response_data = task_info

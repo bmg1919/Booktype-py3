@@ -2,7 +2,7 @@ from django import forms
 from django.utils.html import escape
 from django.forms.utils import ErrorList
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from booktype.utils.misc import booktype_slugify
 from booki.editor.models import BookiGroup
@@ -10,16 +10,19 @@ from booki.editor.models import BookiGroup
 from booktype.utils import misc
 from booktype.apps.core.forms import BaseBooktypeForm
 
-from widgets import RemovableImageWidget
+from .widgets import RemovableImageWidget
 
 
 class SpanErrorList(ErrorList):
-    def __unicode__(self):
-        return unicode(self.as_spans())
+    def __str__(self):
+        # return unicode(self.as_spans())
+        return self.as_spans()
 
     def as_spans(self):
-        return "<span style='color: red'>%s</span>" % (
-            ",".join([e for e in self]))
+        # Was returning span tags visible on page when self is empty
+        if len(self) == 0:
+            return ''
+        return "<span style='color: red'>{}</span>".format(",".join([e for e in self]))
 
 
 class BaseGroupForm(BaseBooktypeForm, forms.ModelForm):
@@ -34,9 +37,9 @@ class BaseGroupForm(BaseBooktypeForm, forms.ModelForm):
         label=_('Group image'),
         required=False,
         widget=RemovableImageWidget(attrs={
-                'label_class': 'checkbox-inline',
-                'input_class': 'group-image-removable'
-            }
+            'label_class': 'checkbox-inline',
+            'input_class': 'group-image-removable'
+        }
         )
     )
 
@@ -72,7 +75,7 @@ class BaseGroupForm(BaseBooktypeForm, forms.ModelForm):
                 misc.set_group_image("{}_small".format(group_id), group_image, 18, 18)
         except Exception as err:
             # TODO: we should do something here
-            print err
+            print(err)
 
 
 class GroupCreateForm(BaseGroupForm):

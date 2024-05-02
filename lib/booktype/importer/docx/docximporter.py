@@ -8,7 +8,7 @@ from lxml import html, etree
 from unidecode import unidecode
 
 from django.core.files.base import ContentFile
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 
 from booki.editor import models
 from booki.utils.log import logChapterHistory, logBookHistory
@@ -180,7 +180,7 @@ class WordImporter(object):
         unimportable_image = False
         not_supported = False
 
-        for rel_id, rel_value in doc.relationships['document'].iteritems():
+        for rel_id, rel_value in doc.relationships['document'].items():
             if rel_value.get('type', '') == 'http://schemas.openxmlformats.org/officeDocument/2006/relationships/image':
                 att = models.Attachment(book=book, version=book.version, status=stat)
 
@@ -200,7 +200,7 @@ class WordImporter(object):
                                     'static/{}{}'.format(rel_id, original_ext))
 
                                 att_ext = '.png'
-                            except:
+                            except Exception:
                                 # broken image
                                 if not unimportable_image:
                                     self.notifier.warning(import_msg)
@@ -259,7 +259,7 @@ class WordImporter(object):
 
                 if does_exists:
                     chapter_n += 1
-                    possible_title = u'{} - {}'.format(chapter_title, chapter_n)
+                    possible_title = '{} - {}'.format(chapter_title, chapter_n)
                 else:
                     break
 

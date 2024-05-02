@@ -14,28 +14,24 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Booktype.  If not, see <http://www.gnu.org/licenses/>.
 
-import StringIO
+from io import StringIO
 import os.path
 import datetime
-from email.MIMEImage import MIMEImage
+from email.mime.image import MIMEImage
 
 from django import template
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Count
-from django.utils.translation import ugettext
+from django.utils.translation import gettext
 from django.contrib.auth.models import User
 
 from booki.editor.models import Book, BookiGroup, BookHistory
 from booktype.utils import config
 
 from ...utils import get_info
-
-try:
-    from PIL import ImageFont, ImageDraw, Image
-except ImportError:
-    import ImageFont, ImageDraw, Image
+from PIL import ImageFont, ImageDraw, Image
 
 now = datetime.datetime.now()
 week_ago = None
@@ -75,7 +71,8 @@ def get_chart():
             cnt = x['count']
             hours[days][int(x['modified'] / 4)] += cnt
 
-            if cnt > max_num: max_num = cnt
+            if cnt > max_num:
+                max_num = cnt
 
     for y in range(7):
         for x in range(6):
@@ -136,25 +133,26 @@ class Command(BaseCommand):
                             Count('user')).order_by("-user__count")[:10]]
 
         t = template.loader.get_template('reports/booktype_weekly_report.html')
-        con = t.render({"users": users,
-                                "books": books,
-                                "groups": groups,
-                                "history": history,
-                                "report_date": now,
-                                "info": info,
-                                "booktype_name": BOOKTYPE_NAME,
-                                "week_ago": week_ago,
-                                "now_date": now,
-                                "active_books": active_books,
-                                "active_users": active_users,
-                                "site_url": settings.BOOKTYPE_URL
-                                })
+        con = t.render({
+            "users": users,
+            "books": books,
+            "groups": groups,
+            "history": history,
+            "report_date": now,
+            "info": info,
+            "booktype_name": BOOKTYPE_NAME,
+            "week_ago": week_ago,
+            "now_date": now,
+            "active_books": active_books,
+            "active_users": active_users,
+            "site_url": settings.BOOKTYPE_URL
+        })
 
         if options['send_email']:
             reports_email_from = config.get_configuration('REPORTS_EMAIL_FROM')
             reports_email_users = config.get_configuration('REPORTS_EMAIL_USERS')
 
-            subject = ugettext('Weekly report for ({0} - {1})').format(BOOKTYPE_NAME, now.strftime("%A %d %B %Y"))
+            subject = gettext('Weekly report for ({0} - {1})').format(BOOKTYPE_NAME, now.strftime("%A %d %B %Y"))
 
             text_content = con
             html_content = con
@@ -208,7 +206,7 @@ class Command(BaseCommand):
             for d in range(8):
                 _day(d)
 
-            output = StringIO.StringIO()
+            output = StringIO()
 
             image.save(output, 'PNG')
             data = output.getvalue()

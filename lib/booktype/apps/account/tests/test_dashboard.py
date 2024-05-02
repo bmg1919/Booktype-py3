@@ -16,7 +16,7 @@
 
 from rest_framework import status
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from booktype.tests import TestCase
 from booktype.tests.factory_models import (UserFactory, BookFactory, BookVersionFactory, ChapterFactory,
@@ -68,7 +68,7 @@ class DashboardTest(TestCase):
 
     def test_as_anonymous(self):
         response = self.client.get(self.dispatcher)
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_as_account_owner(self):
         self.client.login(
@@ -104,5 +104,5 @@ class DashboardTest(TestCase):
         )
 
         response = self.client.get(self.dispatcher)
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN
                           )

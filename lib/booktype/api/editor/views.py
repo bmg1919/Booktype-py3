@@ -5,7 +5,7 @@ import datetime
 import os
 from rest_framework import generics, mixins, viewsets, views, status
 from rest_framework.response import Response
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 from rest_framework.exceptions import NotFound, PermissionDenied, ValidationError
 
 import sputnik
@@ -32,8 +32,7 @@ logger = logging.getLogger('api.editor.views')
 
 class LanguageViewSet(
         mixins.RetrieveModelMixin, mixins.ListModelMixin,
-        BooktypeViewSetMixin, viewsets.GenericViewSet
-        ):
+        BooktypeViewSetMixin, viewsets.GenericViewSet):
 
     """
     API endpoint that allows languages to be viewed or listed.
@@ -99,7 +98,7 @@ class BookViewSet(BooktypeViewSetMixin, viewsets.ModelViewSet):
         logger.info('BookViewSet.update request:\n{}'.format(pprint.pformat(dict(request.data))))
         return super(BookViewSet, self).update(request, *args, **kwargs)
 
-    @detail_route(url_path='users-by-role', permission_classes=[IsAdminOrBookOwner, BooktypeBookSecurity])
+    @action(detail=True, url_path='users-by-role', permission_classes=[IsAdminOrBookOwner, BooktypeBookSecurity])
     def users_by_role(self, request, pk=None):
         """
         Returns a list of all roles in the current book with the members assigned
@@ -120,7 +119,8 @@ class BookViewSet(BooktypeViewSetMixin, viewsets.ModelViewSet):
         )
         return Response(serializer.data)
 
-    @detail_route(
+    @action(
+        detail=True,
         methods=['post'], url_path='grant-user',
         permission_classes=[IsAdminOrBookOwner, BooktypeBookSecurity])
     def grant_user(self, request, pk=None):
@@ -158,9 +158,9 @@ class BookViewSet(BooktypeViewSetMixin, viewsets.ModelViewSet):
         serializer = core_serializers.BookRoleSerializer(book_role, context={'request': request})
         return Response(serializer.data)
 
-    @detail_route(
-        methods=['post'], url_path='grant-user/multi',
-        permission_classes=[BooktypeBookSecurity])
+    @action(detail=True,
+            methods=['post'], url_path='grant-user/multi',
+            permission_classes=[BooktypeBookSecurity])
     def grant_user_multi(self, request, pk=None):
         """
         Grants a given user to be part of given role names under the
@@ -208,9 +208,9 @@ class BookViewSet(BooktypeViewSetMixin, viewsets.ModelViewSet):
 
         return Response(response_data)
 
-    @detail_route(
-        methods=['post'], url_path='remove-grant-user/multi',
-        permission_classes=[BooktypeBookSecurity])
+    @action(detail=True,
+            methods=['post'], url_path='remove-grant-user/multi',
+            permission_classes=[BooktypeBookSecurity])
     def remove_grant_user_multi(self, request, pk=None):
         """
         Remove given roles from the user
@@ -389,7 +389,6 @@ class ChapterRetrieveUpdateDestroy(generics.RetrieveUpdateDestroyAPIView):
         for c in clnts:
             if c.strip() != '':
                 sputnik.push("ses:%s:messages" % c, json.dumps(message))
-
 
     def get_queryset(self):
         return self._book.chapter_set.all()
@@ -611,7 +610,7 @@ class BookUserDetailRoles(views.APIView):
             Role.objects.get(name='registered_users')
         ).data)
 
-        print Role.objects.get(name='registered_users').permissions
+        print(Role.objects.get(name='registered_users').permissions)
 
         # get book roles
         for role in user.roles.filter(book=book):
@@ -679,7 +678,7 @@ class BookAttachmentList(generics.ListAPIView):
     def get_queryset(self):
         try:
             return self._book.version.get_attachments().order_by("attachment")
-        except:
+        except Exception:
             pass
 
     def get(self, request, *args, **kwargs):
@@ -690,6 +689,7 @@ class BookAttachmentList(generics.ListAPIView):
             return super(BookAttachmentList, self).get(request, *args, **kwargs)
 
         raise PermissionDenied
+
     def post(self, request, *args, **kwargs):
         # TODO test it and cover with tests
         book_security = BookSecurity(request.user, self._get_book())
@@ -717,7 +717,7 @@ class BookAttachmentList(generics.ListAPIView):
             att = Attachment(
                 version=self._book.version,
                 # must remove this reference
-                created=datetime.datetime.now(),
+                created=datetime.datetime.now(datetime.UTC),
                 book=self._book,
                 status=stat
             )

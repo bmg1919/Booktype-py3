@@ -4,7 +4,7 @@ from booki.editor.models import Book
 
 
 class BookTheme(models.Model):
-    book = models.OneToOneField(Book)
+    book = models.OneToOneField(Book, on_delete=models.CASCADE)
     active = models.CharField(max_length=32)
     custom = models.TextField(default='{}')
 

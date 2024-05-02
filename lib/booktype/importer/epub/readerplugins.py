@@ -63,7 +63,7 @@ class ImportPlugin(BasePlugin):
     def html_after_read(self, book, chapter):
         try:
             tree = parse_html_string(chapter.content)
-        except:
+        except Exception:
             return
 
         root = tree.getroottree()

@@ -87,7 +87,7 @@ class Command(BaseCommand):
             # ovo neshto ne radi sa as_jsonom
             lst = config.get_configuration(key, [])
 
-            if type(lst) == type([]):
+            if type(lst) is type([]):
                 lst.append(value)
                 config.set_configuration(key, lst)
             else:
@@ -95,7 +95,7 @@ class Command(BaseCommand):
         elif options['remove']:
             lst = config.get_configuration(key, [])
 
-            if type(lst) == type([]):
+            if type(lst) is type([]):
                 try:
                     lst.remove(value)
                 except ValueError:

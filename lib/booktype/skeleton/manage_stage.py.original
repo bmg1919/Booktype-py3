@@ -2,7 +2,7 @@
 import os
 import sys
 
-from unipath import Path
+from pathlib import Path
 
 if __name__ == "__main__":
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "##SETTINGS##")
@@ -10,10 +10,10 @@ if __name__ == "__main__":
     BASE_DIR = Path(os.path.abspath(__file__)).parent
 
     # Set PYTHONPATH to include project directory
-    sys.path.insert(0, BASE_DIR)
+    sys.path.insert(0, (str))
 
     # Also include lib/ directory in our project
-    sys.path.insert(0, BASE_DIR.child('lib'))
+    sys.path.insert(0, str(BASE_DIR / 'lib'))
 
     # Let us find where we have Booktype installed
     if 'BOOKTYPE' in os.environ:

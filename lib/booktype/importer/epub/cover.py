@@ -64,7 +64,7 @@ def get_cover_image(book):
 def get_id_from_manifest(book):
     """ Returns the ID of the cover item from EPUB3 manifest.
     """
-    return next((item.id for item in book.get_items() if type(item) == ebooklib.epub.EpubCover), None)
+    return next((item.id for item in book.get_items() if type(item) is ebooklib.epub.EpubCover), None)
 
 
 def get_id_from_metadata(book):
@@ -74,7 +74,7 @@ def get_id_from_metadata(book):
         cover_meta = book.get_metadata("OPF", "cover")
         if cover_meta:
             return cover_meta[0][1]["content"]
-    except:
+    except Exception:
         pass
 
 
@@ -114,7 +114,7 @@ def get_cover_html(book):
     """
 
     # item of type CoverHtml
-    item = next((item.id for item in book.get_items() if type(item) == ebooklib.epub.EpubCoverHtml), None)
+    item = next((item.id for item in book.get_items() if type(item) is ebooklib.epub.EpubCoverHtml), None)
     if item:
         return item
 
@@ -134,7 +134,7 @@ def get_cover_html(book):
 
 def is_valid_cover(item):
     from PIL import Image
-    from StringIO import StringIO
+    from io import StringIO, BytesIO
 
     if item.media_type not in ebooklib.epub.IMAGE_MEDIA_TYPES:
         return False, "unsupporter media type: {}".format(item.media_type)
@@ -144,7 +144,8 @@ def is_valid_cover(item):
     if len(content) > MAX_CONTENT_SIZE:
         return False, "image content too big"
 
-    image = Image.open(StringIO(content))
+    # image = Image.open(StringIO(content))
+    image = Image.open(BytesIO(content))
 
     dpi = image.info.get("dpi")
     width, height = image.size

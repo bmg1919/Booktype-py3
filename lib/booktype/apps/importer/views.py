@@ -7,12 +7,12 @@ from ebooklib import epub
 
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.exceptions import PermissionDenied
 from django.views.generic import UpdateView
 from django.views.generic.edit import FormView
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ugettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext
 
 from braces.views import JSONResponseMixin
 from booki.editor.models import Book, Chapter
@@ -108,7 +108,7 @@ class ImporterView(JSONResponseMixin, SecurityMixin, FormView):
             book_importer = importer_utils.get_importer_module(ext)
         except KeyError:
             logger.error('ImporterView::No importer for this extension')
-            response_data = dict(errors=[ugettext('Extension not supported!')])
+            response_data = dict(errors=[gettext('Extension not supported!')])
             return self.render_json_response(response_data)
 
         try:
@@ -129,7 +129,7 @@ class ImporterView(JSONResponseMixin, SecurityMixin, FormView):
 
     def form_invalid(self, form):
         response_data = {
-            'errors': [ugettext('Something went wrong!')],
+            'errors': [gettext('Something went wrong!')],
             'infos': [],
             'warnings': []
         }
@@ -217,7 +217,7 @@ class ImportToChapter(JSONResponseMixin, SecurityMixin, UpdateView):
         # NOTE: perhaps send back validation errors
         response_data = {
             'infos': [], 'warnings': [],
-            'errors': [ugettext('Something went wrong!')],
+            'errors': [gettext('Something went wrong!')],
         }
         return self.render_json_response(response_data)
 

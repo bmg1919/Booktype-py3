@@ -1,5 +1,5 @@
 {% extends "core/base.html" %}
-{% load i18n staticfiles profile reader_tags messaging_tags %}
+{% load i18n static profile reader_tags messaging_tags %}
 
 {% block content %}
     <div class="container">
@@ -14,7 +14,7 @@
                                 <li>
                                     {{ form.email.label_tag }}
                                     {{ form.email }}
-                                    {{ form.email.errors }}                                    
+                                    {{ form.email.errors }}
                                 </li>
 
                                 <li>

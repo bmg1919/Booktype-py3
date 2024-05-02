@@ -1,4 +1,4 @@
-{% load i18n staticfiles %}
+{% load i18n static %}
   <!-- newly add -->
   <form class="messagefield" id="messagefield" enctype="multipart/form-data" method="POST" action="{% url "booki.messaging.views.view_post" %}">{% csrf_token %}
    <input type="text" name="content" size="40" value="{{syntax}}" style="width: 320px;"/>

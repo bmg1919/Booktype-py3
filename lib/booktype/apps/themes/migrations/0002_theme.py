@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('active', models.CharField(max_length=32)),
-                ('custom', models.TextField(default=b'{}')),
+                ('custom', models.TextField(default='{}')),
                 ('book', models.OneToOneField(on_delete=django.db.models.deletion.CASCADE, to='editor.Book')),
             ],
         ),

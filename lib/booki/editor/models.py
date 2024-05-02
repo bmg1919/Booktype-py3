@@ -23,12 +23,9 @@ from django.db import models
 from django.db.models import Q
 from django.conf import settings
 from django.contrib.auth import models as auth_models
-from django.utils.translation import ugettext_lazy as _
-
-try:
-    from PIL import Image
-except ImportError:
-    import Image
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+from PIL import Image
 
 logger = logging.getLogger('booktype')
 
@@ -39,7 +36,7 @@ class License(models.Model):
     abbrevation = models.CharField(_('abbreviation'), max_length=30)
     url = models.URLField(_('url'), blank=True, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -53,12 +50,13 @@ class Language(models.Model):
     abbrevation = models.CharField(_('abbreviation'),
                                    max_length=10, blank=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
         verbose_name = _('Language')
         verbose_name_plural = _('Languages')
+
 
 # Project
 
@@ -70,12 +68,12 @@ STATUS_CHOICES = (
 
 
 class BookStatus(models.Model):
-    book = models.ForeignKey('Book', verbose_name=_("book"))
+    book = models.ForeignKey('Book', verbose_name=_("book"), on_delete=models.CASCADE)
     name = models.CharField(_('name'), max_length=30, blank=False)
     weight = models.SmallIntegerField(_('weight'))
     color = models.CharField(_('color'), max_length=30, default='', blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -86,10 +84,10 @@ class BookStatus(models.Model):
 
 # free form shared notes for writers of the book
 class BookNotes(models.Model):
-    book = models.ForeignKey('Book', verbose_name=_("book"))
+    book = models.ForeignKey('Book', verbose_name=_("book"), on_delete=models.CASCADE)
     notes = models.TextField(_('notes'))
 
-    def __unicode__(self):
+    def __str__(self):
         return u"Notes for " + self.book.title
 
     class Meta:
@@ -102,15 +100,15 @@ class BookiGroup(models.Model):
     url_name = models.CharField(_('url name'), max_length=300, blank=False)
     description = models.TextField(_('description'))
 
-    owner = models.ForeignKey(auth_models.User, verbose_name=_('owner'))
+    owner = models.ForeignKey(auth_models.User, verbose_name=_('owner'), on_delete=models.CASCADE)
     members = models.ManyToManyField(auth_models.User, related_name="members",
                                      blank=True, verbose_name=_("members"))
 
     created = models.DateTimeField(_('created'), auto_now=False, null=True)
 
-    @models.permalink
+    # @models.permalink
     def get_absolute_url(self):
-        return ('portal:group', [self.url_name])
+        return reverse('portal:group', args=[self.url_name])
 
     try:
         GROUP_IMAGE_UPLOAD_DIR = settings.GROUP_IMAGE_UPLOAD_DIR
@@ -144,12 +142,13 @@ class BookiGroup(models.Model):
             except Exception as e:
                 logger.exception(e)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
         verbose_name = _('Booktype group')
         verbose_name_plural = _('Booktype groups')
+
 
 # METADATA namespace
 DC = 'DC'  # Dublin Core
@@ -185,16 +184,16 @@ METADATA_FIELDS = [
 class Book(models.Model):
     url_title = models.CharField(_('url title'), max_length=2500, blank=False, unique=True)  # can it be blank?
     title = models.CharField(_('title'), max_length=2500, blank=False)
-    status = models.ForeignKey('BookStatus', null=True, related_name="status", verbose_name=_("status"))
-    language = models.ForeignKey(Language, null=True, verbose_name=_("language"))  # can it be blank?
+    status = models.ForeignKey('BookStatus', null=True, related_name="status", verbose_name=_("status"), on_delete=models.CASCADE)
+    language = models.ForeignKey(Language, null=True, verbose_name=_("language"), on_delete=models.CASCADE)  # can it be blank?
 
-    version = models.ForeignKey('BookVersion', null=True, related_name="version", verbose_name=_("version"))
+    version = models.ForeignKey('BookVersion', null=True, related_name="version", verbose_name=_("version"), on_delete=models.CASCADE)
 
-    group = models.ForeignKey(BookiGroup, null=True, verbose_name=_("group"))
+    group = models.ForeignKey(BookiGroup, null=True, verbose_name=_("group"), on_delete=models.CASCADE)
 
-    owner = models.ForeignKey(auth_models.User, verbose_name=_("owner"))
+    owner = models.ForeignKey(auth_models.User, verbose_name=_("owner"), on_delete=models.CASCADE)
 
-    license = models.ForeignKey(License, null=True, blank=True, verbose_name=_("license"))
+    license = models.ForeignKey(License, null=True, blank=True, verbose_name=_("license"), on_delete=models.CASCADE)
 
     created = models.DateTimeField(_('created'), auto_now=False, default=datetime.datetime.now)
     published = models.DateTimeField(_('published'), null=True)
@@ -209,7 +208,7 @@ class Book(models.Model):
         verbose_name = _('Book')
         verbose_name_plural = _('Books')
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def get_absolute_url(self):
@@ -330,17 +329,17 @@ HISTORY_CHOICES = {
 
 
 class BookHistory(models.Model):
-    book = models.ForeignKey(Book, null=False, verbose_name=_("book"))
+    book = models.ForeignKey(Book, null=False, verbose_name=_("book"), on_delete=models.CASCADE)
     # this should probably be null=False
-    version = models.ForeignKey('BookVersion', null=True, verbose_name=_("version"))
-    chapter = models.ForeignKey('Chapter', null=True, verbose_name=_("chapter"))
-    chapter_history = models.ForeignKey('ChapterHistory', null=True, verbose_name=_("chapter history"))
+    version = models.ForeignKey('BookVersion', null=True, verbose_name=_("version"), on_delete=models.CASCADE)
+    chapter = models.ForeignKey('Chapter', null=True, verbose_name=_("chapter"), on_delete=models.CASCADE)
+    chapter_history = models.ForeignKey('ChapterHistory', null=True, verbose_name=_("chapter history"), on_delete=models.CASCADE)
     modified = models.DateTimeField(_('modified'), auto_now=True)
     args = models.CharField(_('args'), max_length=2500, blank=False)
-    user = models.ForeignKey(auth_models.User, verbose_name=_("user"))
+    user = models.ForeignKey(auth_models.User, verbose_name=_("user"), on_delete=models.CASCADE)
     kind = models.SmallIntegerField(_('kind'), default=0)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.args
 
 
@@ -363,7 +362,7 @@ class BaseInfo(models.Model):
     value_text = models.TextField(_('value text'), null=True)
     value_date = models.DateTimeField(_('value date'), auto_now=False, null=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -390,12 +389,14 @@ class Info(BaseInfo):
 
     book = models.ForeignKey(
         Book, null=False,
-        verbose_name=_("book")
+        verbose_name=_("book"), on_delete=models.CASCADE
     )
 
     class Meta:
         verbose_name = _('Metadata')
         verbose_name_plural = _('Metadata')
+        # Set ordering to silence pagination warning, change?
+        ordering = ('book', )
 
     @property
     def value(self):
@@ -408,7 +409,7 @@ class BookSetting(BaseInfo):
     book = models.ForeignKey(
         Book, null=False,
         verbose_name=_("book"),
-        related_name='settings'
+        related_name='settings', on_delete=models.CASCADE
     )
 
     class Meta:
@@ -418,7 +419,7 @@ class BookSetting(BaseInfo):
 
 # Book Version
 class BookVersion(models.Model):
-    book = models.ForeignKey(Book, null=False, verbose_name=_("book"))
+    book = models.ForeignKey(Book, null=False, verbose_name=_("book"), on_delete=models.CASCADE)
     major = models.IntegerField(_('major'))
     minor = models.IntegerField(_('minor'))
     name = models.CharField(_('name'), max_length=50, blank=True)
@@ -454,8 +455,8 @@ class BookVersion(models.Model):
     def get_absolute_url(self):
         return '%s/%s/_v/%s/' % (settings.BOOKI_URL, self.book.url_title, self.get_version())
 
-    def __unicode__(self):
-        return u'%d.%d (%s)' % (self.major, self.minor, self.name)
+    def __str__(self):
+        return '%d.%d (%s)' % (self.major, self.minor, self.name)
 
     # DEPRECATED API NAMES
     getTOC = get_toc
@@ -468,11 +469,11 @@ class BookVersion(models.Model):
 class Chapter(models.Model):
     EDIT_PING_SECONDS_MAX_DELTA = 15
 
-    version = models.ForeignKey(BookVersion, null=False, verbose_name=_('version'))
-    book = models.ForeignKey(Book, null=False, verbose_name=_('book'))
+    version = models.ForeignKey(BookVersion, null=False, verbose_name=_('version'), on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, null=False, verbose_name=_('book'), on_delete=models.CASCADE)
     url_title = models.CharField(_('url title'), max_length=2500)
     title = models.CharField(_('title'), max_length=2500)
-    status = models.ForeignKey(BookStatus, null=False, verbose_name=_('status'))
+    status = models.ForeignKey(BookStatus, null=False, verbose_name=_('status'), on_delete=models.CASCADE)
 
     # used to save statuses as checked
     checked_statuses = models.ManyToManyField(
@@ -489,11 +490,12 @@ class Chapter(models.Model):
     class Meta:
         verbose_name = _('Chapter')
         verbose_name_plural = _('Chapters')
+        ordering = ('book', )
 
     def get_absolute_url(self):
         return '%s/%s/%s/' % (settings.BOOKI_URL, self.book.url_title, self.url_title)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     @property
@@ -596,14 +598,14 @@ class Chapter(models.Model):
 
 
 class ChapterHistory(models.Model):
-    chapter = models.ForeignKey(Chapter, null=False, verbose_name=_("chapter"))
+    chapter = models.ForeignKey(Chapter, null=False, verbose_name=_("chapter"), on_delete=models.CASCADE)
     content = models.TextField()
     modified = models.DateTimeField(_('modified'), null=False, auto_now=True)
-    user = models.ForeignKey(auth_models.User, verbose_name=_("user"))
+    user = models.ForeignKey(auth_models.User, verbose_name=_("user"), on_delete=models.CASCADE)
     revision = models.IntegerField(_('revision'), default=1)
     comment = models.CharField(_('comment'), max_length=2500, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'{0} | {1} - {2}. Comment: {3}'.format(
             self.chapter.book, self.chapter, self.modified, self.comment)
 
@@ -613,8 +615,7 @@ class ChapterHistory(models.Model):
 
     def previous(self):
         lower = ChapterHistory.objects.filter(
-                chapter=self.chapter, revision__lt=self.revision
-            ).order_by('-revision')
+            chapter=self.chapter, revision__lt=self.revision).order_by('-revision')
 
         if lower.count() > 0:
             return lower.first().revision
@@ -622,8 +623,7 @@ class ChapterHistory(models.Model):
 
     def next(self):
         higher = ChapterHistory.objects.filter(
-                chapter=self.chapter, revision__gt=self.revision
-            ).order_by('revision')
+            chapter=self.chapter, revision__gt=self.revision).order_by('revision')
 
         if higher.count() > 0:
             return higher.first().revision
@@ -634,12 +634,12 @@ class ChapterLock(models.Model):
     LOCK_EVERYONE = 1
     LOCK_SIMPLE = 2
     LOCK_CHOICES = (
-            (LOCK_EVERYONE, 'Lock everyone'),
-            (LOCK_SIMPLE, 'Lock to people without permissions')
-        )
+        (LOCK_EVERYONE, 'Lock everyone'),
+        (LOCK_SIMPLE, 'Lock to people without permissions')
+    )
 
-    chapter = models.OneToOneField(Chapter, related_name='lock')
-    user = models.ForeignKey(auth_models.User, verbose_name=_('user'))
+    chapter = models.OneToOneField(Chapter, related_name='lock', on_delete=models.CASCADE)
+    user = models.ForeignKey(auth_models.User, verbose_name=_('user'), on_delete=models.CASCADE)
     type = models.IntegerField(choices=LOCK_CHOICES, default=LOCK_SIMPLE)
     created = models.DateTimeField(_('created'), auto_now_add=True)
 
@@ -648,14 +648,18 @@ class ChapterLock(models.Model):
         verbose_name_plural = _('Chapters Locks')
         ordering = ('created',)
 
-    def __unicode__(self):
-        return u"{0} - {1}".format(self.chapter.title, self.get_type_display())
+    def __str__(self):
+        return "{0} - {1}".format(self.chapter.title, self.get_type_display())
 
 
 # Attachment
 def upload_attachment_to(att, filename):
-    return '%s/books/%s/%s/%s' % (
-        settings.DATA_ROOT, att.book.url_title,
+    # return '%s/books/%s/%s/%s' % (
+    #     settings.DATA_ROOT, att.book.url_title,
+    #     att.version.get_version(), filename
+    # )
+    return 'books/%s/%s/%s' % (
+        att.book.url_title,
         att.version.get_version(), filename
     )
 
@@ -675,10 +679,10 @@ class AttachmentFile(models.FileField):
 
 
 class Attachment(models.Model):
-    version = models.ForeignKey(BookVersion, null=False, verbose_name=_("version"))
-    book = models.ForeignKey(Book, null=False, verbose_name=_("book"))
+    version = models.ForeignKey(BookVersion, null=False, verbose_name=_("version"), on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, null=False, verbose_name=_("book"), on_delete=models.CASCADE)
     attachment = models.FileField(_('filename'), upload_to=upload_attachment_to, max_length=2500)
-    status = models.ForeignKey(BookStatus, null=False, verbose_name=_("status"))
+    status = models.ForeignKey(BookStatus, null=False, verbose_name=_("status"), on_delete=models.CASCADE)
     created = models.DateTimeField(_('created'), null=False, auto_now=False, default=datetime.datetime.now)
 
     def delete(self):
@@ -687,7 +691,7 @@ class Attachment(models.Model):
 
         super(Attachment, self).delete()
 
-    def __unicode__(self):
+    def __str__(self):
         return self.attachment.name
 
     class Meta:
@@ -709,11 +713,16 @@ class Attachment(models.Model):
         """Returns URL for a thumbnail with the specified size"""
         from booktype.utils import misc
 
-        filename = self.thumbnail_name(size)
+        fname, fext = os.path.splitext(os.path.basename(self.attachment.url))
+        if fext == '.svg':
+            filename = fname + fext
+        else:
+            filename = self.thumbnail_name(size)
+
         im_path = upload_attachment_to(self, filename)
         im_url = get_attachment_url(self, filename)
 
-        if not os.path.exists(im_path):
+        if not os.path.exists(settings.DATA_ROOT / im_path):
             try:
                 im = misc.create_thumbnail(self.attachment, size=size, aspect_ratio=aspect_ratio)
                 # 8-bit pixels
@@ -722,21 +731,22 @@ class Attachment(models.Model):
                 # 4x8-bit pixels, png for instance
                 elif im.mode == 'RGBA':
                     # required for png.split()
-                    im.load()
-                    jpeg = Image.new("RGB", im.size, (255, 255, 255))
-                    jpeg.paste(im, mask=im.split()[3])
-                    im = jpeg
-                im.save(im_path, 'JPEG', quality=100)
+                    # im.load()
+                    # jpeg = Image.new("RGB", im.size, (255, 255, 255))
+                    # jpeg.paste(im, mask=im.split()[3])
+                    # im = jpeg
+                    im = im.convert('RGB')
+                im.save(settings.DATA_ROOT / im_path, 'JPEG', quality=100)
             except Exception as err:
                 logger.exception('Can not create thumbnail. Error msg: %s' % err)
         return im_url
 
-    def delete_thumbnail(self, size=(100, 100)):
+    def delete_thumbnail(self, size=(150, 150)):
         filename = self.thumbnail_name(size)
         thumb_path = upload_attachment_to(self, filename)
 
         try:
-            os.remove(thumb_path)
+            os.remove(settings.DATA_ROOT / thumb_path)
         except Exception as err:
             logger.exception('Unable to delete thumbnail. Error msg: %s' % err)
 
@@ -756,12 +766,12 @@ class BookToc(models.Model):
         (LINE_TYPE, _('line'))
     )
 
-    version = models.ForeignKey(BookVersion, null=False, verbose_name=_("version"))
+    version = models.ForeignKey(BookVersion, null=False, verbose_name=_("version"), on_delete=models.CASCADE)
     # book should be removed
-    book = models.ForeignKey(Book, null=False, verbose_name=_("book"))
-    parent = models.ForeignKey('self', null=True, blank=True, verbose_name=_("parent"))
+    book = models.ForeignKey(Book, null=False, verbose_name=_("book"), on_delete=models.CASCADE)
+    parent = models.ForeignKey('self', null=True, blank=True, verbose_name=_("parent"), on_delete=models.CASCADE)
     name = models.CharField(_('name'), max_length=2500, blank=True)
-    chapter = models.ForeignKey(Chapter, null=True, blank=True, verbose_name=_("chapter"))
+    chapter = models.ForeignKey(Chapter, null=True, blank=True, verbose_name=_("chapter"), on_delete=models.CASCADE)
     weight = models.IntegerField(_('weight'))
     typeof = models.SmallIntegerField(_('typeof'), choices=TYPEOF_CHOICES)
 
@@ -784,8 +794,9 @@ class BookToc(models.Model):
             return self.chapter.url_title
         return None
 
-    def __unicode__(self):
-        return unicode(self.weight)
+    def __str__(self):
+        # return unicode(self.weight)
+        return str(self.weight)
 
     class Meta:
         verbose_name = _('Book TOC')
@@ -803,20 +814,21 @@ class BookiPermission(models.Model):
         1 - admin
     """
 
-    user = models.ForeignKey(auth_models.User, verbose_name=_("user"))
-    book = models.ForeignKey(Book, null=True, verbose_name=_("book"))
-    group = models.ForeignKey(BookiGroup, null=True, verbose_name=_("group"))
+    user = models.ForeignKey(auth_models.User, verbose_name=_("user"), on_delete=models.CASCADE)
+    book = models.ForeignKey(Book, null=True, verbose_name=_("book"), on_delete=models.CASCADE)
+    group = models.ForeignKey(BookiGroup, null=True, verbose_name=_("group"), on_delete=models.CASCADE)
     permission = models.SmallIntegerField(_('permission'))
 
-    def __unicode__(self):
-        return u'%s %s ' % (self.user.username, self.permission)
+    def __str__(self):
+        # remove u from string
+        return '%s %s ' % (self.user.username, self.permission)
 
 
 class AttributionExclude(models.Model):
-    book = models.ForeignKey(Book, null=True, verbose_name=_("book"))
-    user = models.ForeignKey(auth_models.User, verbose_name=_("user"))
+    book = models.ForeignKey(Book, null=True, verbose_name=_("book"), on_delete=models.CASCADE)
+    user = models.ForeignKey(auth_models.User, verbose_name=_("user"), on_delete=models.CASCADE)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % (self.user.username, )
 
     class Meta:
@@ -825,12 +837,12 @@ class AttributionExclude(models.Model):
 
 
 class PublishWizzard(models.Model):
-    book = models.ForeignKey(Book, null=True, verbose_name=_("book"))
-    user = models.ForeignKey(auth_models.User, verbose_name=_("user"))
+    book = models.ForeignKey(Book, null=True, verbose_name=_("book"), on_delete=models.CASCADE)
+    user = models.ForeignKey(auth_models.User, verbose_name=_("user"), on_delete=models.CASCADE)
     wizz_type = models.CharField(_('wizard type'), max_length=20, blank=False)
     wizz_options = models.TextField(_('wizard options'), default='', null=False)
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % (self.book.url_title, )
 
     class Meta:
@@ -841,12 +853,13 @@ class PublishWizzard(models.Model):
 
 def upload_cover_to(att, filename):
     extension = os.path.splitext(filename)[-1].lower()
-    return '%s/book_covers/%s%s' % (settings.DATA_ROOT, att.id, extension)
+    # return '%s/book_covers/%s%s' % (settings.DATA_ROOT, att.id, extension)
+    return 'book_covers/%s%s' % (att.id, extension)
 
 
 class BookCover(models.Model):
-    book = models.ForeignKey(Book, null=True, verbose_name=_("book"))
-    user = models.ForeignKey(auth_models.User, verbose_name=_("user"))
+    book = models.ForeignKey(Book, null=True, verbose_name=_("book"), on_delete=models.CASCADE)
+    user = models.ForeignKey(auth_models.User, verbose_name=_("user"), on_delete=models.CASCADE)
 
     cid = models.CharField('cid', max_length=40, null=False, default='', unique=True)
 
@@ -866,7 +879,7 @@ class BookCover(models.Model):
     cover_type = models.CharField(_('Cover type'), max_length=20, blank=True)
 
     creator = models.CharField(_('Cover'), max_length=40, blank=True)
-    license = models.ForeignKey(License, null=True, verbose_name=_("license"))
+    license = models.ForeignKey(License, null=True, verbose_name=_("license"), on_delete=models.CASCADE)
 
     notes = models.TextField(_('notes'))
 
@@ -879,7 +892,7 @@ class BookCover(models.Model):
 
         super(BookCover, self).delete()
 
-    def __unicode__(self):
+    def __str__(self):
         return u'%s' % (self.id, )
 
 

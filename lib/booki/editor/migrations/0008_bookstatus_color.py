@@ -15,6 +15,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='bookstatus',
             name='color',
-            field=models.CharField(blank=True, default=b'', max_length=30, verbose_name='color'),
+            field=models.CharField(blank=True, default='', max_length=30, verbose_name='color'),
         ),
     ]

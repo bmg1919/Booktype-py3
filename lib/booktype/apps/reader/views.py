@@ -24,7 +24,7 @@ from django.http import Http404
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404, redirect
 from django.views.generic import DetailView, DeleteView, UpdateView
 
@@ -94,7 +94,7 @@ class PublishedBookView(BaseReaderView, BasePageView, DetailView):
             book = self.get_object()
             if book:
                 return redirect('reader:infopage', bookid=book.url_title)
-        except:
+        except Exception:
             return super(PublishedBookView, self).render_to_response(
                 context, **response_kwargs)
 
@@ -187,7 +187,7 @@ class EditBookInfoView(SingleNextMixin, LoginRequiredMixin,
                 self.object.set_cover(fname)
                 os.unlink(fname)
                 self.object.save()
-            except Exception, e:
+            except Exception as e:
                 logger.exception(e)
                 all_ok = False
 
@@ -290,7 +290,6 @@ class FullView(views.SecurityMixin, BaseReaderView, BasePageView, DetailView):
         book_version = book.get_version(self.kwargs.get('version', None))
         toc_items = BookToc.objects.filter(
             version=book_version).order_by("-weight")
-
 
         available_themes = get_available_themes()
         theme_active = available_themes[0]

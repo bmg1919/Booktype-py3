@@ -34,7 +34,9 @@ class AcademicEPUB(plugin.ConversionPlugin):
             href=item.file_name,
             title=item.title,
             uid=item.id)
+        book.toc = list(book.toc)
         book.toc.insert(0, toc_entry)
+
 
 __convert__ = {
     'mpdf': AcademicPDF,

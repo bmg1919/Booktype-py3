@@ -3,7 +3,7 @@ import pytest
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 @pytest.mark.django_db

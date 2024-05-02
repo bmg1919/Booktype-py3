@@ -18,9 +18,9 @@ import os
 import celery
 import celery.result
 import logging
-
+from celery import shared_task
 from uuid import uuid4
-from celery import group
+from celery import group, chain
 from celery.result import allow_join_result
 
 from booktype.convert import loader
@@ -45,7 +45,7 @@ def task(func):
     """
     Default decorator for all task functions.
     """
-    @celery.task(base=Task, name=func.__name__)
+    @shared_task(base=Task, name=func.__name__)
     def decorated_func(request, *args, **kwargs):
         return func(request, *args, **kwargs)
     return decorated_func
@@ -102,7 +102,7 @@ def convert(request_data, base_path):
     assets.add_files(request_data.files)
 
     subtasks = []
-    for (name, output) in request_data.outputs.iteritems():
+    for (name, output) in request_data.outputs.items():
         sandbox_path = os.path.join(base_path, name)
         output_path = os.path.join(sandbox_path, output.output)
 
@@ -122,6 +122,7 @@ def convert(request_data, base_path):
         subtasks.append(subtask)
 
     job = group(subtasks, disable_sync_subtasks=False)
+
     result = job.apply_async()
 
     # TODO we should use chain here
@@ -129,7 +130,8 @@ def convert(request_data, base_path):
     with allow_join_result():
         result.join(propagate=False)
 
-    subtasks_info = {async.task_id: async for async in result.children}
+    subtasks_info = {each.task_id: each for each in result.children}
+
     celery.current_task.update_state(state="PROGRESS", meta=subtasks_info)
 
     return subtasks_info

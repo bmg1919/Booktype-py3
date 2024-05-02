@@ -1,6 +1,6 @@
 from rest_framework import status
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from booktype.tests import TestCase
 from booktype.tests.factory_models import BookFactory, BookVersionFactory, PLAIN_USER_PASSWORD
@@ -27,7 +27,7 @@ class EditBookInfoTest(TestCase):
         response = self.client.get(self.dispatcher)
 
         # response status code should be 302, you're not logged in
-        self.assertEquals(response.status_code, status.HTTP_302_FOUND)
+        self.assertEqual(response.status_code, status.HTTP_302_FOUND)
 
     def test_as_book_owner(self):
         # first login as book owner user
@@ -40,7 +40,7 @@ class EditBookInfoTest(TestCase):
         response = self.client.get(self.dispatcher)
 
         # response status code should be 200
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # check if returning the right template
         self.assertTemplateUsed(response, "reader/book_info_edit.html")
@@ -57,7 +57,7 @@ class EditBookInfoTest(TestCase):
         response = self.client.post(self.dispatcher, dict(description=new_description))
 
         # response status code should be 200
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # test if description has been updated correctly
         updated_book = self.reload_from_db(self.book)

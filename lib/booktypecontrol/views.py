@@ -19,8 +19,8 @@ import os
 import json
 import logging
 import sputnik
-import forms as control_forms
-from unipath import Path
+from . import forms as control_forms
+from pathlib import Path
 from datetime import datetime, timedelta, date
 import git
 
@@ -33,8 +33,8 @@ from django.db.models import Q, Count
 from django.contrib import messages
 from django.contrib.auth.models import User
 from django.http import HttpResponseRedirect
-from django.utils.translation import ugettext_lazy as _
-from django.core.urlresolvers import reverse, reverse_lazy
+from django.utils.translation import gettext_lazy as _
+from django.urls import reverse, reverse_lazy
 from django.core.mail import EmailMultiAlternatives
 
 from django.views.generic import TemplateView, FormView, ListView, View
@@ -76,7 +76,9 @@ OPTION_NAMES = {
     'default-roles': _('Default Roles')
 }
 
-VALID_OPTIONS = OPTION_NAMES.keys()
+# Changed to list, otherwise VALID_OPTIONS type is dict_keys
+# which returns undefined
+VALID_OPTIONS = list(OPTION_NAMES.keys())
 
 
 class BaseCCView(LoginRequiredMixin, SuperuserRequiredMixin, BasePageView):
@@ -154,11 +156,11 @@ class ControlCenterView(BaseCCView, TemplateView):
                 [settings.DATABASES['default']['NAME']]
             )
             databaseSize = cursor.fetchone()[0]
-        except:
+        except Exception:
             databaseSize = 0
 
         # git
-        gitrepo = git.Repo(Path(os.path.abspath(__file__)).ancestor(3))
+        gitrepo = git.Repo(Path(os.path.dirname(__file__)).parent.parent)
 
         _since = datetime.now() - timedelta(days=30)
         log_stdout = gitrepo.git.log(
@@ -222,7 +224,7 @@ class ControlCenterSettings(BaseCCView, FormView):
                 form.success_message or _('Successfully saved settings.')
             )
         except Exception as err:
-            print err
+            print(err)
             messages.warning(self.request,
                              _('Unknown error while saving changes.'))
         return super(ControlCenterSettings, self).form_valid(form)
@@ -239,9 +241,15 @@ class ControlCenterSettings(BaseCCView, FormView):
         option = _request_data.get('option', None)
         if option and option in VALID_OPTIONS:
             self.submodule = option
-        return super(ControlCenterSettings, self).dispatch(
+
+        monk = super(ControlCenterSettings, self).dispatch(
             request, *args, **kwargs
         )
+
+        # return super(ControlCenterSettings, self).dispatch(
+        #     request, *args, **kwargs
+        # )
+        return monk
 
     def get_form_class(self):
         class_text = "%sForm" % self.camelize(self.submodule)
@@ -255,7 +263,8 @@ class ControlCenterSettings(BaseCCView, FormView):
         return self.form_class.initial_data()
 
     def get_template_names(self):
-        if self.request.is_ajax():
+        # if self.request.is_ajax():
+        if self.request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
             return [
                 "booktypecontrol/_control_center_%s.html"
                 % self.submodule.replace('-', '_'),
@@ -283,6 +292,12 @@ class ControlCenterSettings(BaseCCView, FormView):
         if success_url and "#" in success_url:
             return "{0}{1}".format(self.success_url, success_url)
         return super(ControlCenterSettings, self).get_success_url()
+
+    # def get(self, request, *args, **kwargs):
+    #     form_class = self.form_class
+    #     form = self.get_form(form_class)
+    #     return self.render_to_response(self.get_context_data(form=form))
+    #     # return super(ControlCenterSettings, self).get(request)
 
 
 class PeopleListView(BaseCCView, ListView):
@@ -473,7 +488,7 @@ class DeleteGroupView(BaseCCView, DeleteView):
         try:
             group.remove_group_images()
         except Exception as e:
-            print e
+            print(e)
 
         return super(DeleteGroupView, self).delete(request, *args, **kwargs)
 

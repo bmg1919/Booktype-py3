@@ -1,6 +1,6 @@
 from django import forms
 from booki.editor.models import Book
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from booktype.apps.core.forms import BaseBooktypeForm
 

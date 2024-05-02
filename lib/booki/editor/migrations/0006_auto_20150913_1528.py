@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 from django.db import models, migrations
 
 
@@ -30,7 +28,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='publishwizzard',
             name='wizz_options',
-            field=models.TextField(default=b'', verbose_name='wizard options'),
+            field=models.TextField(default='', verbose_name='wizard options'),
             preserve_default=True,
         ),
         migrations.AlterField(

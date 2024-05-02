@@ -1,10 +1,8 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 import lxml.html
 from lxml import etree
 
-from django.db import models, migrations
+from django.db import migrations
 
 from booktype.importer.epub.epubimporter import EpubImporter
 
@@ -19,12 +17,11 @@ def convert_endnotes(apps, schema_editor):
         # converting
         tree, _ = EpubImporter.convert_endnotes(tree)
 
-        content = unicode(etree.tostring(tree, pretty_print=True, encoding='utf-8',
-                                         xml_declaration=False), 'utf-8')
+        content = etree.tostring(tree, pretty_print=True, encoding='unicode', xml_declaration=False)
 
         # remove redundant div wrapper
-        a = len(u"<div>")
-        b = content.rfind(u"</div>")
+        a = len("<div>")
+        b = content.rfind("</div>")
         chapter.content = content[a:b]
 
         chapter.save()

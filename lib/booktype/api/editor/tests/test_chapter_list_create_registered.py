@@ -4,7 +4,7 @@ from faker import Faker
 from rest_framework import status
 from rest_framework.test import APIClient
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 
 fake = Faker()
@@ -118,7 +118,7 @@ class TestChapterListCreateRegisteredWithPermissions(object):
         # we got 200 OK
         assert response.status_code is status.HTTP_200_OK
         # we don't have chapters yet
-        assert response.data['count'] is 0
+        assert response.data['count'] == 0
 
         # another book
         response = client.get(
@@ -128,7 +128,7 @@ class TestChapterListCreateRegisteredWithPermissions(object):
         # we got 200 OK
         assert response.status_code is status.HTTP_200_OK
         # we don't have chapters yet
-        assert response.data['count'] is 0
+        assert response.data['count'] == 0
 
     def test_create_chapter_success(self, registered_users):
         # create client

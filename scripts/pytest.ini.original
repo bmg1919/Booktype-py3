@@ -12,7 +12,7 @@ testpaths =
     ##DESTINATION_PATH##
     ##DESTINATION_PATH##/lib
     ##BOOKTYPE_PATH##
-python_paths =
-    ##DESTINATION_PATH##
-    ##DESTINATION_PATH##/lib
-    ##BOOKTYPE_PATH##
+; python_paths =
+;     ##DESTINATION_PATH##
+;     ##DESTINATION_PATH##/lib
+;     ##BOOKTYPE_PATH##

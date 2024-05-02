@@ -14,12 +14,12 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with Booktype.  If not, see <http://www.gnu.org/licenses/>.
 
-from django.conf.urls import url
+from django.urls import path
 from booki.messaging.views import view_post, view_follow, view_unfollow, view_tag
 
 urlpatterns = [
-    url(r'^post$', view_post, name='messaging_post'),
-    url(r'^follow$', view_follow, name='messaging_follow'),
-    url(r'^unfollow$', view_unfollow, name='messaging_unfollow'),
-    url(r'^tags/([\w]+)$', view_tag, None, 'view_tag'),
+    path('post/', view_post, name='messaging_post'),
+    path('follow/', view_follow, name='messaging_follow'),
+    path('unfollow/', view_unfollow, name='messaging_unfollow'),
+    path('tags/', view_tag, None, 'view_tag'),
 ]

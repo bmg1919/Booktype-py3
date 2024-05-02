@@ -23,8 +23,8 @@ class Migration(migrations.Migration):
                 ('created', models.DateTimeField(default=datetime.datetime.now, verbose_name='Created')),
                 ('published', models.DateTimeField(null=True, verbose_name='Published')),
                 ('status', models.SmallIntegerField(default=0, verbose_name='Status')),
-                ('user', models.ForeignKey(verbose_name='user', to=settings.AUTH_USER_MODEL, null=True)),
-                ('version', models.ForeignKey(verbose_name='export', to='editor.BookVersion')),
+                ('user', models.ForeignKey(verbose_name='user', to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)),
+                ('version', models.ForeignKey(verbose_name='export', to='editor.BookVersion', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Book Export',
@@ -37,9 +37,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created', models.DateTimeField(default=datetime.datetime.now, verbose_name='Created')),
-                ('content', models.TextField(default=b'', verbose_name='Content')),
-                ('export', models.ForeignKey(verbose_name='version', to='export.BookExport')),
-                ('user', models.ForeignKey(verbose_name='user', to=settings.AUTH_USER_MODEL)),
+                ('content', models.TextField(default='', verbose_name='Content')),
+                ('export', models.ForeignKey(verbose_name='version', to='export.BookExport', on_delete=models.CASCADE)),
+                ('user', models.ForeignKey(verbose_name='user', to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Export Comment',
@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
                 ('status', models.SmallIntegerField(default=0, verbose_name='Status')),
                 ('description', models.TextField(verbose_name='Description')),
                 ('filename', models.CharField(max_length=200, null=True, verbose_name='File name', blank=True)),
-                ('export', models.ForeignKey(verbose_name='export', to='export.BookExport')),
+                ('export', models.ForeignKey(verbose_name='export', to='export.BookExport', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Export File',

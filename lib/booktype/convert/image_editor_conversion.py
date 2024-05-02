@@ -2,7 +2,7 @@ import os
 import json
 import shutil
 import ebooklib
-import StringIO
+from io import BytesIO
 import logging
 import subprocess
 
@@ -10,11 +10,7 @@ from django.conf import settings
 
 from booktype.utils import config
 from booktype.utils.image_editor import BkImageEditor
-
-try:
-    import Image
-except ImportError:
-    from PIL import Image
+from PIL import Image
 
 
 logger = logging.getLogger("booktype.convert")
@@ -174,7 +170,7 @@ class ImageEditorConversion(object):
                 transform_data['imageHeight'] = transform_data['frameHeight'] = height
             else:
                 # get natural image width and height
-                with Image.open(StringIO.StringIO(item.get_content())) as im:
+                with Image.open(BytesIO(item.get_content())) as im:
                     natural_width, natural_height = im.size
 
                     if natural_width <= EDITOR_WIDTH:
@@ -344,7 +340,7 @@ class ImageEditorConversion(object):
         output_image_path = None
         input_image_filename = ebooklib_item_image.file_name.rsplit('/')[-1]
 
-        with Image.open(StringIO.StringIO(ebooklib_item_image.get_content())) as img:
+        with Image.open(BytesIO(ebooklib_item_image.get_content())) as img:
 
             ie = BkImageEditor(input_image_file=img, input_image_filename=input_image_filename,
                                cache_folder=cache_folder)

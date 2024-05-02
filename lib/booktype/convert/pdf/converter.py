@@ -22,15 +22,14 @@ import lxml
 import lxml.html
 from lxml import etree
 
-import urllib2
-
+from urllib.parse import unquote
 import logging
 
 import ebooklib
 import ebooklib.epub
 import ebooklib.utils
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from ..base import BaseConverter
 from ..utils.epub import parse_toc_nav
@@ -67,26 +66,25 @@ class PdfConverter(BaseConverter):
         # image item name -> file name mappings
         self.images = {}
 
-
     def convert(self, book, output_path):
         self._save_images(book)
 
-        dc_metadata = {key : value[0][0] for (key, value) in book.metadata.get("http://purl.org/dc/elements/1.1/").iteritems()}
+        dc_metadata = {key: value[0][0] for (key, value) in book.metadata.get("http://purl.org/dc/elements/1.1/").items()}
 
         head_params = {
-            "title"     : dc_metadata.get("title", ""),
-            "license"   : dc_metadata.get("rights", ""),
-            "copyright" : dc_metadata.get("creator", ""),
+            "title": dc_metadata.get("title", ""),
+            "license": dc_metadata.get("rights", ""),
+            "copyright": dc_metadata.get("creator", ""),
         }
 
         document = ebooklib.utils.parse_html_string(self._html_template % head_params)
 
         self._document_body = document.find("body")
-        self._items_by_path = {item.file_name : item for item in book.get_items_of_type(ebooklib.ITEM_DOCUMENT)}
+        self._items_by_path = {item.file_name: item for item in book.get_items_of_type(ebooklib.ITEM_DOCUMENT)}
         map(self._write_toc_item, parse_toc_nav(book))
 
         html_path = os.path.join(self.sandbox_path, self._body_html_name)
-        pdf_path  = os.path.join(self.sandbox_path, self._body_pdf_name)
+        pdf_path = os.path.join(self.sandbox_path, self._body_pdf_name)
 
         with open(html_path, "w") as file:
             html_text = etree.tostring(document, method='html', pretty_print=True)
@@ -95,7 +93,6 @@ class PdfConverter(BaseConverter):
         self._run_renderer(html_path, pdf_path)
 
         os.rename(pdf_path, output_path)
-
 
     def _write_toc_item(self, toc_item):
         if isinstance(toc_item[1], list):
@@ -106,11 +103,10 @@ class PdfConverter(BaseConverter):
             chapter_title, chapter_href = toc_item
             self._write_chapter_content(chapter_title, chapter_href)
 
-
     def _write_section_heading(self, section_title):
-        section = etree.Element("div", {"class" : "objavi-subsection"})
+        section = etree.Element("div", {"class": "objavi-subsection"})
 
-        heading = etree.Element("div", {"class" : "objavi-subsection-heading"})
+        heading = etree.Element("div", {"class": "objavi-subsection-heading"})
         heading.text = section_title
 
         section.append(heading)
@@ -118,12 +114,11 @@ class PdfConverter(BaseConverter):
         self._document_body.append(section)
         self._section = section
 
-
     def _write_chapter_content(self, chapter_title, chapter_href):
         chapter_item = self._items_by_path[chapter_href]
         base_path = os.path.dirname(chapter_item.file_name)
 
-        heading = etree.Element("div", {"class" : "objavi-chapter"})
+        heading = etree.Element("div", {"class": "objavi-chapter"})
         heading.text = chapter_title
         self._section.append(heading)
 
@@ -133,7 +128,6 @@ class PdfConverter(BaseConverter):
             content = deepcopy(chapter_child)
             self._fix_images(content, base_path)
             self._document_body.append(content)
-
 
     def _save_images(self, book):
         if not os.path.exists(self.images_path):
@@ -155,14 +149,12 @@ class PdfConverter(BaseConverter):
 
         self.images[item.file_name] = file_name
 
-
     def _fix_images(self, root, base_path):
         for element in root.iter("img"):
-            src_url = urllib2.unquote(element.get("src"))
+            src_url = unquote(element.get("src"))
             item_name = os.path.normpath(os.path.join(base_path, src_url))
             file_name = self.images[item_name]
             element.set("src", self._images_dir + file_name)
-
 
     def _run_renderer(self, html_path, pdf_path):
         css_text = self.config.get("css")

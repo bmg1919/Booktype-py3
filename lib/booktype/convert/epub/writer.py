@@ -1,6 +1,6 @@
 import os
 import six
-import urllib
+from urllib.parse import unquote
 import ebooklib
 import logging
 
@@ -27,7 +27,7 @@ class Epub3Writer(ebooklib.epub.EpubWriter):
 
         root = ebooklib.utils.parse_string(content)
         for element in root.iter('{%s}link' % NAMESPACES['XHTML']):
-            href = urllib.unquote(element.get('href'))
+            href = unquote(element.get('href'))
 
             if href.startswith('../%s' % STYLES_DIR):
                 file_name = os.path.basename(href)
@@ -258,7 +258,7 @@ class Epub2Writer(Epub3Writer):
 
                     if not itm.is_linear or not is_linear:
                         opts['linear'] = 'no'
-                except:
+                except Exception:
                     pass
 
             etree.SubElement(spine, 'itemref', opts)

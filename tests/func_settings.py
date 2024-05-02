@@ -1,8 +1,8 @@
 import os
 import django
-import booktype.apps
+# import booktype.apps
 
-from unipath import Path
+from pathlib import Path
 
 BASE_DIR = Path(os.path.abspath(__file__))
 
@@ -80,7 +80,7 @@ REDIS_PASSWORD = None
 
 LANGUAGE_CODE = 'en'
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -189,3 +189,11 @@ THIS_BOOKI_SERVER = THIS_BOOKTYPE_SERVER
 BOOKI_MAINTENANCE_MODE = False
 
 AUTH_PROFILE_MODULE = 'account.UserProfile'
+
+STATICFILES_FINDERS = (
+    # 'django.contrib.staticfiles.finders.FileSystemFinder',
+    # 'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    # 'booktype.apps.themes.finder.ThemeFinder',
+    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    'compressor.finders.CompressorFinder'
+)

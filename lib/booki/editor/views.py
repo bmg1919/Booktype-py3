@@ -17,7 +17,7 @@
 import json
 import unidecode
 
-from django.shortcuts import render_to_response, render
+from django.shortcuts import render
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from django.contrib.auth.decorators import login_required
 from django.conf import settings
@@ -143,7 +143,7 @@ def edit_book(request, bookid, version=None):
             "version": book_version,
 
             # this change will break older versions of template
-            "statuses": [(s.name.replace(' ', '_'), s.name) for s in models.BookStatus.objects.filter(book = book)],
+            "statuses": [(s.name.replace(' ', '_'), s.name) for s in models.BookStatus.objects.filter(book=book)],
             "chapters": chapters,
             "security": bookSecurity,
             "is_admin": bookSecurity.isGroupAdmin() or bookSecurity.isBookAdmin() or bookSecurity.isSuperuser(),
@@ -180,16 +180,13 @@ def thumbnail_attachment(request, bookid, attachment, version=None):
 #    document_root = '%s/static/%s/%s' % (settings.STATIC_DOC_ROOT, bookid, path)
 
     # should have one  "broken image" in case of error
-    try:
-        from PIL import Image
-    except ImportError:
-        import Image
+    from PIL import Image
 
     try:
         im = Image.open(document_root)
-        im.thumbnail((150, 150), Image.ANTIALIAS)
+        im.thumbnail((150, 150), Image.LANCZOS)
     except IOError:
-        im = Image.new('RGB', (150,150), "white")
+        im = Image.new('RGB', (150, 150), "white")
 
     response = HttpResponse(content_type='image/jpeg')
 
@@ -197,7 +194,7 @@ def thumbnail_attachment(request, bookid, attachment, version=None):
         im = im.convert('RGB')
 
     im.save(response, "jpeg")
-    return  response
+    return response
 
 
 # UPLOAD ATTACHMENT
@@ -221,7 +218,7 @@ def upload_attachment(request, bookid, version=None):
 
     book_version = book.getVersion(version)
 
-    stat = models.BookStatus.objects.filter(book = book)[0]
+    stat = models.BookStatus.objects.filter(book=book)[0]
 
     operationResult = True
 
@@ -231,28 +228,28 @@ def upload_attachment(request, bookid, version=None):
 
             from booki.utils import log
 
-            log.logBookHistory(book = book,
-                               version = book_version,
-                               args = {'filename': request.FILES[name].name},
-                               user = request.user,
-                               kind = 'attachment_upload'
+            log.logBookHistory(book=book,
+                               version=book_version,
+                               args={'filename': request.FILES[name].name},
+                               user=request.user,
+                               kind='attachment_upload'
                                )
 
-            att = models.Attachment(version = book_version,
+            att = models.Attachment(version=book_version,
                                     # must remove this reference
-                                    created = datetime.datetime.now(),
-                                    book = book,
-                                    status = stat)
+                                    created=datetime.datetime.now(),
+                                    book=book,
+                                    status=stat)
             att.save()
 
-            att.attachment.save(request.FILES[name].name, fileData, save = False)
+            att.attachment.save(request.FILES[name].name, fileData, save=False)
             att.save()
 
         # TODO:
         # must write info about this to log!
     except IOError:
         operationResult = False
-    except:
+    except Exception:
         oprerationResult = False
 
     if request.POST.get("attachmenttab", "") == "":
@@ -268,7 +265,7 @@ def upload_attachment(request, bookid, version=None):
         return HttpResponse('<html><body><script> parent.jQuery.booki.editor.showAttachmentsTab(); parent.jQuery("#tabattachments FORM")[0].reset(); alert(parent.jQuery.booki._("errorupload", "Error while uploading file!"));</script></body></html>')
 
 
-def view_cover(request, bookid, cid, fname = None, version=None):
+def view_cover(request, bookid, cid, fname=None, version=None):
     from django.views import static
 
     try:
@@ -277,7 +274,7 @@ def view_cover(request, bookid, cid, fname = None, version=None):
         return views.ErrorPage(request, "errors/book_does_not_exist.html", {"book_name": bookid})
 
     try:
-        cover = models.BookCover.objects.get(cid = cid)
+        cover = models.BookCover.objects.get(cid=cid)
     except models.BookCover.DoesNotExist:
         return HttpResponse(status=500)
 
@@ -296,26 +293,23 @@ def view_cover(request, bookid, cid, fname = None, version=None):
     if extension == 'jpg':
         extension = 'jpeg'
 
-    content_type = mimetypes.types_map.get('.'+extension, 'binary/octet-stream')
+    content_type = mimetypes.types_map.get('.' + extension, 'binary/octet-stream')
 
     if request.GET.get('preview', '') == '1':
-        try:
-            from PIL import Image
-        except ImportError:
-            import Image
+        from PIL import Image
 
         try:
             if extension.lower() in ['pdf', 'psd', 'svg']:
                 raise
 
             im = Image.open(cover.attachment.name)
-            im.thumbnail((250, 250), Image.ANTIALIAS)
-        except:
+            im.thumbnail((250, 250), Image.LANCZOS)
+        except Exception:
             try:
                 im = Image.open('%s/editor/images/booktype-cover-%s.png' % (settings.STATIC_ROOT, extension.lower()))
                 extension = 'png'
                 content_type = 'image/png'
-            except:
+            except Exception:
                 # Not just IOError but anything else
                 im = Image.open('%s/editor/images/booktype-cover-error.png' % settings.STATIC_ROOT)
                 extension = 'png'
@@ -324,7 +318,8 @@ def view_cover(request, bookid, cid, fname = None, version=None):
         response = HttpResponse(content_type=content_type)
 
         if extension.lower() in ['jpg', 'jpeg', 'png', 'gif', 'tiff', 'bmp', 'tif']:
-            if extension.upper() == 'JPG': extension = 'JPEG'
+            if extension.upper() == 'JPG':
+                extension = 'JPEG'
         else:
             extension = 'jpeg'
 
@@ -360,7 +355,7 @@ def upload_cover(request, bookid, version=None):
 
     book_version = book.getVersion(version)
 
-    stat = models.BookStatus.objects.filter(book = book)[0]
+    stat = models.BookStatus.objects.filter(book=book)[0]
 
     operationResult = True
 
@@ -395,50 +390,49 @@ def upload_cover(request, bookid, version=None):
 
                 try:
                     filename = unidecode.unidecode(request.FILES[name].name)
-                except:
+                except Exception:
                     filename = ''
 
                 title = request.POST.get('title', '').strip()[:250]
 
-                cov = models.BookCover(book = book,
-                                       user = request.user,
-                                       cid = h.hexdigest(),
-                                       title = title,
-                                       filename = filename[:250],
-                                       width = width,
-                                       height = height,
-                                       unit = request.POST.get('unit', 'mm'),
-                                       booksize = request.POST.get('booksize', ''),
-                                       cover_type = request.POST.get('type', ''),
-                                       creator = request.POST.get('creator', '')[:40],
-                                       license = license,
-                                       notes = request.POST.get('notes', '')[:500],
-                                       approved = False,
-                                       is_book = 'book' in frm,
-                                       is_ebook = 'ebook' in frm,
-                                       is_pdf = 'pdf' in frm,
-                                       created = datetime.datetime.now())
+                cov = models.BookCover(book=book,
+                                       user=request.user,
+                                       cid=h.hexdigest(),
+                                       title=title,
+                                       filename=filename[:250],
+                                       width=width,
+                                       height=height,
+                                       unit=request.POST.get('unit', 'mm'),
+                                       booksize=request.POST.get('booksize', ''),
+                                       cover_type=request.POST.get('type', ''),
+                                       creator=request.POST.get('creator', '')[:40],
+                                       license=license,
+                                       notes=request.POST.get('notes', '')[:500],
+                                       approved=False,
+                                       is_book='book' in frm,
+                                       is_ebook='ebook' in frm,
+                                       is_pdf='pdf' in frm,
+                                       created=datetime.datetime.now())
                 cov.save()
 
-                cov.attachment.save(request.FILES[name].name, fileData, save = False)
+                cov.attachment.save(request.FILES[name].name, fileData, save=False)
                 cov.save()
 
                 from booki.utils import log
 
-                log.logBookHistory(book = book,
-                                   version = book_version,
-                                   args = {'filename': filename[:250], 'title': title, 'cid': cov.pk},
-                                   user = request.user,
-                                   kind = 'cover_upload'
+                log.logBookHistory(book=book,
+                                   version=book_version,
+                                   args={'filename': filename[:250], 'title': title, 'cid': cov.pk},
+                                   user=request.user,
+                                   kind='cover_upload'
                                    )
-
 
         # TODO:
         # must write info about this to log!
     except IOError:
         operationResult = False
         transaction.rollback()
-    except:
+    except Exception:
         from booki.utils import log
         log.printStack()
         oprerationResult = False
@@ -464,6 +458,7 @@ def view_books_json(request):
     json_serializer = serializers.get_serializer("json")()
     json_serializer.serialize(books, ensure_ascii=False, stream=response, fields=('title', 'url_title'))
     return response
+
 
 def view_books_autocomplete(request, *args, **kwargs):
     """

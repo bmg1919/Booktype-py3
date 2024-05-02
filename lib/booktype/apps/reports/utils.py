@@ -15,7 +15,7 @@ def get_info():
     for at in Attachment.objects.all():
         try:
             attachments_size += at.attachment.size
-        except:
+        except Exception:
             pass
 
     cursor = connection.cursor()

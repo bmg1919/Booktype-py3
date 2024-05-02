@@ -1,4 +1,5 @@
-import celery
+import json
+from celery import shared_task
 import time
 import datetime
 import logging
@@ -36,7 +37,7 @@ def get_theme(book):
     return data
 
 
-@celery.task
+@shared_task(name='publish')
 def publish_book(*args, **kwargs):
     # global x
 
@@ -157,7 +158,7 @@ def publish_book(*args, **kwargs):
                 'Could not communicate with a server to fetch polling data.')
 
         if dta['state'] == 'SUCCESS':
-            for _key in data["outputs"].iterkeys():
+            for _key in data["outputs"].keys():
                 if 'state' in dta['result'][_key]:
                     if dta['result'][_key]['state'] == 'SUCCESS':
                         output_results[_key] = True
@@ -187,7 +188,7 @@ def publish_book(*args, **kwargs):
 
                 _files = {}
 
-                for output_type, result in dta['result'].iteritems():
+                for output_type, result in dta['result'].items():
                     if 'state' in result:
                         if result['state'] == 'SUCCESS':
                             status = 0

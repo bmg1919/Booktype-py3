@@ -12,7 +12,7 @@ from django.template.smartif import Literal
 from django.template.defaulttags import TemplateIfParser, IfNode
 
 from django.contrib.auth import models as auth_models
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.conf import settings
 
 from booki.editor import models
@@ -37,13 +37,14 @@ def tag_username(user):
     """
 
     name = user.username
-    if user.is_authenticated():
+    if user.is_authenticated:
         if user.first_name.strip() != '':
             name = user.first_name
     else:
         name = 'Anonymous'
 
     return name
+
 
 register.simple_tag(func=tag_username, name='username')
 register.filter(filter_func=tag_username, name='username')
@@ -95,7 +96,7 @@ class FormatBooktypeNode(template.Node):
                 elem.text = ''
                 elem.insert(0, a)
 
-        content = etree.tostring(tree, method='html', encoding='utf-8', xml_declaration=False)
+        content = etree.tostring(tree, method='html', encoding='unicode', xml_declaration=False)
         content = content.replace('<html><body>', '').replace('</body></html>', '')
 
         return content
@@ -315,7 +316,8 @@ def order_by(queryset, order_field):
     return queryset.order_by(order_field)
 
 
-@register.assignment_tag(takes_context=True)
+# @register.simple_tag(takes_context=True)
+@register.simple_tag(takes_context=True)
 def has_perm(context, permission_string):
     """Checks if a given user has a specific permission.
 
@@ -355,7 +357,7 @@ class TemplateCheckPermParser(TemplateIfParser):
         try:
             if len(value.split('.')) == 2:
                 return PermissionLiteral(value)
-        except:
+        except Exception:
             return super(TemplateCheckPermParser, self).create_var(value)
 
 
@@ -378,6 +380,7 @@ def do_has_perm(parser, token):
     assert token.contents == 'endcheck_perm'
 
     return IfNode(conditions_nodelists)
+
 
 register.tag('check_perm', do_has_perm)
 

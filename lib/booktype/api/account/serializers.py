@@ -6,7 +6,7 @@ from booktype.apps.account import utils as account_utils
 try:
     from django.urls import reverse
 except ImportError:
-    from django.core.urlresolvers import reverse
+    from django.urls import reverse
 
 
 class UserSerializer(serializers.HyperlinkedModelSerializer):

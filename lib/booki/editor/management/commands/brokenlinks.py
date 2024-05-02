@@ -15,8 +15,9 @@
 # along with Booktype.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import urllib2
-from lxml import etree, html
+import urllib
+from urllib.request import urlopen
+from lxml import html
 
 from django.test import Client
 from django.core.management.base import BaseCommand, CommandError
@@ -25,7 +26,7 @@ from booki.editor import models
 cacheLinks = {}
 
 
-class HeadRequest(urllib2.Request):
+class HeadRequest(urllib.Request):
     def get_method(self):
         return "HEAD"
 
@@ -34,20 +35,21 @@ def checkLink(options, chapter, urlLink):
     global cacheLinks
 
     if urlLink.startswith("http://"):
-        if options['no_remote']: return
+        if options['no_remote']:
+            return
 
         for hostUrl in options['ignore_url']:
             if urlLink.startswith(hostUrl):
                 return
 
-        print '   >>> ', urlLink,
+        print('   >>> ', urlLink)
 
         if cacheLinks.get(urlLink):
             returnCode = cacheLinks.get(urlLink)
         else:
             try:
-                response = urllib2.urlopen(HeadRequest(urlLink))
-            except IOError, e:
+                response = urlopen(HeadRequest(urlLink))
+            except IOError as e:
                 if hasattr(e, 'reason'):
                     returnCode = e.reason
                 elif hasattr(e, 'code'):
@@ -58,18 +60,19 @@ def checkLink(options, chapter, urlLink):
             if not options['no_cache']:
                 cacheLinks[urlLink] = returnCode
 
-        print '  [%s]' % returnCode
+        print('  [%s]' % returnCode)
     else:
-        if options['no_local']: return
+        if options['no_local']:
+            return
 
         c = Client()
         newUrl = os.path.normpath('/%s/_v/%s/%s/%s' % (
             chapter.version.book.url_title, chapter.version.getVersion(), chapter.url_title, urlLink))
 
-        print '    >> ', newUrl,
+        print('    >> ', newUrl)
         response = c.get(newUrl)
 
-        print '   [%s]' % response.status_code
+        print('   [%s]' % response.status_code)
 
 
 class Command(BaseCommand):
@@ -115,17 +118,17 @@ class Command(BaseCommand):
             booksList = models.Book.objects.all().order_by('url_title')
 
         for book in booksList:
-            print '[%s]' % book.url_title
+            print('[%s]' % book.url_title)
 
             try:
                 for chapter in models.Chapter.objects.filter(version__book=book):
-                    print '  [%s]' % chapter.url_title,
+                    print('  [%s]' % chapter.url_title)
 
                     try:
                         tree = html.document_fromstring(chapter.content)
-                        print ''
-                    except:
-                        print '   [ERROR PARSING HTML]'
+                        print('')
+                    except Exception:
+                        print('   [ERROR PARSING HTML]')
                         continue
 
                     for elem in tree.iter():
@@ -136,5 +139,5 @@ class Command(BaseCommand):
                         href = elem.get('href')
                         if href:
                             checkLink(options, chapter, href)
-            except:
+            except Exception:
                 pass

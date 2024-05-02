@@ -69,4 +69,3 @@ class RestrictExport(object):
             raise PermissionDenied()
 
         return super(RestrictExport, self).dispatch(request, *args, **kwargs)
-

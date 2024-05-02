@@ -9,7 +9,7 @@ from rest_framework.exceptions import APIException
 
 from django.core.files.base import ContentFile
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_noop
+from django.utils.translation import gettext_noop
 from django.conf import settings
 
 import sputnik
@@ -27,15 +27,9 @@ from booki.editor.models import (Book, BookToc, Language, Chapter, BookStatus,
 
 from ..core.serializers import SimpleBookRoleSerializer
 
-try:
-    from django.urls import reverse
-except ImportError:
-    from django.core.urlresolvers import reverse
+from django.urls import reverse
 
-try:
-    from PIL import Image
-except ImportError:
-    import Image
+from PIL import Image
 
 
 logger = logging.getLogger('api.editor.serializers')
@@ -94,7 +88,7 @@ class BookSerializer(BookListSerializer):
                     'title': item.chapter.title,
                     'url_title': item.chapter.url_title,
                     'typeof': item.typeof,
-                    'typeof_label': ugettext_noop('Chapter'),
+                    'typeof_label': gettext_noop('Chapter'),
                     'editor_url': '{0}#edit/{1}'.format(book_url, item.chapter.id),
                     'current_editor': item.chapter.get_current_editor_username()
                 }
@@ -104,7 +98,7 @@ class BookSerializer(BookListSerializer):
                     'editor_url': None,
                     'children': [],
                     'typeof': item.typeof,
-                    'typeof_label': ugettext_noop('Section')
+                    'typeof_label': gettext_noop('Section')
                 }
 
                 if item.has_children():
@@ -455,7 +449,6 @@ class MetadataRetrieveUpdateDestroySerializer(serializers.ModelSerializer):
         return attrs
 
 
-
 class BookUserListSerializer(serializers.ModelSerializer):
     book_roles = serializers.SerializerMethodField()
     profile_image_url = serializers.SerializerMethodField()
@@ -509,7 +502,7 @@ class BookAttachmentListSerializer(serializers.ModelSerializer):
         try:
             im = Image.open(obj.attachment.name)
             return im.size
-        except:
+        except Exception:
             pass
 
         return None

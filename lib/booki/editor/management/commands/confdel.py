@@ -20,6 +20,7 @@ from django.conf import settings
 
 from booktype.utils import config
 
+
 class Command(BaseCommand):
     help = "Delete configuration variable."
     requires_model_validation = False

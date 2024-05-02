@@ -1,6 +1,6 @@
 from rest_framework import status
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from booktype.tests import TestCase
 from booktype.tests.factory_models import BookFactory, BookVersionFactory, PLAIN_USER_PASSWORD
@@ -29,7 +29,7 @@ class BookInfoTest(TestCase):
 
     def test_details_as_anonymous(self):
         response = self.client.get(self.dispatcher)
-        self.assertEquals(response.status_code, status.HTTP_403_FORBIDDEN)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_details_as_owner_logged_in(self):
         # first login with book owner user
@@ -41,14 +41,14 @@ class BookInfoTest(TestCase):
         response = self.client.get(self.dispatcher)
 
         # check status code
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # check if context has been filled correctly
         for key in self.vars_to_check:
             self.assertTrue(key in response.context)
 
         # owner is also book admin, so this should be True
-        self.assertEquals(response.context['is_book_admin'], True)
+        self.assertEqual(response.context['is_book_admin'], True)
 
         # check admin actions available in response
         self.assertContains(response, 'Edit Book Info')

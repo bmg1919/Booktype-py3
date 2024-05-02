@@ -18,7 +18,7 @@
 import os
 import json
 import logging
-import urlparse
+from urllib.parse import urlparse
 
 from lxml import etree
 from collections import OrderedDict
@@ -51,7 +51,7 @@ def get_settings(book, export_format):
       - export_format: Type of export format
 
     :Returns:
-      Returns a dictionarty with settings for the certain format.
+      Returns a dictionary with settings for the certain format.
     """
 
     try:
@@ -77,7 +77,7 @@ def get_settings(book, export_format):
             else:
                 logger.error("{0} was not found in EXPORT_SETTINGS in constants.py module".format(export_format))
                 raise
-    except:
+    except Exception:
         settings_options = config.get_configuration('EXPORT_SETTINGS')[export_format]
 
     return settings_options
@@ -120,7 +120,7 @@ def set_booktype_metada(epub_book, book):
     isbn = 'booktype:%s' % book.url_title
     try:
         isbn = book.metadata.get(name='BKTERMS.print_isbn').value
-    except:
+    except Exception:
         pass
     finally:
         if not isbn:
@@ -131,13 +131,13 @@ def set_booktype_metada(epub_book, book):
     try:
         epub_isbn = book.metadata.get(name='BKTERMS.ebook_isbn').value
         epub_book.add_metadata('DC', 'identifier', epub_isbn, {'id': 'epub_ISBN'})
-    except:
+    except Exception:
         pass
 
     # set main book title
     try:
         book_title = book.metadata.get(name='DC.title').value
-    except:
+    except Exception:
         book_title = book.title
     epub_book.set_title(book_title, 'main')
 
@@ -172,7 +172,7 @@ def set_booktype_metada(epub_book, book):
     excluded = [
         'DC.title', 'DC.title', 'DC.creator',
         'BKTERMS.print_isbn', 'BKTERMS.ebook_isbn'
-    ] + titles_map.keys()
+    ] + list(titles_map.keys())
 
     for info in book.metadata.exclude(name__in=excluded):
         _standard, name = info.name.split('.')
@@ -189,7 +189,7 @@ def set_booktype_metada(epub_book, book):
         rtl = book.info_set.get(name='{http://booki.cc/}dir').get_value()
 
         epub_book.add_metadata(None, 'meta', rtl, {'property': 'bkterms:dir'})
-    except:
+    except Exception:
         pass
 
     return epub_book
@@ -327,7 +327,7 @@ class ExportBook(object):
         if elem.tag == 'a':
             href = elem.get('href')
             if href and href.startswith('../'):
-                urlp = urlparse.urlparse(href)
+                urlp = urlparse(href)
 
                 url_title = urlp.path[3:-1]
 
@@ -353,8 +353,7 @@ class ExportBook(object):
 
             if (image_div.getparent().tag != 'div' or
                     'class' not in image_div.getparent().attrib or
-                    ('group_img' not in image_div.getparent().attrib['class'].split() and
-                      'wrap' not in image_div.getparent().attrib['class'].split())):
+                    ('group_img' not in image_div.getparent().attrib['class'].split() and 'wrap' not in image_div.getparent().attrib['class'].split())):
                 group_img = etree.Element('div', {'class': 'group_img'})
                 image_div.addprevious(group_img)
                 group_img.insert(0, image_div)
@@ -383,13 +382,13 @@ class ExportBook(object):
                 continue
 
             try:
-                f = open(attachment.attachment.name, "rb")
+                f = open(attachment.attachment.path, "rb")
                 blob = f.read()
                 f.close()
             except (IOError, OSError):
                 continue
             else:
-                filename = os.path.basename(attachment.attachment.name.encode("utf-8"))
+                filename = os.path.basename(attachment.attachment.name)
                 itm = epub.EpubImage()
                 itm.file_name = 'static/%s' % filename
                 itm.content = blob

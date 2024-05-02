@@ -1,9 +1,9 @@
 from django.template.loaders.base import Loader
-
+from django.template import Origin
 import os
 
 from django.conf import settings
-from django.template import TemplateDoesNotExist
+from django.template import TemplateDoesNotExist, Template
 from django.utils._os import safe_join
 
 
@@ -17,6 +17,9 @@ class Loader(Loader):
     """
 
     is_usable = True
+
+    def get_contents(self, origin):
+        return open(origin.name, 'r').read()
 
     def get_template_sources(self, template_name, template_dirs=None):
         if not template_dirs:
@@ -34,7 +37,12 @@ class Loader(Loader):
             try:
                 splts = template_name.split('/')
                 # we have already checked the length of the splts
-                yield safe_join(template_dir, splts[2])
+                name = safe_join(template_dir, splts[2])
+                yield Origin(
+                    name=name,
+                    template_name=template_name,
+                    loader=self,
+                )
             except UnicodeDecodeError:
                 # The template dir name was a bytestring that wasn't valid UTF-8.
                 raise

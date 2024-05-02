@@ -18,7 +18,7 @@ import os
 import uuid
 import json
 import logging
-import urlparse
+from urllib.parse import urlparse
 import ebooklib
 import datetime
 from copy import deepcopy
@@ -26,7 +26,7 @@ from lxml import etree
 
 from django.template.base import Template
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ImproperlyConfigured
 
 from booktype.apps.themes.utils import (
@@ -179,7 +179,7 @@ class Epub3Converter(BaseConverter):
         def _check(x):
             return x[1] and x[1].get('property', '') == 'bkterms:dir'
 
-        values = filter(_check, m[None])
+        values = list(filter(_check, m[None]))
         if len(values) > 0 and len(values[0]) > 0:
             return values[0][0].lower()
 
@@ -236,10 +236,10 @@ class Epub3Converter(BaseConverter):
 
         # delete existing 'modified' tag
         m = epub_book.metadata[ebooklib.epub.NAMESPACES["OPF"]]
-        m[None] = filter(lambda (_, x): not (isinstance(x, dict) and x.get("property") == "dcterms:modified"), m[None])  # noqa
+        m[None] = list(filter(lambda x: not (isinstance(x, dict) and x.get("property") == "dcterms:modified"), m[None]))  # noqa
 
         # we also need to remove the `additional metadata` which here is just garbage
-        m[None] = filter(lambda (_, x): not (isinstance(x, dict) and x.get("property").startswith("add_meta_terms:")), m[None])  # noqa
+        m[None] = list(filter(lambda x: not (isinstance(x, dict) and x.get("property").startswith("add_meta_terms:")), m[None]))  # noqa
 
         # NOTE: probably going to extend this function in future
 
@@ -263,7 +263,7 @@ class Epub3Converter(BaseConverter):
                 chapter_title, chapter_href = toc_item
 
                 chapter_href = "{}/{}".format(DOCUMENTS_DIR, chapter_href)
-                chapter_path = urlparse.urlparse(chapter_href).path
+                chapter_path = urlparse(chapter_href).path
 
                 book_item = self.items_by_path[chapter_path]
                 book_item.title = chapter_title
@@ -285,24 +285,27 @@ class Epub3Converter(BaseConverter):
 
         # filters-out empty sections
         def _empty_sec(item):
-            if isinstance(item, tuple) and len(item[1]) == 0:
+            try:
+                if isinstance(item, tuple) and len(item[1]) == 0:
+                    return False
+                else:
+                    return True
+            except TypeError:
                 return False
-            else:
-                return True
 
         # filters-out existing cover
         def _skip_cover(item):
-            if type(item[1]) in (str, unicode):
+            if type(item[1]) is str:
                 if os.path.basename(item[1]) == COVER_FILE_NAME:
                     return False
             return True
 
-        toc = filter(_skip_cover, parse_toc_nav(original_book))
+        toc = list(filter(_skip_cover, parse_toc_nav(original_book)))
         toc = map(mapper, toc)
 
         # we don't allow empty sections just because epubcheck will
         # raise an error at the moment of evaluating the toc.ncx file
-        toc = filter(_empty_sec, toc)
+        toc = list(filter(_empty_sec, toc))
 
         epub_book.toc = toc
 
@@ -353,7 +356,7 @@ class Epub3Converter(BaseConverter):
                             content = ebooklib.utils.parse_html_string(item.content)
                             cnt = self._bk_image_editor_conversion.convert(content)
                             item.content = etree.tostring(cnt, method='html', encoding='utf-8', pretty_print=True)
-                        except:
+                        except Exception:
                             logger.exception("epub ImageEditorConversion failed")
 
             if isinstance(item, ebooklib.epub.EpubNcx):
@@ -403,7 +406,7 @@ class Epub3Converter(BaseConverter):
 
                     tmpl = Template(content)
                     content = tmpl.render(data)
-                except:
+                except Exception:
                     logger.exception("Fails with custom theme.")
 
             item = ebooklib.epub.EpubItem(
@@ -432,14 +435,13 @@ class Epub3Converter(BaseConverter):
 
         return book_css
 
-
     def _get_theme_assets(self):
         return read_theme_assets(self.theme_name, self._theme_suffix)
 
     def _add_theme_assets(self, epub_book):
         assets = self._get_theme_assets()
 
-        for asset_type, asset_list in assets.iteritems():
+        for asset_type, asset_list in assets.items():
             if asset_type == 'images':
                 for image_name in asset_list:
                     name = os.path.basename(image_name)

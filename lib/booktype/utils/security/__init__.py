@@ -50,7 +50,7 @@ def has_perm(user, to_do, book=None):
         if default_role:
             permissions += [p for p in default_role.permissions.all()]
 
-        if user.is_authenticated():
+        if user.is_authenticated:
             if book:
                 bookroles = user.roles.filter(book=book)
                 for bookrole in bookroles:
@@ -75,7 +75,7 @@ def get_user_permissions(user, book):
     if default_role:
         permissions += [p.key_name for p in default_role.permissions.all()]
 
-    if user.is_authenticated():
+    if user.is_authenticated:
         bookroles = user.roles.filter(book=book)
         for bookrole in bookroles:
             permissions += [

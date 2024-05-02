@@ -32,6 +32,7 @@ class ProfileImageNode(Node):
         user = Variable(self.user).resolve(context)
         image_url = utils.get_profile_image(user)
         return mark_safe('<img src="{url}?{anti_cache}"/>'.format(url=image_url, anti_cache=str(uuid.uuid4())))
+        # return mark_safe('<img src="{url}"/>'.format(url=image_url))  # , anti_cache=str(uuid.uuid4())))
 
 
 @register.tag

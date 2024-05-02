@@ -18,7 +18,7 @@ import os
 import json
 import uuid
 import codecs
-import urllib2
+from urllib.parse import unquote
 import logging
 import datetime
 from lxml import etree
@@ -30,7 +30,7 @@ from copy import deepcopy
 from django.conf import settings
 from django.template.loader import render_to_string
 from django import template
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from booktype.apps.convert import plugin
 from booktype.apps.themes.utils import (
@@ -188,7 +188,7 @@ class MPDFConverter(BaseConverter):
         def _check(x):
             return x[1] and x[1].get('property', '') == 'bkterms:dir'
 
-        values = filter(_check, m[None])
+        values = list(filter(_check, m[None]))
         if len(values) > 0 and len(values[0]) > 0:
             return values[0][0].lower()
 
@@ -266,7 +266,7 @@ class MPDFConverter(BaseConverter):
 
         dc_metadata = {
             key: value[0][0] for key, value in
-            book.metadata.get("http://purl.org/dc/elements/1.1/").iteritems()
+            book.metadata.get("http://purl.org/dc/elements/1.1/").items()
         }
 
         m = book.metadata[ebooklib.epub.NAMESPACES["OPF"]]
@@ -276,7 +276,7 @@ class MPDFConverter(BaseConverter):
                 return True
             return False
 
-        for key, value in filter(_check, m[None]):
+        for key, value in list(filter(_check, m[None])):
             dc_metadata[value.get('property')] = key
 
         dc_metadata['bkterms:dir'] = self.direction
@@ -376,16 +376,16 @@ class MPDFConverter(BaseConverter):
                 if self._bk_image_editor_conversion:
                     try:
                         cnt = self._bk_image_editor_conversion.convert(cnt)
-                    except:
+                    except Exception:
                         logger.exception("mpdf ImageEditorConversion failed")
 
                 self._fix_full_page_image(cnt)
 
-                return etree.tostring(cnt, method='html', encoding='utf-8', pretty_print=True)[6:-9]
+                return etree.tostring(cnt, method='html', encoding='unicode', pretty_print=True)[6:-9]
         except etree.XMLSyntaxError:
             pass
 
-        return u''
+        return ''
 
     def _fix_horrible_mpdf(self, content):
         content = content.replace('></columnbreak>', " />\n")
@@ -474,7 +474,7 @@ class MPDFConverter(BaseConverter):
         body_name = get_body(self.theme_name, self.name)
         html = render_to_string(body_name, data)
         html_path = os.path.join(self.sandbox_path, self._body_html_name)
-        f = codecs.open(html_path, 'wt', 'utf8')
+        f = codecs.open(html_path, 'wt')
         f.write(html)
         f.close()
 
@@ -495,7 +495,7 @@ class MPDFConverter(BaseConverter):
             return
 
         css_style = create_default_style(self.config, self.name, self.get_extra_style(book))
-        theme_style = u''
+        theme_style = ''
 
         if self.theme_name != '':
             theme_style = read_theme_style(self.theme_name, self.name)
@@ -503,21 +503,21 @@ class MPDFConverter(BaseConverter):
             try:
                 if self.theme_name == 'custom':
                     custom = self.config['theme'].pop('custom', '{}')
-                    custom = json.loads(custom.encode('utf-8'))
+                    custom = json.loads(custom.encode())
                     self.config.update(custom)
 
                 tmpl = template.Template(theme_style)
                 _style = tmpl.render(template.Context(self.config))
                 theme_style = _style
-            except:
+            except Exception:
                 logger.exception("Writing styles failed for `%s` theme." % self.theme_name)
 
-        custom_style = self.config.get('settings', {}).get('styling', u'')
+        custom_style = self.config.get('settings', {}).get('styling', '')
 
         # add css for fpi
         css_style += self._full_page_images_css
 
-        f = codecs.open('{}/style.css'.format(self.sandbox_path), 'wt', 'utf8')
+        f = codecs.open('{}/style.css'.format(self.sandbox_path), 'wt')
         f.write(css_style)
         f.write(theme_style)
         f.write(custom_style)
@@ -539,8 +539,8 @@ class MPDFConverter(BaseConverter):
         data = {'metadata': dc_metadata, 'config': self.config}
         data.update(self.get_extra_configuration())
 
-        f = codecs.open('{}/config.json'.format(self.sandbox_path), 'wt', 'utf8')
-        f.write(unicode(json.dumps(data), 'utf8'))
+        f = codecs.open('{}/config.json'.format(self.sandbox_path), 'wt')
+        f.write(json.dumps(data))
         f.close()
 
     def _save_images(self, book):
@@ -655,7 +655,7 @@ class MPDFConverter(BaseConverter):
 
             if _src is None:
                 continue
-            src_url = urllib2.unquote(_src)
+            src_url = unquote(_src)
             item_name = os.path.normpath(os.path.join(base_path, src_url))
             try:
                 file_name = self.images[item_name]
@@ -762,7 +762,7 @@ class MPDFConverter(BaseConverter):
         frontmatter_name = get_single_frontmatter(self.theme_name, self.name)
         html = render_to_string(frontmatter_name, data)
 
-        f = codecs.open('{}/frontmatter.html'.format(self.sandbox_path), 'wt', 'utf8')
+        f = codecs.open('{}/frontmatter.html'.format(self.sandbox_path), 'wt')
         f.write(html)
         f.close()
 
@@ -782,7 +782,7 @@ class MPDFConverter(BaseConverter):
         endmatter_name = get_single_endmatter(self.theme_name, self.name)
         html = render_to_string(endmatter_name, data)
 
-        f = codecs.open('{}/endmatter.html'.format(self.sandbox_path), 'wt', 'utf8')
+        f = codecs.open('{}/endmatter.html'.format(self.sandbox_path), 'wt')
         f.write(html)
         f.close()
 
@@ -798,7 +798,7 @@ class MPDFConverter(BaseConverter):
         def _write(name, content):
             try:
                 os.makedirs('{}/assets/'.format(self.sandbox_path))
-            except:
+            except Exception:
                 pass
 
             if os.path.normpath('{}/assets/{}'.format(self.sandbox_path, name)).startswith(self.sandbox_path):
@@ -809,7 +809,7 @@ class MPDFConverter(BaseConverter):
                 except IOError:
                     pass
 
-        for asset_type, asset_list in assets.iteritems():
+        for asset_type, asset_list in assets.items():
             if asset_type == 'images':
                 for image_name in asset_list:
                     name = os.path.basename(image_name)

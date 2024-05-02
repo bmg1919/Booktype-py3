@@ -72,4 +72,3 @@ class Command(BaseCommand):
             book.owner = user
 
         book.save()
-            

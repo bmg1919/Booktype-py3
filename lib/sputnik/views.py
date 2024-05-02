@@ -36,7 +36,7 @@ def set_last_access(request):
     try:
         if request.sputnikID and request.sputnikID.find(' ') == -1:
             sputnik.set("ses:%s:last_access" % request.sputnikID, time.time())
-    except:
+    except Exception:
         logger.error("Can not set timestamp.")
 
 
@@ -47,16 +47,17 @@ def remove_timeout_clients(request):
         for k in sputnik.rkeys("ses:*:last_access"):
             tm = sputnik.get(k)
 
-            if type(tm) in [type(' '), type(u' ')]:
+            # if type(tm) in [type(' '), type(u' ')]:
+            if isinstance(tm, str):
                 try:
                     tm = decimal.Decimal(tm)
-                except:
+                except Exception:
                     continue
 
             # timeout after 2 minute
             if tm and decimal.Decimal("%f" % _now) - tm > 60 * 2:
                 sputnik.removeClient(request, k[4:-12])
-    except:
+    except Exception:
         logger.debug("Can not get all the last accesses")
 
 
@@ -70,7 +71,7 @@ def collect_messages(request, clientID):
         try:
             if clientID and clientID.find(' ') == -1:
                 v = sputnik.lpop("ses:%s:%s:messages" % (request.session.session_key, clientID))
-        except:
+        except Exception:
             # Limit only to 20 messages
             if n > 20:
                 break
@@ -84,7 +85,7 @@ def collect_messages(request, clientID):
 
         try:
             results.append(json.loads(v))
-        except:
+        except Exception:
             logger.error("Error while adding values to the result.")
 
     return results
@@ -126,7 +127,7 @@ def dispatcher(request, **sputnik_dict):
     except ValueError:
         status_code = False
         logger.error("Error while trying to read input data. This does not seems to be JSON data.")
-    except:
+    except Exception:
         status_code = False
         logger.error("Error while trying to read input data.")
 
@@ -164,19 +165,19 @@ def dispatcher(request, **sputnik_dict):
                             # For now they all do the same thing but this might change in the future
                             try:
                                 ret = fnc(request, message, **a)
-                            except ObjectDoesNotExist, e:
+                            except ObjectDoesNotExist as e:
                                 execute_status = False
                                 logger.error("[{}] Object you are trying to find does not exist.".format("remote_{}".format(message.get('command', ''))))
                                 logger.exception(e)
-                            except SuspiciousOperation, e:
+                            except SuspiciousOperation as e:
                                 execute_status = False
                                 logger.error("[{}] Suspicious operation.".format("remote_{}".format(message.get('command', ''))))
                                 logger.exception(e)
-                            except PermissionDenied, e:
+                            except PermissionDenied as e:
                                 execute_status = False
                                 logger.error("[{}] Permission denied.".format("remote_{}".format(message.get('command', ''))))
                                 logger.exception(e)
-                            except Exception, e:
+                            except Exception as e:
                                 execute_status = False
                                 logger.error("[{}] Unknown exception.".format("remote_{}".format(message.get('command', ''))))
                                 logger.exception(e)

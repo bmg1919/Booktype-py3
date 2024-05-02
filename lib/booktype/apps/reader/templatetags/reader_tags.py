@@ -17,9 +17,11 @@
 import json
 
 from django import template
-from django.core.urlresolvers import reverse
-from django.utils.translation import ugettext_lazy as _
-from django.contrib.staticfiles.templatetags.staticfiles import static
+from django.urls import reverse
+from django.utils.translation import gettext_lazy as _
+# from django.conf.urls.static import static
+from django.templatetags.static import static
+from django.conf import settings
 
 from booktype.apps.core.templatetags.booktype_tags import jsonlookup
 
@@ -45,7 +47,7 @@ ACTIVITY_KIND_VERBOSE = {
 }
 
 
-@register.assignment_tag
+@register.simple_tag
 def verbose_activity(activity):
     """
     Template tag to check what kind of activity is the one coming
@@ -53,7 +55,7 @@ def verbose_activity(activity):
     fields to it.
     """
 
-    verbose = unicode(ACTIVITY_KIND_VERBOSE.get(activity.kind, None))
+    verbose = ACTIVITY_KIND_VERBOSE.get(activity.kind, None)
     default_image = static('core/img/chapter-default.png')
     link_url = None
     book = activity.book
@@ -110,7 +112,7 @@ def verbose_activity(activity):
         if 'link_text' not in activity_dict and activity.kind != 4:
             try:
                 activity_dict['link_text'] = json.loads(activity.args).values()[0]
-            except:
+            except Exception:
                 activity_dict['link_text'] = ''
 
         return activity_dict

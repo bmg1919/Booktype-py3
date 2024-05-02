@@ -160,7 +160,7 @@ define([
               <textarea ref="replyArea" rows="1"
                 className="form-control" placeholder="Reply..."
                 value={this.state.replyValue} onChange={this.handleReplyChange}
-                className={replyClass} onFocus={this.showActions}
+                onFocus={this.showActions}
               />
             </div>
             <div ref="actions" className={actionsClass}>
@@ -191,7 +191,7 @@ define([
         return (
           <div className={commentTypeClass}>
             <a className="pull-left" href="#">
-             <img src={this.props.author.avatar} className="user-avatar" />
+             <img src={this.props.author.avatar} className="user-avatar" alt="user avatar"/>
             </a>
             <div className="media-body">
               <b>{this.props.author.name}</b><br />

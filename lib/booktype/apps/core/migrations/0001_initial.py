@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
             name='BookRole',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('book', models.ForeignKey(verbose_name='book', to='editor.Book')),
+                ('book', models.ForeignKey(verbose_name='book', to='editor.Book', on_delete=models.CASCADE)),
                 ('members', models.ManyToManyField(related_name='roles', null=True, verbose_name='users', to=settings.AUTH_USER_MODEL, blank=True)),
             ],
             options={
@@ -61,7 +61,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='bookrole',
             name='role',
-            field=models.ForeignKey(verbose_name='role', to='core.Role'),
+            field=models.ForeignKey(verbose_name='role', to='core.Role', on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

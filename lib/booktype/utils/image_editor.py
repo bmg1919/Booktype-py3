@@ -10,6 +10,7 @@ from django.utils.text import get_valid_filename
 
 logger = logging.getLogger("booktype.convert.image_editor")
 
+
 class BkImageEditor(object):
     """
     Booktype Image Editor
@@ -99,7 +100,7 @@ class BkImageEditor(object):
                                       extension=extension.lower())
 
         return '{cache_hash}.{extension}'.format(
-            cache_hash=hashlib.md5(output_filename).hexdigest(),
+            cache_hash=hashlib.md5(output_filename.encode()).hexdigest(),
             extension=extension.lower()
         )
 
@@ -168,13 +169,13 @@ class BkImageEditor(object):
             # try to get icc profile
             try:
                 icc_profile = self._input_image_file.info.get("icc_profile")
-            except:
+            except Exception:
                 icc_profile = None
 
             # resize image (not frame)
             pil_region = pil_region.resize(
                 (self._image_width, self._image_height),
-                Image.ANTIALIAS
+                Image.LANCZOS
             )
 
             # scale image (flip)
@@ -257,5 +258,5 @@ class BkImageEditor(object):
             return output_filepath
 
         except (IOError, Exception) as e:
-            logger.exception("BkImageEditor: {}. Image: {}".format(e.message, self._input_image_file) )
+            logger.exception("BkImageEditor: {}. Image: {}".format(e.message, self._input_image_file))
             return None

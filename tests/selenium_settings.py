@@ -1,6 +1,6 @@
 import os
 import django
-from unipath import Path
+from pathlib import Path
 
 BASE_DIR = Path(os.path.abspath(__file__))
 
@@ -15,7 +15,7 @@ BOOKTYPE_SITE_NAME = 'Booktype site'
 BOOKTYPE_SITE_DIR = 'tests'
 THIS_BOOKTYPE_SERVER = ''
 
-BOOKTYPE_ROOT = Path(os.path.abspath(__file__)).ancestor(1)
+BOOKTYPE_ROOT = Path(os.path.abspath(__file__)).parent
 BOOKTYPE_URL = ''
 # BOOKTYPE_URL = 'http://{}'.format(THIS_BOOKTYPE_SERVER)
 
@@ -95,7 +95,7 @@ MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 TEMPLATE_LOADERS = (
     'django.template.loaders.filesystem.Loader',
     'django.template.loaders.app_directories.Loader',
-    'django.template.loaders.eggs.Loader',
+    # 'django.template.loaders.eggs.Loader',
 )
 
 
@@ -110,7 +110,7 @@ TEMPLATE_CONTEXT_PROCESSORS = (
     "django.core.context_processors.csrf"
 )
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',

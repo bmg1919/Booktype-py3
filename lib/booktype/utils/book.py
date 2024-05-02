@@ -27,11 +27,7 @@ from booki.editor import models
 from booki.utils.log import logBookHistory
 from booktype.utils import config
 from .misc import booktype_slugify, get_default_book_status
-
-try:
-    from PIL import Image
-except ImportError:
-    import Image
+from PIL import Image
 
 
 logger = logging.getLogger('booktype.utils.book')
@@ -214,7 +210,12 @@ def set_book_cover(book, file_name):
 
     try:
         im = Image.open(file_name)
-        im.thumbnail((240, 240), Image.ANTIALIAS)
+
+        # Need to remove alpha to save JPEG
+        if im.mode == 'RGBA':
+            im = im.convert('RGB')
+
+        im.thumbnail((240, 240), Image.LANCZOS)
 
         dir_path = os.path.join(settings.MEDIA_ROOT, settings.COVER_IMAGE_UPLOAD_DIR)
         file_path = os.path.join(dir_path, '{}.jpg'.format(book.id))
@@ -226,7 +227,7 @@ def set_book_cover(book, file_name):
 
         # If we have used book.cover.save we would end up with obsolete files  on disk
         book.cover = '%s%s.jpg' % (settings.COVER_IMAGE_UPLOAD_DIR, book.id)
-    except Exception, e:
+    except Exception as e:
         logger.exception(e)
 
 
@@ -263,7 +264,7 @@ def rename_book(book, new_title, new_url_title):
     book.title = new_title
     book.url_title = new_url_title
 
-    n = len(settings.DATA_ROOT) + len('books/') + 1
+    n = len(str(settings.DATA_ROOT)) + len('books/') + 1
 
     # This entire thing with full path in attachments is silly and kind of legacy problem from early versions of
     # Django. This should be fixed in the future.

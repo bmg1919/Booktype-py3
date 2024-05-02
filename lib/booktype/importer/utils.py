@@ -1,6 +1,6 @@
 
 import os
-import urllib
+from urllib.parse import unquote
 import importlib
 
 from booktype.utils import config
@@ -13,9 +13,9 @@ def convert_file_name(file_name):
     if name.rfind('.') != -1:
         _np = name[:name.rfind('.')]
         _ext = name[name.rfind('.'):]
-        name = booktype_slugify(_np)+_ext
+        name = booktype_slugify(_np) + _ext
 
-    name = urllib.unquote(name)
+    name = unquote(name)
     name = name.replace(' ', '_')
 
     return name
@@ -29,7 +29,7 @@ def get_importer_module(ext):
 
     IMPORTER_MAP = config.get_configuration('BOOKTYPE_IMPORTERS')
     if ext not in IMPORTER_MAP.keys():
-        raise NotImplemented("Importer for extension {} hasn't been implemented yet".format(ext))
+        raise NotImplementedError("Importer for extension {} hasn't been implemented yet".format(ext))
 
     module_path, import_func = IMPORTER_MAP[ext]
     module = importlib.import_module(module_path)

@@ -16,7 +16,7 @@
 
 from django.views import static
 from django.conf import settings
-from django.conf.urls import url, include
+from django.urls import re_path, include, path
 from django.views.generic.base import TemplateView
 from booktype.apps.account.views import profilethumbnail
 
@@ -31,55 +31,56 @@ SPUTNIK_DISPATCHER = (
 
 urlpatterns = [
     # internationalization
-    url(r'^_i18n/', include('django.conf.urls.i18n')),
+    path('_i18n/', include('django.conf.urls.i18n')),
 
     # front page
-    url(r'', include('booktype.apps.portal.urls', namespace="portal")),
+    # re_path(r'', include('booktype.apps.portal.urls', namespace="portal")),
+    path('', include('booktype.apps.portal.urls', namespace="portal")),
 
     # accounts
-    url(r'^accounts/', include('booktype.apps.account.urls', namespace="accounts")),
+    # re_path(r'^accounts/', include('booktype.apps.account.urls', namespace="accounts")),
+    path('accounts/', include('booktype.apps.account.urls', namespace="accounts")),
 
     # booktype control center
-    url(r'^_control/', include('booktypecontrol.urls', namespace="control_center")),
+    path('_control/', include('booktypecontrol.urls', namespace="control_center")),
 
     # convert
     # TODO: Add namespace
-    url(r'^_convert/', include('booktype.apps.convert.urls')),
+    path('_convert/', include('booktype.apps.convert.urls')),
 
-    url(r'^data/(?P<path>.*)$', static.serve, {'document_root': settings.DATA_ROOT, 'show_indexes': True}),
+    path('data/<path:path>', static.serve, {'document_root': settings.DATA_ROOT, 'show_indexes': True}),
 
     # misc
     # TODO: replace with new apps
-    url(r'^_utils/profilethumb/(?P<profileid>[\w\d\_\.\-]+)/thumbnail.jpg$',
-        profilethumbnail, name='view_profilethumbnail'),
+    path('_utils/profilethumb/<profileid>/thumbnail.jpg', profilethumbnail, name='view_profilethumbnail'),
 
     # sputnik dispatcher
-    url(r'^_sputnik/$', sputnik_dispatcher, {"map": SPUTNIK_DISPATCHER}, name='sputnik_dispatcher'),
+    re_path(r'^_sputnik/$', sputnik_dispatcher, {"map": SPUTNIK_DISPATCHER}, name='sputnik_dispatcher'),
 
     # messaging application
     # TODO: remove this application
-    url(r'^messaging/', include('booki.messaging.urls')),
+    path('messaging/', include('booki.messaging.urls')),
 
     # importer application
-    url(r'^_importer/', include('booktype.apps.importer.urls', namespace='importer')),
+    path('_importer/', include('booktype.apps.importer.urls', namespace='importer')),
 
     # API urls
-    url(r'^_api/', include('booktype.api.urls')),
+    path('_api/', include('booktype.api.urls')),
 ]
 
 urlpatterns += [
     # export
-    url(r'^(?P<bookid>[\w\s\_\.\-\d]+)/', include('booktype.apps.loadsave.urls', namespace='loadsave')),
+    path('<bookid>/', include('booktype.apps.loadsave.urls', namespace='loadsave')),
 
     # new editor
-    url(r'^(?P<bookid>[\w\s\_\.\-\d]+)/', include('booktype.apps.edit.urls', namespace='edit')),
+    path('<bookid>/', include('booktype.apps.edit.urls', namespace='edit')),
 
     # old editor app
-    url(r'^(?P<bookid>[\w\s\_\.\-\d]+)/', include('booki.editor.urls')),
+    path('<bookid>/', include('booki.editor.urls')),
 
     # robots.txt
-    url(r'^robots\.txt$', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
+    path('robots.txt', TemplateView.as_view(template_name='robots.txt', content_type='text/plain')),
 
     # new booktype reader app
-    url(r'^(?P<bookid>[\w\s\_\.\-\d]+)/', include('booktype.apps.reader.urls', namespace='reader')),
+    path('<bookid>/', include('booktype.apps.reader.urls', namespace='reader')),
 ]

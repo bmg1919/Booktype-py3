@@ -24,14 +24,14 @@ import sputnik
 import time
 import requests
 import logging
-import urlparse
+from urllib.parse import urlparse
 
-from StringIO import StringIO
+from io import StringIO
 from collections import OrderedDict
 
 from django.views.generic.base import View
 from django.http import HttpResponse, Http404
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.conf import settings
 
 from ebooklib import epub
@@ -55,7 +55,7 @@ def export_book(input_file, filename):
 
     This function reads content of the book in Booki.zip file, creates new
     book in EPUB format and converts entire content into it. There are some
-    things which are different in new EPUB format. One of them is how links 
+    things which are different in new EPUB format. One of them is how links
     and interlinks are handled.
     """
 
@@ -91,12 +91,12 @@ def export_book(input_file, filename):
             title=title,
             file_name='{}.xhtml'.format(file_name[6:-5])
         )
-        cont = unicode(bookizip.read(file_name), 'utf-8')
+        cont = bookizip.read(file_name)
         _section.append(c1)
 
         try:
             tree = parse_html_string(cont.encode('utf-8'))
-        except:
+        except Exception:
             # Just ignore everything if we can not parse the chapter
             continue
 
@@ -106,7 +106,7 @@ def export_book(input_file, filename):
                 href = elem.get('href')
 
                 if href:
-                    urlp = urlparse.urlparse(href)
+                    urlp = urlparse(href)
                     url_title = urlp.path
 
                     if urlp.scheme == '':
@@ -155,7 +155,6 @@ def export_book(input_file, filename):
 
     opts = {'plugins': [TidyPlugin(), standard.SyntaxPlugin()]}
     epub.write_epub(filename, epub_book, opts)
-
 
 
 def download_bookizip(base_path, url_path):
@@ -250,7 +249,7 @@ def send_request(book_url, conf, request):
             data['outputs'][conf['format']]['config']['cover_image'] = 'epub_cover_image'
         elif conf['format'] == 'mobi':
             data['assets']['mobi_cover_image'] = request.POST.get('cover_url', '')
-            data['outputs'][conf['format']]['config']['cover_image'] = 'mobi_cover_image'        
+            data['outputs'][conf['format']]['config']['cover_image'] = 'mobi_cover_image'
 
     output_results = {}
 
@@ -295,7 +294,7 @@ def send_request(book_url, conf, request):
 
                 _files = {}
 
-                for output_type, result in dta['result'].iteritems():
+                for output_type, result in dta['result'].items():
                     if 'state' in result:
                         if result['state'] == 'SUCCESS':
                             return result
@@ -314,7 +313,7 @@ class ConvertView(RestrictExport, View):
     """Convert view for faking Objavi call.
 
     Booktype 1.6 will call this URL thinking it is talking with Objavi service. This view will
-    parse all the arguments and then send request to the new Booktype 2.0 convert scripts. 
+    parse all the arguments and then send request to the new Booktype 2.0 convert scripts.
 
     It will also download book from Booktype 1.6 system in Booki.zip file. File will be saved
     into temporary file. During our call to Booktype 2.0 system we will use unique id for

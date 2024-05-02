@@ -32,10 +32,10 @@ def import_epub(epub_file, book, notifier=None, delegate=None):
     if notifier:
         importer.notifier = notifier
 
-    if isinstance(epub_file, file):
-        # file on disk
-        importer.import_file(epub_file.name, book)
-    elif isinstance(epub_file, str) or isinstance(epub_file, unicode):
+    # if isinstance(epub_file, file):
+    #     # file on disk
+    #     importer.import_file(epub_file.name, book)
+    if isinstance(epub_file, str):  # or isinstance(epub_file, unicode):
         # path to file on disk
         importer.import_file(epub_file, book)
     elif isinstance(epub_file, object):

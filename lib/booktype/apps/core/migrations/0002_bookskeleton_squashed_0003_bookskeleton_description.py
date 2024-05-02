@@ -8,7 +8,7 @@ import django.db.models.deletion
 
 class Migration(migrations.Migration):
 
-    replaces = [(b'core', '0002_bookskeleton'), (b'core', '0003_bookskeleton_description')]
+    replaces = [('core', '0002_bookskeleton'), ('core', '0003_bookskeleton_description')]
 
     dependencies = [
         ('core', '0001_initial'),
@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=100, verbose_name='Name')),
                 ('skeleton_type', models.IntegerField(choices=[(1, 'EPUB')], verbose_name='Skeleton Type')),
-                ('skeleton_file', models.FileField(upload_to=b'book_skeletons/', verbose_name='File')),
+                ('skeleton_file', models.FileField(upload_to='book_skeletons/', verbose_name='File')),
                 ('language', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='editor.Language', verbose_name='Language')),
                 ('description', models.CharField(blank=True, max_length=255, verbose_name='description')),
             ],

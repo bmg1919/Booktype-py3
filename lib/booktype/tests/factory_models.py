@@ -15,7 +15,7 @@
 # along with Booktype.  If not, see <http://www.gnu.org/licenses/>.
 
 import factory
-
+from factory.django import DjangoModelFactory
 from faker import Faker
 
 from django.contrib.auth.models import User
@@ -33,7 +33,7 @@ PLAIN_USER_PASSWORD = 'top_secret'
 fake = Faker()
 
 
-class UserFactory(factory.DjangoModelFactory):
+class UserFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = User
 
@@ -42,7 +42,7 @@ class UserFactory(factory.DjangoModelFactory):
     password = make_password(PLAIN_USER_PASSWORD)
 
 
-class UserProfileFactory(factory.DjangoModelFactory):
+class UserProfileFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = UserProfile
 
@@ -50,9 +50,10 @@ class UserProfileFactory(factory.DjangoModelFactory):
     user = factory.SubFactory(UserFactory, profile=None)
 
 
-class BookGroupFactory(factory.DjangoModelFactory):
+class BookGroupFactory(DjangoModelFactory):
     class Meta:
         model = BookiGroup
+        skip_postgeneration_save = True
 
     name = factory.Sequence(lambda n: 'group name %d' % n)
     url_name = factory.Sequence(lambda n: 'url-group-name-%d' % n)
@@ -69,7 +70,7 @@ class BookGroupFactory(factory.DjangoModelFactory):
                 self.members.add(member)
 
 
-class BookFactory(factory.DjangoModelFactory):
+class BookFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Book
 
@@ -79,7 +80,7 @@ class BookFactory(factory.DjangoModelFactory):
     owner = factory.SelfAttribute('group.owner')
 
 
-class BookStatusFactory(factory.DjangoModelFactory):
+class BookStatusFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = BookStatus
 
@@ -88,7 +89,7 @@ class BookStatusFactory(factory.DjangoModelFactory):
     weight = factory.Sequence(lambda n: n)
 
 
-class BookVersionFactory(factory.DjangoModelFactory):
+class BookVersionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = BookVersion
 
@@ -97,7 +98,7 @@ class BookVersionFactory(factory.DjangoModelFactory):
     minor = 0
 
 
-class ChapterFactory(factory.DjangoModelFactory):
+class ChapterFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Chapter
 
@@ -110,7 +111,7 @@ class ChapterFactory(factory.DjangoModelFactory):
     content = fake.paragraph(4)
 
 
-class BookTocFactory(factory.DjangoModelFactory):
+class BookTocFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = BookToc
 
@@ -137,7 +138,7 @@ class BookTocFactory(factory.DjangoModelFactory):
         )
 
 
-class BookHistoryFactory(factory.DjangoModelFactory):
+class BookHistoryFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = BookHistory
 
@@ -145,21 +146,21 @@ class BookHistoryFactory(factory.DjangoModelFactory):
     user = factory.SubFactory(UserFactory)
 
 
-class PermissionFactory(factory.DjangoModelFactory):
+class PermissionFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Permission
 
     description = factory.Sequence(lambda n: 'Permission %d' % n)
 
 
-class RoleFactory(factory.DjangoModelFactory):
+class RoleFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = Role
 
     name = factory.Sequence(lambda n: 'Role %d' % n)
 
 
-class BookRoleFactory(factory.DjangoModelFactory):
+class BookRoleFactory(factory.django.DjangoModelFactory):
     class Meta:
         model = BookRole
 

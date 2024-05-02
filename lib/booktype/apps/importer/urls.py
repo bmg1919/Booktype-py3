@@ -15,12 +15,13 @@
 # along with Booktype.  If not, see <http://www.gnu.org/licenses/>.
 
 from django.contrib.auth.decorators import login_required
-from django.conf.urls import url
+from django.urls import re_path
 
 from .views import ImporterView, ImportToChapter
 
+app_name = 'importer'
 urlpatterns = [
-    url(r'^_upload-book-file/$', login_required(ImporterView.as_view()), name='upload_book_file'),
-    url(r'^_import-to-chapter/(?P<bookid>[\w\s\_\.\-\d]+)/(?P<chapter>[\w\s\_\.\-]+)/',
-        login_required(ImportToChapter.as_view()), name='import_to_chapter')
+    re_path(r'^_upload-book-file/$', login_required(ImporterView.as_view()), name='upload_book_file'),
+    re_path(r'^_import-to-chapter/(?P<bookid>[\w\s\_\.\-\d]+)/(?P<chapter>[\w\s\_\.\-]+)/',
+            login_required(ImportToChapter.as_view()), name='import_to_chapter')
 ]

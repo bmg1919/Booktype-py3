@@ -24,19 +24,18 @@ def create_permissions(app_name, app_perms, stdout=True):
 
     if len(permissions) > 0:
         if stdout:
-            print "Updating permissions for %s" % app_name
+            print("Updating permissions for %s" % app_name)
 
     for codename, description in permissions:
         perm, _ = Permission.objects.get_or_create(
             app_name=perms_app_name,
             name=codename
         )
-        perm.description = unicode(description)
+        perm.description = description
         perm.save()
         created_perms.append(perm)
         if stdout:
-            print "\t- saving %s.%s permission".expandtabs(4) \
-                % (perms_app_name, codename)
+            print("\t- saving %s.%s permission".expandtabs(4) % (perms_app_name, codename))
 
     return created_perms
 
@@ -72,6 +71,6 @@ def permissions_for_app(app_name):
     else:
         if hasattr(app, _perms):
             permissions = getattr(app, _perms)
-            if type(permissions) == dict and _perms.lower() in permissions:
+            if type(permissions) is dict and _perms.lower() in permissions:
                 return permissions
     return EMPTY

@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
-from unipath import Path
+import collections
+import booki
+
+from pathlib import Path
 
 # DJANGO ADMIN
 ADMINS = (
@@ -34,7 +37,7 @@ BOOKTYPE_SITE_DIR = '##BOOKTYPE_SITE_DIR##'
 THIS_BOOKTYPE_SERVER = os.environ.get('BOOKTYPE_SERVER', '')
 
 # BOOKTYPE_ROOT = '##BOOKTYPE_ROOT##'
-BOOKTYPE_ROOT = Path(os.path.abspath(__file__)).ancestor(3)
+BOOKTYPE_ROOT = Path(os.path.dirname(__file__)).parent.parent
 
 BOOKTYPE_URL = os.environ.get('BOOKTYPE_URL', '')
 # BOOKTYPE_URL = 'http://{}'.format(THIS_BOOKTYPE_SERVER)
@@ -62,17 +65,14 @@ PHP_PATH = os.environ.get('BOOKTYPE_PHP_PATH', 'php')
 # /usr/local/bin/pandoc - OSX
 # /usr/bin/pandoc - linux
 
-PANDOC_PATH = os.environ.get('BOOKTYPE_PANDOC_PATH', '/usr/local/bin/pandoc')
+PANDOC_PATH = os.environ.get('BOOKTYPE_PANDOC_PATH', '/usr/bin/pandoc')
 PANDOC_ICML_SCRIPT = '{}/epub2icml.sh'.format(BOOKTYPE_ROOT)
 PANDOC_DOCX_SCRIPT = '{}/epub2docx.sh'.format(BOOKTYPE_ROOT)
 
 # BOOKTYPE DIRECTORIES
 
-# site_static
-import booki
-
 # static
-STATIC_ROOT = BOOKTYPE_ROOT.child('static')
+STATIC_ROOT = BOOKTYPE_ROOT / 'static'
 STATIC_URL = '{}/static/'.format(BOOKTYPE_URL)
 
 # Additional locations of static files
@@ -80,7 +80,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    BOOKTYPE_ROOT.child(BOOKTYPE_SITE_DIR).child('static'),
+    BOOKTYPE_ROOT / BOOKTYPE_SITE_DIR / 'static',
 )
 
 # List of finder classes that know how to find static files in
@@ -98,7 +98,7 @@ EXTERNAL_STATIC_CACHE = False
 EXTERNAL_STATIC_CACHE_KEY = 'v1'
 
 # data
-DATA_ROOT = BOOKTYPE_ROOT.child('data')
+DATA_ROOT = BOOKTYPE_ROOT / 'data'
 DATA_URL = '{}/data/'.format(BOOKTYPE_URL)
 
 # profile images
@@ -136,7 +136,10 @@ TIME_ZONE = 'Europe/Berlin'
 
 LANGUAGE_CODE = 'en-us'
 
-gettext = lambda s: s
+
+def gettext(s):
+    lambda s: s
+
 
 LANGUAGES = (
     ('en', gettext('American English')),
@@ -182,10 +185,10 @@ USE_L10N = True
 USE_TZ = False
 
 LOCALE_PATHS = (
-    BOOKTYPE_ROOT.child(BOOKTYPE_SITE_DIR).child('locale'),
-    Path(booki.__file__).parent.child('locale'),
-    Path(booki.__file__).ancestor(2).child('booktype').child('locale'),
-    Path(booki.__file__).ancestor(2).child('booktypecontrol').child('locale'),
+    BOOKTYPE_ROOT / BOOKTYPE_SITE_DIR / 'locale',
+    Path(booki.__file__).parent / 'locale',
+    Path(booki.__file__).parent.parent / 'booktype' / 'locale',
+    Path(booki.__file__).parent.parent / 'booktypecontrol' / 'locale',
 )
 
 # Make this unique, and don't share it with anybody.
@@ -194,7 +197,7 @@ SECRET_KEY = '##SECRET_KEY##'
 # Storage for messages framework
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -213,7 +216,7 @@ TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
-            BOOKTYPE_ROOT.child(BOOKTYPE_SITE_DIR).child('templates')
+            BOOKTYPE_ROOT / BOOKTYPE_SITE_DIR / 'templates'
         ],
         'OPTIONS': {
             'context_processors': [
@@ -231,7 +234,7 @@ TEMPLATES = [
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
                 'django.template.loaders.app_directories.Loader',
-                'django.template.loaders.eggs.Loader',
+                # 'django.template.loaders.eggs.Loader',
                 'booktype.apps.themes.loaders.Loader'
             ],
             'debug': False
@@ -266,7 +269,7 @@ INSTALLED_APPS = (
     'compressor',
     'rest_framework',
     'rest_framework.authtoken',
-    'rest_framework_swagger',
+    # 'rest_framework_swagger',
 
     # list of booki apps
     'booki.editor',
@@ -402,7 +405,7 @@ LOGGING = {
         'logfile': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BOOKTYPE_ROOT + "/logs/booktype.log",
+            'filename': BOOKTYPE_ROOT / "logs/booktype.log",
             'maxBytes': 50000,
             'backupCount': 2,
             'formatter': 'standard',
@@ -410,7 +413,7 @@ LOGGING = {
         'sputniklogfile': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BOOKTYPE_ROOT + "/logs/sputnik.log",
+            'filename': BOOKTYPE_ROOT / "logs/sputnik.log",
             'maxBytes': 50000,
             'backupCount': 2,
             'formatter': 'standard',
@@ -418,7 +421,7 @@ LOGGING = {
         'apilogfile': {
             'level': 'DEBUG',
             'class': 'logging.handlers.RotatingFileHandler',
-            'filename': BOOKTYPE_ROOT + "/logs/api.log",
+            'filename': BOOKTYPE_ROOT / "logs/api.log",
             'maxBytes': 50000,
             'backupCount': 2,
             'formatter': 'standard',
@@ -497,7 +500,7 @@ _ADDITIONAL_METADATA = [
         'ATTRS': {
             'required': False,
             'label': 'Subject'
-            },
+        },
         'WIDGET': 'TextInput'
     }),
     ('meta_keywords', {
@@ -505,7 +508,7 @@ _ADDITIONAL_METADATA = [
         'ATTRS': {
             'required': False,
             'label': 'Keywords'
-            },
+        },
         'WIDGET': 'TextInput'
     }),
     ('edited_by', {
@@ -513,7 +516,7 @@ _ADDITIONAL_METADATA = [
         'ATTRS': {
             'required': False,
             'label': 'Edited by'
-            },
+        },
         'WIDGET': 'TextInput'
     }),
     ('text_by', {
@@ -640,8 +643,8 @@ _ADDITIONAL_METADATA = [
         'ATTRS': {
             'required': False,
             'label': 'Acknowledgement'},
-        'WIDGET': 'Textarea'}
-    ),
+        'WIDGET': 'Textarea'
+    }),
     ('edition', {
         'TYPE': 'CharField',
         'ATTRS': {
@@ -679,8 +682,6 @@ _ADDITIONAL_METADATA = [
     })
 ]
 
-import collections
-
 ADDITIONAL_METADATA = collections.OrderedDict(_ADDITIONAL_METADATA)
 
 
@@ -704,3 +705,5 @@ CMYK2RGB_CONVERTER_CMYK_PROFILE_PATH = ''
 
 # AdobeRGB1998.icc profile can be used
 CMYK2RGB_CONVERTER_RGB_PROFILE_PATH = ''
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

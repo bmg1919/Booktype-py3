@@ -39,8 +39,8 @@ class Migration(migrations.Migration):
             name='Following',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('follower', models.ForeignKey(related_name=b'follower', verbose_name='follower', to='messaging.Endpoint')),
-                ('target', models.ForeignKey(related_name=b'target', verbose_name='target', to='messaging.Endpoint')),
+                ('follower', models.ForeignKey(related_name='follower', verbose_name='follower', to='messaging.Endpoint', on_delete=models.CASCADE)),
+                ('target', models.ForeignKey(related_name='target', verbose_name='target', to='messaging.Endpoint', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Following',
@@ -57,7 +57,7 @@ class Migration(migrations.Migration):
                 ('attachment', models.FileField(upload_to=booki.messaging.models.uploadAttachmentTo, max_length=2500, verbose_name='attachment')),
                 ('snippet', models.TextField(verbose_name='snippet')),
                 ('context_url', models.TextField(verbose_name='context')),
-                ('sender', models.ForeignKey(verbose_name='sender', to='messaging.Endpoint')),
+                ('sender', models.ForeignKey(verbose_name='sender', to='messaging.Endpoint', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Post',
@@ -70,8 +70,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('timestamp', models.DateTimeField(verbose_name='timestamp')),
-                ('endpoint', models.ForeignKey(verbose_name='endpoint', to='messaging.Endpoint')),
-                ('post', models.ForeignKey(verbose_name='post', to='messaging.Post')),
+                ('endpoint', models.ForeignKey(verbose_name='endpoint', to='messaging.Endpoint', on_delete=models.CASCADE)),
+                ('post', models.ForeignKey(verbose_name='post', to='messaging.Post', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Post appearance',
@@ -82,7 +82,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='endpoint',
             name='config',
-            field=models.ForeignKey(null=True, blank=True, to='messaging.EndpointConfig', unique=True),
+            field=models.OneToOneField(null=True, blank=True, to='messaging.EndpointConfig', unique=True, on_delete=models.CASCADE),
             preserve_default=True,
         ),
     ]

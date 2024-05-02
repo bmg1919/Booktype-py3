@@ -74,10 +74,14 @@ logger = logging.getLogger('sputnik')
 
 
 def rencode(key):
+    if isinstance(key, str):
+        key = key.encode()
     return key
 
 
 def rdecode(key):
+    if isinstance(key, bytes):
+        key = key.decode()
     return key
 
 
@@ -182,7 +186,7 @@ def smembers(key):
         try:
             with sputnik.rcon.lock('com'):
                 result = [rdecode(el) for el in list(sputnik.rcon.smembers(key))]
-        except:
+        except Exception:
             from booki.utils.log import print_stack
             print_stack(None)
             return []
@@ -309,7 +313,7 @@ def removeClientFromChannel(request, channelName, client):
             if usr not in allClients:
                 sputnik.srem("sputnik:channel:%s:users" % channelName, usr)
                 addMessageToChannel(request, channelName, {"command": "user_remove", "username": usr}, myself=True)
-    except:
+    except Exception:
         from booki.utils.log import print_stack
         print_stack(None)
 
@@ -330,7 +334,7 @@ def add_message_to_channel(request, channel_name, message, myself=False):
 
     try:
         clnts = sputnik.smembers("sputnik:channel:%s:channel" % channel_name)
-    except:
+    except Exception:
         print_stack(None)
         return
 
@@ -344,7 +348,7 @@ def add_message_to_channel(request, channel_name, message, myself=False):
         if c.strip() != '':
             try:
                 sputnik.push("ses:%s:messages" % c, serializeJson(message))
-            except:
+            except Exception:
                 print_stack(None)
 
 
@@ -355,7 +359,7 @@ def addMessageToChannel2(clientID, sputnikID, channelName, message, myself=False
 
     try:
         clnts = sputnik.smembers("sputnik:channel:%s:channel" % channelName)
-    except:
+    except Exception:
         print_stack(None)
         return
 
@@ -369,7 +373,7 @@ def addMessageToChannel2(clientID, sputnikID, channelName, message, myself=False
         if c.strip() != '':
             try:
                 sputnik.push("ses:%s:messages" % c, serializeJson(message))
-            except:
+            except Exception:
                 logger.debug('*ERROR PUSH*')
 
 

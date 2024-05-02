@@ -30,12 +30,12 @@ from django.db import IntegrityError
 from django.contrib import auth, messages
 from django.core.mail import EmailMessage
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.shortcuts import render, redirect
 from django.views.generic import DetailView, View
 from django.core.exceptions import PermissionDenied
 from django.template.loader import render_to_string
-from django.utils.translation import ugettext, ugettext_lazy as _
+from django.utils.translation import gettext, gettext_lazy as _
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.views.generic.edit import BaseCreateView, UpdateView, FormView
 
@@ -158,13 +158,13 @@ class DashboardPageView(SecurityMixin, BasePageView, DetailView):
                 context['is_book_limit'] = False
 
         # change title in case of not authenticated user
-        if not current_user.is_authenticated() or \
+        if not current_user.is_authenticated or \
            self.object != current_user:
             context['title'] = _('User profile')
             context['page_title'] = _('User profile')
 
         # Getting context variables for the form to invite users
-        if current_user.is_authenticated():
+        if current_user.is_authenticated:
             initial = {
                 'message': getattr(settings, 'BOOKTYPE_DEFAULT_INVITE_MESSAGE', '')
             }
@@ -277,7 +277,7 @@ class CreateBookView(LoginRequiredMixin, SecurityMixin, BaseCreateView):
                 fh, fname = misc.save_uploaded_as_file(file_data)
                 book.set_cover(fname)
                 os.unlink(fname)
-            except:
+            except Exception:
                 pass
 
         book.save()
@@ -301,7 +301,7 @@ class UserSettingsPage(LoginRequiredMixin, BasePageView, UpdateView):
     def dispatch(self, request, *args, **kwargs):
         dispatch_super = super(UserSettingsPage, self).dispatch(request, *args, **kwargs)
 
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             return dispatch_super
 
         if request.user.username == kwargs['username'] or \
@@ -333,7 +333,7 @@ class UserSettingsPage(LoginRequiredMixin, BasePageView, UpdateView):
                 '@%s' % user.username).get_config()
             ep_config.notification_filter = form.data.get('notification', '')
             ep_config.save()
-        except:
+        except Exception:
             pass
 
         # send a success message to user
@@ -463,7 +463,7 @@ class ForgotPasswordView(PageView):
                 usr_obj.save()
                 msg.send()
                 context['mail_sent'] = True
-            except:
+            except Exception:
                 context['error'] = _('Unknown error')
 
         return render(request, self.template_name, context)
@@ -560,7 +560,7 @@ class SignInView(PageView):
     def get(self, request):
         signed_data = request.GET.get('data', None)
 
-        if request.user.is_authenticated() and signed_data:
+        if request.user.is_authenticated and signed_data:
             assign_invitation(request.user, signing.loads(signed_data))
             return HttpResponseRedirect(reverse('portal:frontpage'))
 
@@ -573,8 +573,7 @@ class SignInView(PageView):
         # check if it is valid username
         # - from 2 to 20 characters long
         # - word, number, ., _, -
-        mtch = re.match(
-            '^[\w\d\_\.\-]{2,20}$', request.POST.get("username", "").strip())
+        mtch = re.match(r'^[\w\d\_\.\-]{2,20}$', request.POST.get("username", "").strip())
         if not mtch:
             return 6
 
@@ -640,7 +639,7 @@ class SignInView(PageView):
                                 username=username, email=email, password=password)
                         except IntegrityError:
                             ret["result"] = 10
-                        except:
+                        except Exception:
                             ret["result"] = 10
                             user = None
 
@@ -666,12 +665,12 @@ class SignInView(PageView):
                                         try:
                                             group = BookiGroup.objects.get(url_name=group_name)
                                             group.members.add(user)
-                                        except:
+                                        except Exception:
                                             pass
 
                                 user2 = auth.authenticate(username=username, password=password)
                                 auth.login(request, user2)
-                            except:
+                            except Exception:
                                 ret['result'] = 666
 
             if request.POST.get('method', '') == 'signin':
@@ -720,6 +719,7 @@ def profilethumbnail(request, profileid):
         return views.ErrorPage(request, 'errors/user_does_not_exist.html', {'username': profileid})
 
     profile_image = utils.get_profile_image(user, int(request.GET.get('width', 24)))
+    # profile_image = 'http://127.0.0.1:8000' + profile_image
     return redirect(profile_image)
 
 
@@ -790,7 +790,7 @@ class JoinWithCode(LoginRequiredMixin, JSONResponseMixin, View):
 
             # TODO: send notification so others users knows about new collaborator joined book
 
-            msg = ugettext('You have been added to "{}". Click Accept button to reload screen and see the book').format(
+            msg = gettext('You have been added to "{}". Click Accept button to reload screen and see the book').format(
                 code.book.title)
 
             return self.response({

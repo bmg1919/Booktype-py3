@@ -15,14 +15,13 @@
 # along with Booktype.  If not, see <http://www.gnu.org/licenses/>.
 
 import os
-import urllib
-import config
+from . import config
 import logging
-import urlparse
+from urllib.parse import urlparse, unquote, urljoin
 import tempfile
 import ebooklib
 import datetime
-import StringIO
+from io import BytesIO
 import importlib
 
 from django.conf import settings
@@ -39,11 +38,7 @@ from ebooklib.utils import parse_html_string
 
 from booki.editor import models
 from .tidy import tidy_cleanup
-
-try:
-    from PIL import Image
-except ImportError:
-    import Image
+from PIL import Image
 
 logger = logging.getLogger("booktype.utils.misc")
 
@@ -102,7 +97,7 @@ class ImportPlugin(BasePlugin):
     def html_after_read(self, book, chapter):
         try:
             tree = parse_html_string(chapter.content)
-        except:
+        except Exception:
             return
 
         root = tree.getroottree()
@@ -150,7 +145,7 @@ class LoadPlugin(BasePlugin):
 
         try:
             tree = parse_html_string(chapter.content)
-        except:
+        except Exception:
             return
 
         root = tree.getroottree()
@@ -174,7 +169,7 @@ def remove_unknown_tags(html_content):
     from lxml.html import defs
 
     try:
-        tree = parse_html_string(html_content.encode('utf-8'))
+        tree = parse_html_string(html_content)  # .encode('utf-8'))
     except Exception as err:
         logger.error(
             "ERROR RemoveUnknownTags: Problem while trying to parse content. Returning raw content. Msg: %s" % err)
@@ -206,7 +201,7 @@ def _convert_file_name(file_name):
         _ext = name[name.rfind('.'):]
         name = booktype_slugify(_np) + _ext
 
-    name = urllib.unquote(name)
+    name = unquote(name)
     name = name.replace(' ', '_')
 
     return name
@@ -260,8 +255,8 @@ def import_book_from_file(epub_file, user, **kwargs):
             elif isinstance(_elem, epub.Section):
                 pass
             elif isinstance(_elem, epub.Link):
-                _u = urlparse.urlparse(_elem.href)
-                _name = urllib.unquote(os.path.basename(_u.path))
+                _u = urlparse(_elem.href)
+                _name = unquote(os.path.basename(_u.path))
                 if not _name:
                     _name = _elem.title
 
@@ -277,7 +272,7 @@ def import_book_from_file(epub_file, user, **kwargs):
 
     # must check if title already exists
     book = create_book(user, title, book_url=book_url)
-    now = datetime.datetime.utcnow().replace(tzinfo=utc)
+    now = datetime.datetime.now(datetime.UTC)
     stat = models.BookStatus.objects.filter(book=book, name="new")[0]
 
     for attach in epub_book.get_items_of_type(ebooklib.ITEM_IMAGE):
@@ -288,7 +283,7 @@ def import_book_from_file(epub_file, user, **kwargs):
         )
 
         s = attach.get_content()
-        f = StringIO.StringIO(s)
+        f = BytesIO(s)
         f2 = File(f)
         f2.size = len(s)
         att.attachment.save(attach.file_name, f2, save=False)
@@ -304,7 +299,7 @@ def import_book_from_file(epub_file, user, **kwargs):
             continue
 
         # check if this chapter name already exists
-        name = urllib.unquote(os.path.basename(chap.file_name))
+        name = unquote(os.path.basename(chap.file_name))
         content = chap.get_body_content()
 
         # maybe this part has to go to the plugin
@@ -320,7 +315,7 @@ def import_book_from_file(epub_file, user, **kwargs):
         chapter = models.Chapter(
             book=book,
             version=book.version,
-            url_title=booktype_slugify(unicode(name)),
+            url_title=booktype_slugify(name),
             title=name,
             status=stat,
             content=content,
@@ -328,7 +323,7 @@ def import_book_from_file(epub_file, user, **kwargs):
             modified=now
         )
         chapter.save()
-        _imported[urllib.unquote(os.path.basename(chap.file_name))] = chapter
+        _imported[unquote(os.path.basename(chap.file_name))] = chapter
 
     # fix links
     for chap in epub_book.get_items_of_type(ebooklib.ITEM_DOCUMENT):
@@ -338,7 +333,7 @@ def import_book_from_file(epub_file, user, **kwargs):
         content = chap.get_content()
         try:
             tree = parse_html_string(content)
-        except:
+        except Exception:
             pass
 
         root = tree.getroottree()
@@ -353,20 +348,20 @@ def import_book_from_file(epub_file, user, **kwargs):
                     _href = _item.get('href')
 
                     if _href:
-                        _u = urlparse.urlparse(_href)
-                        pth = urllib.unquote(os.path.basename(_u.path))
+                        _u = urlparse(_href)
+                        pth = unquote(os.path.basename(_u.path))
 
                         if pth in _imported:
                             _name = _imported[pth].url_title
 
-                            _u2 = urlparse.urljoin(_href, '../' + _name + '/')
+                            _u2 = urljoin(_href, '../' + _name + '/')
                             _item.set('href', _u2)
                             to_save = True
 
             if to_save:
                 chap.content = etree.tostring(tree, pretty_print=True, encoding='utf-8', xml_declaration=True)
-                _imported[urllib.unquote(os.path.basename(chap.file_name))].content = chap.content
-                _imported[urllib.unquote(os.path.basename(chap.file_name))].save()
+                _imported[unquote(os.path.basename(chap.file_name))].content = chap.content
+                _imported[unquote(os.path.basename(chap.file_name))].save()
 
     n = len(toc) + 1
     parents = {}
@@ -428,7 +423,11 @@ def set_group_image(groupid, file_object, x_size, y_size):
     fh, fname = save_uploaded_as_file(file_object)
     try:
         im = Image.open(fname)
-        im.thumbnail((x_size, y_size), Image.ANTIALIAS)
+
+        if im.mode == 'RGBA':
+            im = im.convert('RGB')
+
+        im.thumbnail((x_size, y_size), Image.LANCZOS)
         new_path = os.path.join(settings.MEDIA_ROOT, GROUP_IMAGE_UPLOAD_DIR)
 
         if not os.path.exists(new_path):
@@ -436,7 +435,7 @@ def set_group_image(groupid, file_object, x_size, y_size):
 
         file_name = '{}.jpg'.format(os.path.join(new_path, str(groupid)))
         im.save(file_name, "JPEG")
-    except:
+    except Exception:
         file_name = ''
 
     os.unlink(fname)
@@ -465,7 +464,7 @@ def booktype_slugify(text):
     return slugify(text)
 
 
-def create_thumbnail(fname, size=(100, 100), aspect_ratio=False):
+def create_thumbnail(fname, size=(150, 150), aspect_ratio=False):
     """
 
     @type fname: C{string}
@@ -496,7 +495,7 @@ def create_thumbnail(fname, size=(100, 100), aspect_ratio=False):
     if not aspect_ratio:
         im = im.crop((left, upper, right, lower))
 
-    im.thumbnail(size, Image.ANTIALIAS)
+    im.thumbnail(size, Image.LANCZOS)
 
     return im
 
@@ -538,7 +537,10 @@ def set_profile_image(user, file_object):
     fh, fname = save_uploaded_as_file(file_object)
 
     try:
-        im = create_thumbnail(fname, size=(100, 100))
+        im = create_thumbnail(fname, size=(150, 150))
+
+        if im.mode == 'RGBA':
+            im = im.convert('RGB')
 
         dir_path = os.path.join(settings.MEDIA_ROOT, settings.PROFILE_IMAGE_UPLOAD_DIR)
         file_path = os.path.join(dir_path, '{}.jpg'.format(user.username))
@@ -553,7 +555,7 @@ def set_profile_image(user, file_object):
         profile = user.profile
         profile.image = '%s%s.jpg' % (settings.PROFILE_IMAGE_UPLOAD_DIR, user.username)
         profile.save()
-    except:
+    except Exception:
         pass
 
     os.unlink(fname)
@@ -689,7 +691,7 @@ def has_book_limit(user):
     @rtype text: C{user}
     @param: Returns True if user reached book limit
     """
-    if not user.is_authenticated():
+    if not user.is_authenticated:
         return True
 
     if user.is_superuser:
@@ -697,13 +699,12 @@ def has_book_limit(user):
 
     book_limit = config.get_configuration('BOOKTYPE_BOOKS_PER_USER')['limit_global']
 
-    user_limit = filter(
+    user_limit = list(filter(
         lambda item: item['username'] == user.username,
         config.get_configuration('BOOKTYPE_BOOKS_PER_USER')['limit_by_user']
-    )
-
+    ))
+    user_limit = list(user_limit)
     if user_limit:
         book_limit = user_limit[0]['limit']
 
     return models.Book.objects.filter(owner=user).count() >= book_limit != -1
-

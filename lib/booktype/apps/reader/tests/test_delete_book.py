@@ -1,6 +1,6 @@
 from rest_framework import status
 
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 
 from booktype.tests import TestCase
 from booktype.tests.factory_models import BookFactory, BookVersionFactory, UserFactory, PLAIN_USER_PASSWORD
@@ -30,7 +30,7 @@ class DeleteBookTest(TestCase):
         response = self.client.post(self.dispatcher, dict(title=self.book.title))
 
         # response status code should be 200
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # template must be the delete_error_template, because user doesn't
         # have enough rights to delete the book
@@ -47,7 +47,7 @@ class DeleteBookTest(TestCase):
         response = self.client.get(self.dispatcher)
 
         # response status code should be 200
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # check if returning the right template
         self.assertTemplateUsed(response, "reader/book_delete.html")
@@ -59,7 +59,7 @@ class DeleteBookTest(TestCase):
         response = self.client.post(self.dispatcher, dict(title=self.book.title))
 
         # response status code should be 200
-        self.assertEquals(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
 
         # in post method, the template must have changed
         self.assertTemplateUsed(response, "reader/book_delete_redirect.html")

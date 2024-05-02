@@ -1,9 +1,9 @@
 import os
 import logging
-from unipath import Path
+from pathlib import Path
 
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from booktype.convert.image_editor_conversion import ImageEditorConversion
 from booktype.constants import EPUB_DOCUMENT_WIDTH
@@ -67,7 +67,7 @@ class DOCXConverter(BasePandocConverter):
         """
         temp_dir = os.path.join(os.path.dirname(epub_path), 'bash_temp')
 
-        BK_LIB_ROOT = Path(os.path.abspath(__file__)).ancestor(6)
+        BK_LIB_ROOT = Path(os.path.dirname(__file__)).parent.parent.parent.parent.parent
         default_path = '{}/scripts/epub2docx.sh'.format(BK_LIB_ROOT)
         script_path = getattr(settings, 'PANDOC_DOCX_SCRIPT', default_path)
 

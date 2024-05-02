@@ -16,8 +16,8 @@ def find_with_key(data, key, value):
       Returns metadata entries
     """
 
-    for k, v in data.iteritems():
-        for a, b in v.iteritems():
+    for k, v in data.items():
+        for a, b in v.items():
             for c in b:
                 if c[1].get(key, '') == value:
                     yield c
@@ -31,7 +31,7 @@ def _get_refines(data, prop, name):
             refines = value[1]['refines'][1:]
             val = find_with_key(data, 'id', refines)
             try:
-                v = val.next()
+                v = next(val)
 
                 if v:
                     return v
@@ -79,8 +79,8 @@ def get_metadata(data, name):
       Returns metadata entry.
     """
 
-    for k, v in data.iteritems():
-        for a, b in v.iteritems():
+    for k, v in data.items():
+        for a, b in v.items():
             if a == name:
                 if len(b) > 0 and len(b[0]) > 0:
                     return b[0][0]
@@ -103,7 +103,8 @@ def _get_property(data, name):
 
     if val:
         try:
-            value = val.next()
+            # value = val.next()
+            value = next(val)
             if value:
                 return value[0]
         except StopIteration:
@@ -112,7 +113,7 @@ def _get_property(data, name):
     return ''
 
 
-@register.assignment_tag(takes_context=True)
+@register.simple_tag(takes_context=True)
 def get_meta(context, name):
     """Django template assignment tag which returns metadata value.
 
@@ -129,7 +130,7 @@ def get_meta(context, name):
     return get_metadata(context['metadata'], name)
 
 
-@register.assignment_tag(takes_context=True)
+@register.simple_tag(takes_context=True)
 def get_property(context, name):
     """Django template assignment tag which returns metadata value.
 

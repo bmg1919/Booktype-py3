@@ -15,7 +15,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='bookcover',
             name='booksize',
-            field=models.CharField(blank=True, default=b'', max_length=30, verbose_name='Booksize'),
+            field=models.CharField(blank=True, default='', max_length=30, verbose_name='Booksize'),
         ),
         migrations.AlterField(
             model_name='bookcover',
@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='bookcover',
             name='unit',
-            field=models.CharField(blank=True, default=b'px', max_length=20, verbose_name='Unit'),
+            field=models.CharField(blank=True, default='px', max_length=20, verbose_name='Unit'),
         ),
         migrations.AlterField(
             model_name='bookcover',

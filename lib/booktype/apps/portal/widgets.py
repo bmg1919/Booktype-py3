@@ -1,6 +1,7 @@
 from django.forms.widgets import ClearableFileInput, CheckboxInput
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils.safestring import mark_safe
+
 
 class RemovableImageWidget(CheckboxInput):
 
@@ -8,11 +9,11 @@ class RemovableImageWidget(CheckboxInput):
         self.attrs = kwargs.get('attrs', {})
         super(RemovableImageWidget, self).__init__(*args, **kwargs)
 
-    def render(self, name, value, attrs={}):
+    def render(self, name, value, attrs={}, renderer=None):
         value = value
         attrs.update(self.attrs)
         _template = '%(image_tag)s %(fileinput)s<br/><label></label><label class="%(label_class)s">%(checkbox_input)s%(label_text)s</label>'
-        
+
         # prepare file input css class
         label_class = attrs.pop('label_class', '')
         fileinput_attrs = {}

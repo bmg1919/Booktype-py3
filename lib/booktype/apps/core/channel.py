@@ -50,7 +50,7 @@ def remote_ping(request, message):
 
         if last_ping and decimal.Decimal("%f" % time.time()) - last_ping > Chapter.EDIT_PING_SECONDS_MAX_DELTA:
             sputnik.rdelete(key)
-            m = re.match("booktype:(\d+):(\d+).(\d+):editlocks:(\d+):(\w+)", key)
+            m = re.match(r"booktype:(\d+):(\d+).(\d+):editlocks:(\d+):(\w+)", key)
 
             if m:
                 bookid, version, chapter_id, username = (m.group(1), "{0}.{1}".format(m.group(2), m.group(3)),

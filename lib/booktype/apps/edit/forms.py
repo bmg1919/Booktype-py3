@@ -7,7 +7,7 @@ from django import forms
 from django.conf import settings
 from django.db.models import Count
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from booktype.utils import security, config
 from booktypecontrol.forms import DefaultRolesForm
@@ -132,9 +132,9 @@ class ChapterStatusForm(BaseSettingsForm, forms.Form):
         from .channel import get_book_statuses_dict
 
         return {
-                'roles_permissions': security.get_user_permissions(request.user, book),
-                'status_list': get_book_statuses_dict(book)
-            }
+            'roles_permissions': security.get_user_permissions(request.user, book),
+            'status_list': get_book_statuses_dict(book)
+        }
 
 
 class LicenseForm(BaseSettingsForm, forms.Form):
@@ -368,7 +368,7 @@ class PermissionsForm(BaseSettingsForm, DefaultRolesForm):
                 initial[role_name] = BookSetting.objects.get(
                     book=book, name='DEFAULT_ROLE_%s' % role_name
                 ).get_value()
-            except:
+            except Exception:
                 pass
 
         return initial

@@ -93,7 +93,7 @@ def make_pagination_config(args):
 def _get_page_settings(args):
     settings = {}
 
-    for key, (min_val, max_val, multiplier) in constants.PAGE_EXTREMA.iteritems():
+    for key, (min_val, max_val, multiplier) in constants.PAGE_EXTREMA.items():
         if not args.has_key(key):
             continue
 

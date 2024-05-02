@@ -6,10 +6,10 @@ from django import forms
 from django import template
 from django.conf import settings
 from django.utils import timezone
-from django.template.base import Context
+# from django.template.base import Context
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse_lazy
-from django.utils.translation import ugettext_lazy as _
+from django.urls import reverse_lazy
+from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator, MinLengthValidator
 
 from booktype.utils import config, misc
@@ -74,6 +74,7 @@ class SiteDescriptionForm(BaseControlForm, forms.Form):
         required=False,
         help_text=_("Upload .ico file")
     )
+    success_url = '#site-description'
 
     @classmethod
     def initial_data(cls):
@@ -113,7 +114,7 @@ class SiteDescriptionForm(BaseControlForm, forms.Form):
                         os.remove('{}/{}'.format(settings.STATIC_ROOT, prev_name))
                     except Exception as err:
                         logger.exception("Unable to remove previous favicon. Msg: %s" % err)
-            except:
+            except Exception:
                 pass
 
         try:
@@ -133,7 +134,8 @@ class AppearanceForm(BaseControlForm, forms.Form):
     def initial_data(cls):
         try:
             f = open('%s/css/_user.css' % settings.STATIC_ROOT, 'r')
-            css_content = unicode(f.read(), 'utf8')
+            # css_content = unicode(f.read(), 'utf8')
+            css_content = f.read()
             f.close()
         except IOError:
             css_content = ''
@@ -144,7 +146,7 @@ class AppearanceForm(BaseControlForm, forms.Form):
         try:
             # should really save it in a safe way
             f = open('%s/css/_user.css' % settings.STATIC_ROOT, 'w')
-            f.write(self.cleaned_data['css'].encode('utf8'))
+            f.write(self.cleaned_data['css'])
             f.close()
         except IOError as err:
             raise err
@@ -192,7 +194,8 @@ class FrontpageForm(BaseControlForm, forms.Form):
                 % settings.BOOKTYPE_ROOT,
                 'r'
             )
-            _dict['description'] = unicode(f.read(), 'utf8')
+            # _dict['description'] = unicode(f.read(), 'utf8')
+            _dict['description'] = f.read()
             f.close()
         except IOError:
             _dict['description'] = ''
@@ -229,7 +232,7 @@ class FrontpageForm(BaseControlForm, forms.Form):
                 shutil.move(fname, destination_file_path)
                 config.set_configuration('BOOKTYPE_FRONTPAGE_ANONYMOUS_IMAGE',
                                          '{0}portal/frontpage/anonymous_image.png'.format(settings.MEDIA_URL))
-            except:
+            except Exception:
                 pass
 
         # welcome message
@@ -244,7 +247,7 @@ class FrontpageForm(BaseControlForm, forms.Form):
             for ch in ['{%', '%}', '{{', '}}']:
                 text_data = text_data.replace(ch, '')
 
-            f.write(text_data.encode('utf8'))
+            f.write(text_data)
             f.close()
             config.save_configuration()
         except IOError as err:
@@ -267,6 +270,7 @@ class LicenseForm(BaseControlForm, forms.ModelForm):
         max_length=100
     )
     url = forms.URLField(
+        assume_scheme='http',
         label=_("License URL"),
         required=True,
         error_messages={'required': _('License name is required.')},
@@ -504,9 +508,12 @@ class AddPersonForm(BaseControlForm, forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(AddPersonForm, self).__init__(*args, **kwargs)
-        self.fields.keyOrder = ['username', 'first_name', 'email',
-                                'description', 'password1', 'password2',
-                                'send_email', 'is_superuser']
+        # keyorder() is deprecated. This removes the error but
+        # does not change the order
+        self.field_order = ['username', 'first_name', 'email',
+                            'description', 'password1', 'password2',
+                            'send_email', 'is_superuser']
+        self.order_fields(self.field_order)
 
     class Meta:
         model = User
@@ -771,7 +778,7 @@ class AddBookForm(BaseControlForm, forms.Form):
                 fh, fname = misc.save_uploaded_as_file(self.files['cover'])
                 book.set_cover(fname)
                 os.unlink(fname)
-            except:
+            except Exception:
                 pass
 
         book.save()
@@ -857,7 +864,7 @@ class PublishingForm(BaseControlForm, forms.Form):
                         conv_klass.__name__))
                 verbose_name = key
 
-            # using interpolation to avoid getting the __proxy__ object from ugettext_lazy
+            # using interpolation to avoid getting the __proxy__ object from gettext_lazy
             labels_map["%s" % verbose_name] = key
 
         sorted_labels = sorted(labels_map.keys())

@@ -17,8 +17,8 @@
 from booktype import constants
 
 
-PUBLISH_OPTIONS =  constants.PUBLISH_OPTIONS
-OBJAVI_URL =  constants.OBJAVI_URL
+PUBLISH_OPTIONS = constants.PUBLISH_OPTIONS
+OBJAVI_URL = constants.OBJAVI_URL
 ESPRI_URL = constants.ESPRI_URL
 THIS_BOOKI_SERVER = constants.THIS_BOOKI_SERVER
 

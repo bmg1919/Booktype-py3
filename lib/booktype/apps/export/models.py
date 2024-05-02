@@ -22,7 +22,7 @@ import logging
 
 from django.db import models
 from django.contrib.auth import models as auth_models
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.db.models.signals import post_delete
 from django.dispatch.dispatcher import receiver
 from django.conf import settings
@@ -33,8 +33,8 @@ logger = logging.getLogger('booktype')
 
 
 class BookExport(models.Model):
-    version = models.ForeignKey(BookVersion, null=False, verbose_name=_("export"))
-    user = models.ForeignKey(auth_models.User, verbose_name=_("user"), null=True)
+    version = models.ForeignKey(BookVersion, null=False, verbose_name=_("export"), on_delete=models.CASCADE)
+    user = models.ForeignKey(auth_models.User, verbose_name=_("user"), null=True, on_delete=models.CASCADE)
     name = models.CharField(_('Name'), max_length=100, blank=False)
     task_id = models.CharField(_('Task ID'), max_length=64, null=False, unique=True, db_index=True)
     created = models.DateTimeField(_('Created'), auto_now=False, default=datetime.datetime.now)
@@ -51,7 +51,7 @@ class BookExport(models.Model):
 
 
 class ExportFile(models.Model):
-    export = models.ForeignKey(BookExport, null=False, verbose_name=_("export"))
+    export = models.ForeignKey(BookExport, null=False, verbose_name=_("export"), on_delete=models.CASCADE)
     typeof = models.CharField(_('Export type'), max_length=20, blank=False, null=False)
     filesize = models.IntegerField(_('File size'), default=0, null=True)
     pages = models.IntegerField(_('Number of pages'), default=0, null=True)
@@ -63,12 +63,14 @@ class ExportFile(models.Model):
         verbose_name = _('Export File')
         verbose_name_plural = _('Export Files')
 
+
 def has_subdir(dirpath):
     for subname in os.listdir(dirpath):
         subpath = os.path.join(dirpath, subname)
         if os.path.isdir(subpath):
             return True
     return False
+
 
 @receiver(post_delete, sender=ExportFile)
 def _exportfile_delete(sender, instance, **kwargs):
@@ -85,8 +87,8 @@ def _exportfile_delete(sender, instance, **kwargs):
 
 
 class ExportComment(models.Model):
-    export = models.ForeignKey(BookExport, null=False, verbose_name=_("version"))
-    user = models.ForeignKey(auth_models.User, verbose_name=_("user"))
+    export = models.ForeignKey(BookExport, null=False, verbose_name=_("version"), on_delete=models.CASCADE)
+    user = models.ForeignKey(auth_models.User, verbose_name=_("user"), on_delete=models.CASCADE)
     created = models.DateTimeField(_('Created'), auto_now=False, default=datetime.datetime.now)
     content = models.TextField(_('Content'), default='')
 
@@ -96,7 +98,7 @@ class ExportComment(models.Model):
 
 
 class ExportSettings(models.Model):
-    book = models.ForeignKey(Book, null=False, verbose_name=_("book"))
+    book = models.ForeignKey(Book, null=False, verbose_name=_("book"), on_delete=models.CASCADE)
     typeof = models.CharField(_('Export type'), max_length=20, blank=False, null=False)
     data = models.TextField(_('Data'), default='{}', null=False)
     created = models.DateTimeField(_('Created'), auto_now=False, default=datetime.datetime.now)

@@ -17,10 +17,10 @@ class Migration(migrations.Migration):
             name='UserTheme',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('custom', models.TextField(default=b'{}', verbose_name=b'custom')),
-                ('active', models.CharField(default=b'custom', max_length=32, verbose_name=b'active')),
-                ('book', models.ForeignKey(verbose_name=b'book', to='editor.Book')),
-                ('owner', models.ForeignKey(default=None, verbose_name=b'owner', to=settings.AUTH_USER_MODEL, null=True)),
+                ('custom', models.TextField(default='{}', verbose_name='custom')),
+                ('active', models.CharField(default='custom', max_length=32, verbose_name='active')),
+                ('book', models.ForeignKey(verbose_name='book', to='editor.Book', on_delete=models.CASCADE)),
+                ('owner', models.ForeignKey(default=None, verbose_name='owner', to=settings.AUTH_USER_MODEL, null=True, on_delete=models.CASCADE)),
             ],
             options={
             },

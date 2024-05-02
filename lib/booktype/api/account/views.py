@@ -4,7 +4,7 @@ from rest_framework import viewsets
 from rest_framework import mixins
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.decorators import detail_route
+from rest_framework.decorators import action
 
 from .serializers import UserSerializer, DetailedUserSerializer
 
@@ -17,8 +17,7 @@ from .filters import UserFilter
 class UserViewSet(
         mixins.CreateModelMixin, mixins.RetrieveModelMixin,
         mixins.UpdateModelMixin, mixins.ListModelMixin,
-        BooktypeViewSetMixin, viewsets.GenericViewSet
-        ):
+        BooktypeViewSetMixin, viewsets.GenericViewSet):
 
     """
     API endpoint that allows users to be viewed or edited.
@@ -44,7 +43,7 @@ class UserViewSet(
     serializer_class = UserSerializer
     filter_class = UserFilter
 
-    @detail_route(url_path='session-token', permission_classes=[IsAdminOrIsSelf])
+    @action(detail=True, url_path='session-token', permission_classes=[IsAdminOrIsSelf])
     def session_token(self, request, pk=None):
         """
         Returns a login token to be used to authenticate into the booktype
@@ -52,7 +51,7 @@ class UserViewSet(
 
         For admins:
             In order to use this token you need to set the booktype.api.middleware.AuthMiddleware
-            into your MIDDLEWARE_CLASSES and also set the booktype.api.auth.Backend in the
+            into your MIDDLEWARE and also set the booktype.api.auth.Backend in the
             AUTHENTICATION_BACKENDS setting
         """
 
@@ -63,7 +62,7 @@ class UserViewSet(
 
 class CurrentUser(APIView):
     """
-    Return full information about current user. 
+    Return full information about current user.
     """
     def get(self, request, format=None):
         return Response(DetailedUserSerializer(request.user).data)

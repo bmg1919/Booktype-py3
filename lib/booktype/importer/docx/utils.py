@@ -1,11 +1,7 @@
 # -*- coding: utf-8 -*-
 import uuid
-import StringIO
-
-try:
-    import Image
-except ImportError:
-    from PIL import Image
+from io import BytesIO
+from PIL import Image
 
 from django.core.files.base import ContentFile
 from ooxml.serialize import HeaderContext
@@ -15,8 +11,8 @@ from booktype.utils.misc import import_from_string
 
 
 def convert_image(image_type, content):
-    img = Image.open(StringIO.StringIO(content.read()))
-    out = StringIO.StringIO()
+    img = Image.open(BytesIO(content.read()))
+    out = BytesIO()
 
     img.save(out, format='PNG')
     data = out.getvalue()
@@ -36,7 +32,7 @@ def get_importer_class():
     return ImporterClass
 
 
-class DocHeaderContext(object, HeaderContext):
+class DocHeaderContext(HeaderContext, object):
 
     def is_header(self, elem, font_size, node, style=None):
         """

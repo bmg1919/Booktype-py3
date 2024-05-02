@@ -16,26 +16,22 @@
 
 import os.path
 import datetime
-import StringIO
-from email.MIMEImage import MIMEImage
+from io import BytesIO
+from email.mime.image import MIMEImage
 
 from django import template
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.core.mail import EmailMultiAlternatives
 from django.db.models import Count
-from django.utils.translation import ugettext
+from django.utils.translation import gettext
 from django.contrib.auth.models import User
 
 from booki.editor.models import Book, BookiGroup, BookHistory
 from booktype.utils import config
 
 from ...utils import get_info
-
-try:
-    from PIL import ImageFont, ImageDraw, Image
-except ImportError:
-    import ImageFont, ImageDraw, Image
+from PIL import ImageFont, ImageDraw, Image
 
 now = datetime.datetime.now()
 
@@ -77,7 +73,8 @@ def get_chart():
         cnt = x['count']
         hours[int(x['modified'])] = cnt
 
-        if cnt > max_num: max_num = cnt
+        if cnt > max_num:
+            max_num = cnt
 
     for x in range(len(hours)):
         try:
@@ -149,7 +146,7 @@ class Command(BaseCommand):
             reports_email_from = config.get_configuration('REPORTS_EMAIL_FROM')
             reports_email_users = config.get_configuration('REPORTS_EMAIL_USERS')
 
-            subject = ugettext('Daily report for {0} ({1})').format(BOOKTYPE_NAME, now.strftime("%A %d %B %Y"))
+            subject = gettext('Daily report for {0} ({1})').format(BOOKTYPE_NAME, now.strftime("%A %d %B %Y"))
 
             text_content = con
             html_content = con
@@ -189,7 +186,7 @@ class Command(BaseCommand):
                                     10 + (7 + text_size[0]) * (n + 1), image.size[1] - bottom_padding - 2),
                                    fill=(95, 158, 237))
 
-            output = StringIO.StringIO()
+            output = BytesIO()
             image.save(output, 'PNG')
 
             data = output.getvalue()

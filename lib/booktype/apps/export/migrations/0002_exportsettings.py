@@ -18,9 +18,9 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('typeof', models.CharField(max_length=20, verbose_name='Export type')),
-                ('data', models.TextField(default=b'{}', verbose_name='Data')),
+                ('data', models.TextField(default='{}', verbose_name='Data')),
                 ('created', models.DateTimeField(default=datetime.datetime.now, verbose_name='Created')),
-                ('book', models.ForeignKey(verbose_name='book', to='editor.Book')),
+                ('book', models.ForeignKey(verbose_name='book', to='editor.Book', on_delete=models.CASCADE)),
             ],
             options={
                 'verbose_name': 'Export Settings',

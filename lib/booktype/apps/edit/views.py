@@ -7,7 +7,7 @@ import hashlib
 import logging
 import zipfile
 import difflib
-import StringIO
+from io import BytesIO
 import datetime
 import operator
 import mimetypes
@@ -20,13 +20,13 @@ from django.conf import settings
 from django.db import transaction
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.safestring import mark_safe
 from django.shortcuts import get_object_or_404
 from django.views.generic.list import ListView
 from django.core.exceptions import PermissionDenied
-from django.utils.translation import ugettext_lazy as _
-from django.utils.translation import ugettext
+from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext
 from django.contrib.auth.decorators import login_required
 from django.views.generic import TemplateView, DetailView, FormView
 from django.http import Http404, HttpResponse, HttpResponseRedirect, HttpResponseForbidden
@@ -93,7 +93,7 @@ def upload_attachment(request, bookid, version=None):
         att = models.Attachment(
             version=book_version,
             # must remove this reference
-            created=datetime.datetime.now(),
+            created=datetime.datetime.now(datetime.UTC),
             book=book,
             status=stat
         )
@@ -142,13 +142,18 @@ def upload_cover(request, bookid, version=None):
         title = request.POST.get('title', '')
         try:
             filename = unidecode.unidecode(file_data.name)
-        except:
+        except Exception:
             filename = uuid.uuid1().hex
 
         h = hashlib.sha1()
+
+        # Strings must be encoded before hashing
+        if isinstance(filename, str):
+            filename = filename.encode()
+
         h.update(filename)
-        h.update(unidecode.unidecode(title))
-        h.update(str(datetime.datetime.now()))
+        h.update(unidecode.unidecode(title).encode())
+        h.update(str(datetime.datetime.now()).encode())
 
         license = models.License.objects.get(
             abbrevation=request.POST.get('license', ''))
@@ -340,24 +345,21 @@ def cover(request, bookid, cid, fname=None, version=None):
         '.' + extension, 'binary/octet-stream')
 
     if request.GET.get('preview', '') == '1':
-        try:
-            from PIL import Image
-        except ImportError:
-            import Image
+        from PIL import Image
 
         try:
             if extension.lower() in ['pdf', 'psd', 'svg']:
                 raise Exception
 
-            im = Image.open(cover.attachment.name)
-            im.thumbnail((300, 200), Image.ANTIALIAS)
-        except:
+            im = Image.open(cover.attachment.path)
+            im.thumbnail((300, 200), Image.LANCZOS)
+        except Exception:
             try:
                 im = Image.open('%s/edit/img/booktype-cover-%s.png' %
                                 (settings.STATIC_ROOT, extension.lower()))
                 extension = 'png'
                 content_type = 'image/png'
-            except:
+            except Exception:
                 # Not just IOError but anything else
                 im = Image.open('%s/edit/img/booktype-cover-error.png' %
                                 settings.STATIC_ROOT)
@@ -466,7 +468,6 @@ class EditBookPage(LoginRequiredMixin, views.SecurityMixin, TemplateView):
         context['publish_options'] = publish_options
         context['page_size_data'] = config.get_configuration('PAGE_SIZE_DATA')
 
-
         outputs_map = {}
         converters = convert_loader.find_all(
             module_names=convert_utils.get_converter_module_names())
@@ -566,7 +567,7 @@ class BookHistoryPage(LoginRequiredMixin, JSONResponseMixin,
 
             verbose = activ.get('verbose')
             if item.kind == 2:
-                verbose = ugettext("Revision {0} saved").format(item.chapter_history.revision)
+                verbose = gettext("Revision {0} saved").format(item.chapter_history.revision)
 
             history.append({
                 'has_link': (item.kind == 2),
@@ -638,7 +639,7 @@ class CompareChapterRevisions(LoginRequiredMixin, ChapterMixin, DetailView):
                 chapter__book=book, chapter=self.chapter, revision=rev1)
             revision2 = models.ChapterHistory.objects.get(
                 chapter__book=book, chapter=self.chapter, revision=rev2)
-        except:
+        except Exception:
             return context
 
         context['unified_output'] = unified_diff(revision1.content, revision2.content)
@@ -651,7 +652,8 @@ class CompareChapterRevisions(LoginRequiredMixin, ChapterMixin, DetailView):
         return context
 
     def get_template_names(self):
-        if not self.request.is_ajax():
+        # if not self.request.is_ajax():
+        if not self.request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
             return ["edit/compare_screen.html"]
         return super(CompareChapterRevisions, self).get_template_names()
 
@@ -659,7 +661,7 @@ class CompareChapterRevisions(LoginRequiredMixin, ChapterMixin, DetailView):
 class RevisionPage(LoginRequiredMixin, views.SecurityMixin, ChapterMixin, DetailView):
 
     template_name = 'edit/chapter_revision.html'
-    http_method_names = [u'post', u'get']
+    http_method_names = ['post', 'get']
     SECURITY_BRIDGE = security.BookSecurity
 
     def get_context_data(self, **kwargs):
@@ -725,7 +727,7 @@ class RevisionPage(LoginRequiredMixin, views.SecurityMixin, ChapterMixin, Detail
         try:
             self.chapter.save()
             messages.success(request, _('Chapter revision successfully reverted.'))
-        except:
+        except Exception:
             messages.warning(request, _('Chapter revision could not be reverted.'))
 
         url = "{0}#history/{1}".format(
@@ -801,10 +803,10 @@ class BookSettingsView(LoginRequiredMixin, views.SecurityMixin,
             else:
                 error, message = True, _('You have no permissions to execute this action.')
         except Exception as err:
-            print err
+            print(err)
             error, message = True, _('Unknown error while saving changes.')
 
-        return self.render_json_response({'message': unicode(message), 'error': error,
+        return self.render_json_response({'message': message, 'error': error,
                                           'updated_settings': updated_settings})
 
     def form_invalid(self, form):
@@ -818,7 +820,8 @@ class BookSettingsView(LoginRequiredMixin, views.SecurityMixin,
         return self.form_class.initial_data(self.book, self.request)
 
     def get_template_names(self):
-        if self.request.is_ajax():
+        # if self.request.is_ajax():
+        if self.request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest':
             return [
                 "edit/settings/_%s.html" % self.submodule.replace('-', '_'),
                 self.template_name
@@ -868,8 +871,9 @@ class DownloadBookHistory(LoginRequiredMixin, DetailView):
 
             try:
                 revision1 = models.ChapterHistory.objects.filter(
-                        chapter__book=book, chapter=itm.chapter
-                    ).exclude(revision=itm.chapter.revision).order_by('-modified').first()
+                    chapter__book=book, chapter=itm.chapter
+                ).exclude(revision=itm.chapter.revision).order_by('-modified').first()
+
                 using_revision = revision1.revision
             except models.ChapterHistory.DoesNotExist:
                 # if not found and revision was not the default one, just try to pull
@@ -879,7 +883,7 @@ class DownloadBookHistory(LoginRequiredMixin, DetailView):
                         revision1 = models.ChapterHistory.objects.get(
                             chapter__book=book, chapter=itm.chapter, revision=self.DEFAULT_REV)
                         using_revision = _("default one ({})").format(self.DEFAULT_REV)
-                    except:
+                    except Exception:
                         continue
 
                 if revision1 is None:
@@ -1003,7 +1007,7 @@ class DownloadBookHistory(LoginRequiredMixin, DetailView):
         zip_name = '{}_history'.format(self.object.url_title)
         history_file_name = _get_name(self.history_mode)
 
-        zfile_content = StringIO.StringIO()
+        zfile_content = BytesIO()
         zfile = zipfile.ZipFile(zfile_content, 'w', zipfile.ZIP_STORED)
         zfile.writestr('{}'.format(history_file_name), content)
 

@@ -39,7 +39,6 @@ def run_command(cmd, shell=False):
         logger.error("Error while running the command: %r" % cmd)
         raise
 
-    logger.debug("%s\n%s returned %s and produced\nstdout:%s\nstderr:%s" %
-        (' '.join(cmd), cmd[0], p.poll(), out, err))
+    logger.debug("%s\n%s returned %s and produced\nstdout:%s\nstderr:%s" % (' '.join(cmd), cmd[0], p.poll(), out, err))
 
     return (p.poll(), out, err)

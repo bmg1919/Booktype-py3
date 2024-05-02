@@ -30,7 +30,13 @@ class APILoggingMiddleware(object):
     Middleware which will log all `*/_api/*` requests
     """
 
-    MATCH_URL_PREFIX = u'/_api/'
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        return self.get_response(request)
+
+    MATCH_URL_PREFIX = '/_api/'
 
     def process_response(self, request, response):
         if request.path.startswith(self.MATCH_URL_PREFIX) and self.MATCH_URL_PREFIX != request.path:

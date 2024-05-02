@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import ebooklib
-import StringIO
+from io import BytesIO
 import logging
 
 from lxml import etree
@@ -13,11 +13,7 @@ from booktype.apps.themes.utils import read_theme_assets
 from booktype.utils.image_editor import BkImageEditor
 from ..constants import IMAGES_DIR
 from ..cover import IMAGE_FILE_NAME
-
-try:
-    import Image
-except ImportError:
-    from PIL import Image
+from PIL import Image
 
 logger = logging.getLogger("booktype.convert.epub")
 
@@ -83,7 +79,7 @@ class ImageEditorWriterPlugin(BasePlugin):
             if os.path.isfile(edited_image_path):
 
                 # buffer for future epub image object
-                output_io = StringIO.StringIO()
+                output_io = BytesIO()
 
                 # save edited image to the buffer
                 with Image.open(edited_image_path) as im:
@@ -106,7 +102,7 @@ class ImageEditorWriterPlugin(BasePlugin):
                     # change image src in html
                     elem.set("src", src)
                     # set filename for epub object
-                    new_ebooklib_item_image.file_name = u'{}/{}'.format(IMAGES_DIR, src_filename)
+                    new_ebooklib_item_image.file_name = '{}/{}'.format(IMAGES_DIR, src_filename)
                     # add epub.EpubImage to the book
                     book.add_item(new_ebooklib_item_image)
 

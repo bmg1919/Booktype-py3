@@ -20,7 +20,7 @@ from django.contrib.auth.admin import UserAdmin as AuthUserAdmin
 
 from booktype.apps.account.models import UserProfile
 
-import models
+from . import models
 
 
 class UserProfileInline(admin.StackedInline):
@@ -92,6 +92,7 @@ class BookNotesAdmin(admin.ModelAdmin):
 
 class BookVersionAdmin(admin.ModelAdmin):
     list_filter = ['book']
+
 
 # unregister old user admin
 admin.site.unregister(User)

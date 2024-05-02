@@ -25,130 +25,145 @@ from booki.messaging.models import Post, PostAppearance, Following
 
 register = template.Library()
 
-### timelines:
+
+# timelines:
 
 @register.inclusion_tag("messaging/timeline.html")
 def user_timeline(username):
-    endpoint = get_endpoint_or_none("@"+username)
+    endpoint = get_endpoint_or_none("@" + username)
 
     posts_by_user = Post.objects.filter(sender=endpoint).order_by("-timestamp")
 
     appearances = PostAppearance.objects.filter(endpoint=endpoint)
     user_posts = (x.post for x in appearances.order_by("-timestamp"))
 
-    posts = sorted(chain(posts_by_user, user_posts), key=lambda x:x.timestamp,
+    posts = sorted(chain(posts_by_user, user_posts), key=lambda x: x.timestamp,
                    reverse=True)
 
-    return dict(syntax="@"+username, posts=posts,
+    return dict(syntax="@" + username, posts=posts,
                 DATA_URL=settings.DATA_URL)
+
 
 @register.inclusion_tag("messaging/timeline.html")
 def group_timeline(groupname):
-    endpoint = get_endpoint_or_none("!"+groupname)
+    endpoint = get_endpoint_or_none("!" + groupname)
     appearances = PostAppearance.objects.filter(endpoint=endpoint)
     group_posts = (x.post for x in appearances.order_by("-timestamp"))
-    return dict(syntax="!"+groupname, posts=group_posts,
+    return dict(syntax="!" + groupname, posts=group_posts,
                 DATA_URL=settings.DATA_URL)
+
 
 @register.inclusion_tag("messaging/timeline.html")
 def book_timeline(bookname):
-    endpoint = get_endpoint_or_none(u"\u212c"+bookname)
+    endpoint = get_endpoint_or_none(u"\u212c" + bookname)
     appearances = PostAppearance.objects.filter(endpoint=endpoint)
     book_posts = (x.post for x in appearances.order_by("-timestamp"))
-    return dict(syntax=u"\u212c"+bookname, posts=book_posts,
+    return dict(syntax=u"\u212c" + bookname, posts=book_posts,
                 DATA_URL=settings.DATA_URL)
+
 
 @register.inclusion_tag("messaging/timeline.html")
 def tag_timeline(tagname):
-    endpoint = get_endpoint_or_none("#"+tagname)
+    endpoint = get_endpoint_or_none("#" + tagname)
     appearances = PostAppearance.objects.filter(endpoint=endpoint)
     tag_posts = (x.post for x in appearances.order_by("-timestamp"))
-    return dict(syntax="#"+tagname, posts=tag_posts,
+    return dict(syntax="#" + tagname, posts=tag_posts,
                 DATA_URL=settings.DATA_URL)
 
-### messagefields:
+
+# messagefields:
 @register.inclusion_tag("messaging/messagefield.html", takes_context=True)
 def user_messagefield(context, username):
-    return dict(syntax="@"+username+" " if username else "",
+    return dict(syntax="@" + username + " " if username else "",
                 request=context.get('request'),
                 random=random.getrandbits(60)
                 )
+
 
 @register.inclusion_tag("messaging/messagefield.html", takes_context=True)
 def group_messagefield(context, groupname):
-    return dict(syntax="!"+groupname+" ",
+    return dict(syntax="!" + groupname + " ",
                 request=context.get('request'),
                 random=random.getrandbits(60)
                 )
+
 
 @register.inclusion_tag("messaging/messagefield.html", takes_context=True)
 def book_messagefield(context, bookname):
-    return dict(syntax=u"\u212c"+bookname+" ",
+    return dict(syntax=u"\u212c" + bookname + " ",
                 request=context.get('request'),
                 random=random.getrandbits(60)
                 )
+
 
 @register.inclusion_tag("messaging/messagefield.html", takes_context=True)
 def tag_messagefield(context, tagname):
-    return dict(syntax=u"#"+tagname+" ",
+    return dict(syntax=u"#" + tagname + " ",
                 request=context.get('request'),
                 random=random.getrandbits(60)
                 )
 
+
 @register.inclusion_tag("messaging/messagefield.html", takes_context=True)
 def messagefield(context, syntax):
-    return dict(syntax=syntax+" ",
+    return dict(syntax=syntax + " ",
                 request=context.get('request'),
                 random=random.getrandbits(60)
                 )
+
 
 @register.inclusion_tag("messaging/messagefield_button.html", takes_context=True)
 def messagefield_button(context):
     return dict(request=context.get('request'),
                 random=random.getrandbits(60))
 
-### stalking:
 
+# stalking:
 @register.simple_tag
 def user_followingbox(username, template_name="messaging/followingbox.html"):
-    user = get_endpoint_or_none(syntax="@"+username)
+    user = get_endpoint_or_none(syntax="@" + username)
     followings = Following.objects.filter(follower=user)
     target_users = (following.target.syntax[1:] for following in followings if following.target.syntax.startswith("@"))
     t = template.loader.get_template(template_name)
     return t.render(dict(target_users=target_users))
 
+
 @register.simple_tag
 def user_followersbox(username, template_name="messaging/followersbox.html"):
-    endpoint = get_endpoint_or_none(syntax="@"+username)
+    endpoint = get_endpoint_or_none(syntax="@" + username)
     followings = Following.objects.filter(target=endpoint)
     followers = (following.follower.syntax[1:] for following in followings)
     t = template.loader.get_template(template_name)
     return t.render(dict(followers=followers))
 
+
 @register.inclusion_tag("messaging/tags.html")
 def user_tagbox(username):
-    user = get_endpoint_or_none(syntax="@"+username)
+    user = get_endpoint_or_none(syntax="@" + username)
     followings = Following.objects.filter(follower=user)
     tags = (following.target.syntax[1:] for following in followings if following.target.syntax.startswith("#"))
     books = (following.target.syntax[1:] for following in followings if following.target.syntax.startswith(u"\u212c"))
     return dict(tags=tags, books=books)
 
+
 @register.inclusion_tag("messaging/user_followbutton.html")
 def user_followbutton(username, requestuser):
     return dict(username=username,
-                alreadyfollowing=bool(Following.objects.filter(follower=get_endpoint_or_none("@"+requestuser), target=get_endpoint_or_none("@"+username))))
+                alreadyfollowing=bool(Following.objects.filter(follower=get_endpoint_or_none("@" + requestuser), target=get_endpoint_or_none("@" + username))))
+
 
 @register.inclusion_tag("messaging/book_followbutton.html")
 def book_followbutton(bookname, requestuser):
     return dict(bookname=bookname,
-                alreadyfollowing=bool(Following.objects.filter(follower=get_endpoint_or_none("@"+requestuser), target=get_endpoint_or_none(u"\u212c"+bookname))))
+                alreadyfollowing=bool(Following.objects.filter(follower=get_endpoint_or_none("@" + requestuser), target=get_endpoint_or_none(u"\u212c" + bookname))))
 
 # "already implemented"
-#@register.simple_tag
-#def user_groupbox(username):
+# @register.simple_tag
+# def user_groupbox(username):
 #    pass
+
 
 @register.inclusion_tag("messaging/tag_followbutton.html")
 def tag_followbutton(tagname, requestuser):
     return dict(tagname=tagname,
-                alreadyfollowing=bool(Following.objects.filter(follower=get_endpoint_or_none("@"+requestuser), target=get_endpoint_or_none("#"+tagname))))
+                alreadyfollowing=bool(Following.objects.filter(follower=get_endpoint_or_none("@" + requestuser), target=get_endpoint_or_none("#" + tagname))))

@@ -3,7 +3,8 @@ from booktype.utils import security
 
 register = Library()
 
-@register.assignment_tag
+
+@register.simple_tag
 def can_delete_group(group, user):
     """
     Checks if a given user has enough rights to delete a group

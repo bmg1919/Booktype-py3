@@ -16,14 +16,13 @@
 
 import os
 import logging
-import urlparse
-import urllib
+from urllib.parse import urlparse, unquote
 import zipfile
 
 import ebooklib
 from lxml import etree
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from booktype.convert.image_editor_conversion import ImageEditorConversion
 from booktype.utils import config
@@ -108,7 +107,7 @@ class XHTMLConverter(BaseConverter):
             file_name = os.path.basename(src)
 
             try:
-                with open(src, 'r') as img:
+                with open(src, 'rb') as img:
                     self.output_file.writestr('{}/{}'.format(IMAGES_DIR, file_name), img.read())
             except IOError:
                 logger.exception("xhtml. Failed to open image for writing.")
@@ -137,7 +136,7 @@ class XHTMLConverter(BaseConverter):
         if self._bk_image_editor_conversion:
             try:
                 root = self._bk_image_editor_conversion.convert(root)
-            except:
+            except Exception:
                 logger.exception("xhtml. ImageEditorConversion failed.")
 
         # save all images src
@@ -162,15 +161,15 @@ class XHTMLConverter(BaseConverter):
 
         for element in root.iter('img'):
 
-            path = urllib.unquote(element.get('src'))
+            path = unquote(element.get('src'))
 
             # if hostname, then it is an image with absolute url
-            if urlparse.urlparse(path).hostname:
+            if urlparse(path).hostname:
                 continue
 
             try:
                 path = path.decode('utf-8')
-            except:
+            except Exception:
                 pass
 
             file_name = os.path.basename(path)
@@ -189,6 +188,6 @@ class XHTMLConverter(BaseConverter):
         Add Styling.
         """
 
-        content = self.config.get('settings', {}).get('styling', u'')
+        content = self.config.get('settings', {}).get('styling', '')
 
         self.output_file.writestr('{}/custom.css'.format(STYLE_DIR), content)

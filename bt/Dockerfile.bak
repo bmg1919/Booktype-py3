@@ -1,0 +1,107 @@
+# ubuntu image for booktype
+# https://hub.docker.com/r/ride90/ubuntu-booktype/
+FROM ride90/ubuntu-booktype
+
+# set env vars
+ENV INSTANCENAME mybook
+ENV BOOKTYPE_SERVER 127.0.0.1:8000
+ENV BOOKTYPE_URL http://127.0.0.1:8000
+ENV BOOKTYPE_REDIS_HOST redis
+ENV BOOKTYPE_BROKER_URL amqp://guest:guest@rabbit:5672/
+ENV BOOKTYPE_DATABASE_ENGINE django.db.backends.postgresql_psycopg2
+ENV BOOKTYPE_DATABASE_HOST db
+ENV BOOKTYPE_DATABASE_PORT 5432
+ENV BOOKTYPE_DATABASE_NAME booktype
+ENV BOOKTYPE_DATABASE_USER booktype
+ENV BOOKTYPE_DATABASE_PASSWORD booktype
+ENV BOOKTYPE_PANDOC_PATH /usr/bin/pandoc
+ENV BOOKTYPE_MPDF_DIR /code/mpdf60
+
+RUN apt update && apt install wget make unzip realpath supervisor -y
+
+# RUN wget https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tar.xz \
+#     && tar xf Python-2.7.18.tar.xz && cd Python-2.7.18 \
+#     && ./configure --enable-optimizations && make && make install
+# RUN shit
+# RUN wget https://www.python.org/ftp/python/2.7.18/Python-2.7.18.tar.xz \
+#     && tar xf Python-2.7.18.tar.xz && cd Python-2.7.18 \
+#     && ./configure --enable-optimizations && make && make install
+
+# RUN wget https://files.pythonhosted.org/packages/b2/40/4e00501c204b457f10fe410da0c97537214b2265247bc9a5bc6edd55b9e4/setuptools-44.1.1.zip#sha256=c67aa55db532a0dadc4d2e20ba9961cbd3ccc84d544e9029699822542b5a476b \
+#     && unzip setuptools-44.1.1.zip && cd setuptools-44.1.1 && python setup.py install
+
+# RUN wget https://files.pythonhosted.org/packages/53/7f/55721ad0501a9076dbc354cc8c63ffc2d6f1ef360f49ad0fbcce19d68538/pip-20.3.4.tar.gz#sha256=6773934e5f5fc3eaa8c5a44949b5b924fc122daa0a8aa9f80c835b4ca2a543fc \
+    # && tar xf pip-20.3.4.tar.gz && cd pip-20.3.4 && python setup.py install
+# create dir for supervisor logs
+RUN mkdir -p /var/log/supervisor
+
+# create dir for code
+RUN mkdir -p /code/scripts
+
+# create dir for configs
+RUN mkdir -p /code/configs
+
+# copy shell scripts
+COPY scripts /code/scripts
+
+# set working dir
+WORKDIR /code
+
+# clone project
+RUN git clone https://github.com/booktype/Booktype.git /code/Booktype/
+
+# clone mpdf
+RUN git clone https://github.com/booktype/mpdf.git /code/mpdf60/
+
+FROM python:2
+
+RUN pip install virtualenv setuptools wheel -U
+# RUN which python
+# install && create && activate python virtualenv
+# install python dependencies && generate project's skeleton
+# RUN pip install virtualenv \
+RUN virtualenv venv \
+    && . venv/bin/activate && pip install pika==1.2.1 gitdb2==2.0.6 django-appconf==1.0.3 vine==1.1.4 \
+    && pip install -r Booktype/requirements/prod.txt \
+    && ./Booktype/scripts/createbooktype --database postgresql ${INSTANCENAME}
+
+# make scripts executable
+RUN chmod ug+x scripts/celery.sh scripts/web.sh scripts/manage_py.sh scripts/wait-for-it.sh ${INSTANCENAME}/manage_prod.py
+
+RUN chown -R booktype.booktype /code/ \
+    && chmod -R 775 /code/${INSTANCENAME}/logs \
+    && chmod -R 775 /code/${INSTANCENAME}/data
+
+# copy configs
+RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+COPY configs/nginx_booktype.conf /etc/nginx/sites-enabled/
+COPY configs/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY configs/uwsgi.ini /code/configs
+COPY configs/uwsgi_params /code/mybook
+
+EXPOSE 8000
+
+# * wait for db container is ready to accept connection
+#     https://docs.docker.com/compose/startup-order/
+#     https://github.com/vishnubob/wait-for-it
+#     https://github.com/vishnubob/wait-for-it/issues/15
+# * run manage commands
+#     - migrate
+#     - update_permissions
+#     - update_default_roles
+#     - collectstatic
+#     - compress
+#     - create_superuser
+# * run supervisor
+#     - nginx
+#     - uwsgi
+#     - celery
+
+RUN apt install supervisor -y
+
+CMD ./scripts/wait-for-it.sh -t 60 db:5432 -- ./scripts/manage_py.sh \
+    && /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
+
+# RUN ./scripts/manage_py.sh
+
+# CMD /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

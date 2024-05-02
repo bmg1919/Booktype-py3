@@ -21,11 +21,9 @@ def fetch_url(url, data, method='GET'):
 
     try:
         if method.lower() == 'get':
-            req = requests.get(
-                url, params=data, verify=config.get_configuration('REQUESTS_VERIFY_SSL_CERT'))
+            req = requests.get(url, params=data, verify=config.get_configuration('REQUESTS_VERIFY_SSL_CERT'))
         else:
-            req = requests.post(url, data=json.dumps(data),
-                                verify=config.get_configuration('REQUESTS_VERIFY_SSL_CERT'))
+            req = requests.post(url, data=json.dumps(data), verify=config.get_configuration('REQUESTS_VERIFY_SSL_CERT'))
     except requests.exceptions.ConnectionError:
         logger.exception('Connection error when loading {}.'.format(url))
     except requests.exceptions.Timeout:

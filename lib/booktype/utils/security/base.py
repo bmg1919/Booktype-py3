@@ -91,7 +91,7 @@ class BaseSecurity(object):
         if default_role:
             permissions.update([p for p in default_role.permissions.all()])
 
-        if self.user.is_authenticated():
+        if self.user.is_authenticated:
             if book:
                 bookroles = self.user.roles.filter(book=book)
                 for bookrole in bookroles:
@@ -131,7 +131,7 @@ def get_default_role_key(user):
     Returns the defaults booktype app role key for given user
     even if is not registered
     """
-    if user.is_authenticated():
+    if user.is_authenticated:
         role_key = 'registered_users'
     else:
         role_key = 'anonymous_users'
@@ -152,7 +152,7 @@ def get_default_role(key, book=None):
     if book:
         try:
             role_name = book.settings.get(name=default_key).get_value()
-        except:
+        except Exception:
             logger.info("There is no Role name for role_key %s" % default_key)
 
     if not role_name:
@@ -165,7 +165,7 @@ def get_default_role(key, book=None):
 
     try:
         default_role = Role.objects.get(name=role_name)
-    except:
+    except Exception:
         logger.info("Role with %s name does not exists" % role_name)
 
     return default_role

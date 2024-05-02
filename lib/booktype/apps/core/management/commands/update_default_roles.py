@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.core.management.base import BaseCommand, CommandError
 
 from booktype.apps.core.models import Permission, Role
@@ -31,4 +31,4 @@ class Command(BaseCommand):
                     raise CommandError(err_msg)
 
             statuses = ['updated', 'created']
-            print 'Role %s has been %s.' % (role_name, statuses[created])
+            print('Role %s has been %s.' % (role_name, statuses[created]))

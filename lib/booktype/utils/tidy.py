@@ -41,7 +41,7 @@ def tidy_cleanup(content, **extra):
 
     content = misc.remove_unknown_tags(content)
 
-    for k, v in extra.iteritems():
+    for k, v in extra.items():
         cmd.append('--%s' % k)
 
         if v:
@@ -50,10 +50,10 @@ def tidy_cleanup(content, **extra):
     # must parse all other extra arguments
     try:
         p = subprocess.Popen(
-                [TIDY_PATH, '-utf8'] + cmd, shell=False,
-                stdin=subprocess.PIPE, stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE, close_fds=True
-            )
+            [TIDY_PATH, '-utf8'] + cmd, shell=False,
+            stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE, close_fds=True
+        )
     except OSError:
         return (3, None)
 

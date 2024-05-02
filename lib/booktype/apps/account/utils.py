@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-import urllib
-import urlparse
+from urllib.parse import urljoin, urlencode
 import hashlib
 
 from django.conf import settings
@@ -30,14 +29,18 @@ def get_profile_image(user, size=100):
         except AttributeError:
             name = '{}{}'.format(settings.STATIC_URL, 'account/images/anonymous.png')
 
-        default = urlparse.urljoin(settings.BOOKTYPE_URL, name)
-        return 'https://www.gravatar.com/avatar/%s?%s' % (
-            hashlib.md5(
-                profile.user.email.encode('utf-8').lower()
-            ).hexdigest(),
-            urllib.urlencode({'d': default, 's': str(size)})
-        )
+        default = urljoin(settings.BOOKTYPE_URL, name)
+
+        # return 'https://www.gravatar.com/avatar/%s?%s' % (
+        #     hashlib.md5(
+        #         profile.user.email.encode('utf-8').lower()
+        #     ).hexdigest(),
+        #     urlencode({'d': default, 's': str(size)})
+        # )
+        return default
 
     filename = profile.image.name
 
-    return '{}{}{}'.format(settings.DATA_URL, settings.PROFILE_IMAGE_UPLOAD_DIR,filename.split('/')[-1])
+    monk = '{}{}{}'.format(settings.DATA_URL, settings.PROFILE_IMAGE_UPLOAD_DIR, filename.split('/')[-1])
+
+    return '{}{}{}'.format(settings.DATA_URL, settings.PROFILE_IMAGE_UPLOAD_DIR, filename.split('/')[-1])

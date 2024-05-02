@@ -42,7 +42,7 @@ Objavi you should update them::
 
 
 Booktype 1.5.4
---------------    
+--------------
 
 There are changes in the database schema and database migration is required.
 
@@ -54,18 +54,18 @@ Update your project settings.py file to use messaging framework. You have to::
 
     - Add new options
 
-       MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage' 
-       TEMPLATE_CONTEXT_PROCESSORS = ('django.contrib.auth.context_processors.auth', 
-                                      'django.contrib.messages.context_processors.messages') 
+       MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
+       TEMPLATE_CONTEXT_PROCESSORS = ('django.contrib.auth.context_processors.auth',
+                                      'django.contrib.messages.context_processors.messages')
 
     - Add new messaging middleware to the list:
-       MIDDLEWARE_CLASSES = (...,
+       MIDDLEWARE = (...,
                              'django.contrib.messages.middleware.MessageMiddleware',
                              ...)
 
     - Add new Django app to the list:
        INSTALLED_APPS = (...,
-                         'django.contrib.messages', 
+                         'django.contrib.messages',
                          ...)
 
 Notice: All of these changes will require "django-admin migrate" at the end.
@@ -87,31 +87,31 @@ Upgrade your config files to include Control Center::
       except config.ConfigurationError:
         BOOKTYPE_CONFIG = {}
 
-    - Template file lib/booki/portal/templates/base.html has been modified. 
+    - Template file lib/booki/portal/templates/base.html has been modified.
 
 Notice: All of these changes will require "django-admin migrate" at the end.
 
-Style of database configuration has been changed so please update your configuration. This is a normal 
+Style of database configuration has been changed so please update your configuration. This is a normal
 Django database configuration and please check Django documentation for more information and options.
 
 It used to be::
 
     DATABASE_ENGINE = 'postgresql_psycopg2'
-    DATABASE_NAME = '' 
-    DATABASE_USER = '' 
-    DATABASE_PASSWORD = '' 
+    DATABASE_NAME = ''
+    DATABASE_USER = ''
+    DATABASE_PASSWORD = ''
     DATABASE_HOST = 'localhost'
     DATABASE_PORT = ''
 
 Now it is::
 
-    DATABASES = {'default': {'ENGINE': 'django.db.backends.postgresql_psycopg2', 
-                          'NAME': '', 
-                          'USER': '', 
-                          'PASSWORD': '', 
-                          'HOST': 'localhost', 
-                          'PORT': '' 
-                          } 
+    DATABASES = {'default': {'ENGINE': 'django.db.backends.postgresql_psycopg2',
+                          'NAME': '',
+                          'USER': '',
+                          'PASSWORD': '',
+                          'HOST': 'localhost',
+                          'PORT': ''
+                          }
                }
 
 New configuration for load Django templates. Please change your configuration::
@@ -130,19 +130,19 @@ New configuration for load Django templates. Please change your configuration::
                             'django.template.loaders.app_directories.Loader',
                             'django.template.loaders.eggs.Loader',
                            )
-    
+
 Booktype 1.5.2
 --------------
 
 Update your project settings.py. You have to add new middleware called "LocaleMiddleware" to the list.::
 
-    MIDDLEWARE_CLASSES = (
+    MIDDLEWARE = (
         'django.middleware.common.CommonMiddleware',
         'django.contrib.sessions.middleware.SessionMiddleware',
         'django.middleware.locale.LocaleMiddleware',
         'django.contrib.auth.middleware.AuthenticationMiddleware',
         'django.middleware.transaction.TransactionMiddleware'
-    )    
+    )
 
 Update your project settings.py. You don't have to but you can comment LANGUAGES options.::
 

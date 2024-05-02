@@ -96,7 +96,7 @@ def get_sections_settings(epub_book):
     settings = _get_property(epub_book.metadata, 'bkterms:sections_settings')
     try:
         settings = json.loads(settings)
-    except:
+    except Exception:
         settings = {}
 
     return settings

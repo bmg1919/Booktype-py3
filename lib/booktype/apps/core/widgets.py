@@ -2,7 +2,7 @@
 
 from django import forms
 from django.forms.widgets import CheckboxInput
-from django.utils.encoding import force_text
+from django.utils.encoding import force_str
 from django.utils.safestring import mark_safe
 from django.utils.html import format_html
 
@@ -35,12 +35,12 @@ class GroupedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
         self.grouped = grouped_query
 
-    def render(self, name, value, attrs=None, choices=()):
+    def render(self, name, value, attrs=None, choices=(), renderer=None):
         if value is None:
             value = []
 
         has_id = attrs and 'id' in attrs
-        attrs.update({u'name':name})
+        attrs.update({'name': name})
         final_attrs = self.build_attrs(attrs)
 
         grouped_list = []
@@ -50,10 +50,10 @@ class GroupedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
             output = [fieldset]
 
             # Normalize to strings
-            str_values = set([force_text(v) for v in value])
+            str_values = set([force_str(v) for v in value])
 
             for i, obj in enumerate(elems):
-                option_value, option_label = obj.pk, obj.__unicode__()
+                option_value, option_label = obj.pk, obj.__str__()
                 # If an ID attribute was given, add a numeric index as a suffix
                 # so that the checkboxes don't all have the same ID attribute.
                 if has_id:
@@ -67,9 +67,9 @@ class GroupedCheckboxSelectMultiple(forms.CheckboxSelectMultiple):
 
                 cb = CheckboxInput(
                     final_attrs, check_test=lambda value: value in str_values)
-                option_value = force_text(option_value)
+                option_value = force_str(option_value)
                 rendered_cb = cb.render(name, option_value)
-                option_label = force_text(option_label)
+                option_label = force_str(option_label)
                 output.append(
                     format_html('<li><label{0}>{1} {2}</label></li>',
                                 label_for, rendered_cb, option_label)

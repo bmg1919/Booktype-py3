@@ -4,6 +4,8 @@ from django import template
 from django.template.base import Template
 from django.conf import settings
 
+from django.templatetags.static import static
+
 from ..utils import read_theme_info
 
 register = template.Library()
@@ -35,7 +37,7 @@ def list_theme_options(context):
                 s = f.read()
                 f.close()
 
-                t = Template(unicode(s, 'utf8'))
+                t = Template(s)
                 content = t.render(context)
 
                 options.append({'name': theme, 'content': content})
@@ -45,7 +47,7 @@ def list_theme_options(context):
 
 @register.inclusion_tag('themes/preloads.html')
 def list_theme_preloads():
-    from django.contrib.staticfiles.templatetags.staticfiles import static
+    # from django.conf.urls.static import static
 
     options = []
 

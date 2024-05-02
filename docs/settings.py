@@ -13,7 +13,7 @@ SECRET_KEY = 'enc*ln*vp^o2p1p6of8ip9v5_tt6r#fh2-!-@pl0ur^6ul6e)l'
 
 COVER_IMAGE_UPLOAD_DIR = 'cover_images/'
 
-PROFILE_IMAGE_UPLOAD_DIR ='profile_images/'
+PROFILE_IMAGE_UPLOAD_DIR = 'profile_images/'
 
 BOOKTYPE_URL = 'http://booktype.example.com/'
 

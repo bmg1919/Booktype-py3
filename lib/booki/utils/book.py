@@ -9,4 +9,3 @@ checkGroupAvailability = book.check_group_availability
 setBookCover = book.set_book_cover
 renameBook = book.rename_book
 removeBook = book.remove_book
-

@@ -17,7 +17,7 @@
 import os
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django.conf import settings
 
@@ -35,7 +35,7 @@ class UserProfile(models.Model):
     mood = models.CharField(_('mood'), max_length=1000, blank=True, null=False, default='')
     image = models.ImageField(_('image'), upload_to=settings.PROFILE_IMAGE_UPLOAD_DIR, null=True, blank=True)
     description = models.CharField(_('description'), max_length=2500, blank=False, null=False, default='')
-    user = models.OneToOneField(User, verbose_name=_('user'), related_name='profile')
+    user = models.OneToOneField(User, verbose_name=_('user'), related_name='profile', on_delete=models.CASCADE)
 
     def remove_image(self):
         self.image = None
@@ -45,7 +45,7 @@ class UserProfile(models.Model):
         try:
             os.remove('%s/%s%s.jpg' % (settings.MEDIA_ROOT, settings.PROFILE_IMAGE_UPLOAD_DIR, self.user.username))
         except Exception as err:
-            print err
+            print(err)
 
 
 class UserPassword(models.Model):
@@ -61,7 +61,7 @@ class UserPassword(models.Model):
     @ivar host: Client host.
     """
 
-    user = models.ForeignKey(User, unique=False, verbose_name=_("user"))
+    user = models.ForeignKey(User, unique=False, verbose_name=_("user"), on_delete=models.CASCADE)
     secretcode = models.CharField(_('secretcode'), max_length=30, blank=False, null=False)
     created = models.DateTimeField(_('created'), auto_now=True)
 
@@ -82,5 +82,6 @@ def add_user_profile(sender, instance, created, **kwargs):
     if created:
         user_profile = UserProfile(user=instance)
         user_profile.save()
+
 
 models.signals.post_save.connect(add_user_profile, sender=User)

@@ -17,7 +17,7 @@
 import logging
 from lxml import etree
 
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from booktype.convert.image_editor_conversion import ImageEditorConversion
 

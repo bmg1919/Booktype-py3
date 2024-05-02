@@ -53,12 +53,12 @@ def read_configuration():
         f.close()
     except IOError:
         raise ConfigurationError("Can't read file %s." % configPath)
-    except:
+    except Exception:
         raise ConfigurationError("Unknown error.")
 
     try:
         confData = json.loads(data)
-    except:
+    except Exception:
         return None
 
     return confData
@@ -100,7 +100,8 @@ def save_configuration():
     try:
         fh, fname = tempfile.mkstemp(suffix='', prefix='configuration', dir=settings.BOOKI_ROOT)
         f = open(fname, 'w+')
-        f.write(jsonData.encode('utf8'))
+        # Must be str not bytes
+        f.write(jsonData)  # .encode('utf8'))
         f.close()
 
         if os.path.exists(configPath):
@@ -109,7 +110,7 @@ def save_configuration():
         os.rename(fname, configPath)
     except IOError:
         raise ConfigurationError("Can't write to file %s." % configPath)
-    except:
+    except Exception:
         raise ConfigurationError("Unknown error.")
     finally:
         writeLock.release()
