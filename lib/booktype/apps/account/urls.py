@@ -32,9 +32,9 @@ app_name = 'accounts'
 urlpatterns = [
     path('signin/', SignInView.as_view(), name='signin'),
 
-    path('signout/', auth_views.LogoutView.as_view(), {
-        'template_name': '/account/signout.html',
-        'extra_context': logout_context}, name='signout'),
+    path('signout/', auth_views.LogoutView.as_view(
+        template_name='account/signout.html'),
+        name='signout'),
 
     path('forgot_password/', ForgotPasswordView.as_view(), name='forgotpassword'),
     path('forgot_password/enter/', ForgotPasswordEnterView.as_view(), name='forgotpasswordenter'),
