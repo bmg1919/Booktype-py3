@@ -14,5 +14,7 @@ setup.cfg
 .env
 .idea
 .cache
-
+.vscode
+venv/
 tests/static/css
+btdemo/
