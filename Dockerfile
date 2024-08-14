@@ -55,6 +55,7 @@ RUN chown -R booktype:booktype /code/ \
 
 # copy configs
 RUN echo "daemon off;" >> /etc/nginx/nginx.conf
+RUN rm /etc/nginx/sites-enabled/default
 COPY configs/nginx_booktype.conf /etc/nginx/sites-enabled/
 COPY configs/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY configs/uwsgi.ini /code/configs
