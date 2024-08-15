@@ -543,9 +543,11 @@ class EpubImporter(object):
         title = ''
 
         h = hashlib.sha1()
-        h.update(cover_image.file_name)
-        h.update(title)
-        h.update(str(created))
+
+        # Encode strings for hash, is there a better way?
+        h.update(cover_image.file_name.encode())
+        h.update(title.encode())
+        h.update(str(created).encode())
 
         cover = models.BookCover(
             book=book,
