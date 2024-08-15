@@ -4,6 +4,7 @@ import collections
 import booki
 
 from pathlib import Path
+from django.utils.translation import gettext_lazy as gettext
 
 # DJANGO ADMIN
 ADMINS = (
@@ -132,14 +133,9 @@ REDIS_DB = os.environ.get('BOOKTYPE_REDIS_DB', 0)
 # DJANGO STUFF
 AUTH_PROFILE_MODULE = 'account.UserProfile'
 
-TIME_ZONE = 'Europe/Berlin'
+TIME_ZONE = 'America/New_York'
 
 LANGUAGE_CODE = 'en-us'
-
-
-def gettext(s):
-    lambda s: s
-
 
 LANGUAGES = (
     ('en', gettext('American English')),
