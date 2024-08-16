@@ -256,7 +256,7 @@ class Epub3Converter(BaseConverter):
                 section_title, chapters = toc_item
 
                 section = ebooklib.epub.Section(section_title)
-                links = map(mapper, chapters)
+                links = list(map(mapper, chapters))
 
                 return (section, links)
             else:
