@@ -101,7 +101,7 @@ lxml==5.3.0
     #   -r req_dev.in
     #   ebooklib
     #   python-ooxml
-markdown==3.6
+markdown==3.7
     # via -r req_dev.in
 markupsafe==2.1.5
     # via jinja2
