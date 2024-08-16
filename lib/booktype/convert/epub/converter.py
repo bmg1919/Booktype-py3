@@ -301,7 +301,7 @@ class Epub3Converter(BaseConverter):
             return True
 
         toc = list(filter(_skip_cover, parse_toc_nav(original_book)))
-        toc = map(mapper, toc)
+        toc = list(map(mapper, toc))
 
         # we don't allow empty sections just because epubcheck will
         # raise an error at the moment of evaluating the toc.ncx file

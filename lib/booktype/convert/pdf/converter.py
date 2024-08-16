@@ -81,7 +81,7 @@ class PdfConverter(BaseConverter):
 
         self._document_body = document.find("body")
         self._items_by_path = {item.file_name: item for item in book.get_items_of_type(ebooklib.ITEM_DOCUMENT)}
-        map(self._write_toc_item, parse_toc_nav(book))
+        list(map(self._write_toc_item, parse_toc_nav(book)))
 
         html_path = os.path.join(self.sandbox_path, self._body_html_name)
         pdf_path = os.path.join(self.sandbox_path, self._body_pdf_name)
@@ -98,7 +98,7 @@ class PdfConverter(BaseConverter):
         if isinstance(toc_item[1], list):
             section_title, chapters = toc_item
             self._write_section_heading(section_title)
-            map(self._write_toc_item, chapters)
+            list(map(self._write_toc_item, chapters))
         else:
             chapter_title, chapter_href = toc_item
             self._write_chapter_content(chapter_title, chapter_href)

@@ -102,13 +102,13 @@ class BookSerializer(BookListSerializer):
                 }
 
                 if item.has_children():
-                    entry['children'] = map(_build_toc_entry, item.children())
+                    entry['children'] = list(map(_build_toc_entry, item.children()))
 
                 return entry
 
         version = obj.get_version()
         items = BookToc.objects.filter(version=version, parent__isnull=True).order_by("-weight")
-        return map(_build_toc_entry, items)
+        return list(map(_build_toc_entry, items))
 
     def get_metadata(self, obj):
         return [{'name': x.name, 'value': x.get_value()} for x in obj.metadata]
