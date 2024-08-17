@@ -1,0 +1,403 @@
+/* Created with www.booktype.pro */
+/* Theme 'Modern Report (Comfortable)' Version 0.2 update: 2017-03-27T18:37:44+02:00 */
+.editor-modernreportcomfortable {
+/* Pre-load 'Modern Report (Comfortable)' Version 0.2 theme fonts */
+
+@font-face {
+    font-family: 'roboto';
+    src: url('fonts/Roboto-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'roboto';
+    src: url('fonts/Roboto-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'roboto';
+    src: url('fonts/Roboto-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'roboto';
+    src: url('fonts/Roboto-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'ubuntu-mono';
+    src: url('fonts/UbuntuMono-R.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'ubuntu-mono';
+    src: url('fonts/UbuntuMono-B.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'ubuntu-mono';
+    src: url('fonts/UbuntuMono-RI.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'ubuntu-mono';
+    src: url('fonts/UbuntuMono-BI.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'roboto-light';
+    src: url('fonts/Roboto-Light.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'roboto-light';
+    src: url('fonts/Roboto-Regular.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'roboto-light';
+    src: url('fonts/Roboto-LightItalic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'roboto-light';
+    src: url('fonts/Roboto-Italic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+/* CSS for editor */
+    font-family: "roboto";
+    font-size: 13pt;
+    line-height: normal;
+    margin: 0;
+    padding: 0;
+    color: #000000;
+
+    /* QUOTE **************************************************/
+    
+    blockquote,
+    p.quote {
+        font-family: "roboto";
+        font-weight: normal;
+        font-size: 1em;
+        font-style: normal;
+        quotes: "\201C" "\201D" "\2018" "\2019";
+        position: relative;
+        text-align: left;
+        text-indent: 0;
+        line-height: inherit;
+        border-left: medium solid #ccc;
+        padding-left: 2em;
+        padding-top: 0em;
+        margin-left: 2em;
+        margin-top: 1em;
+        margin-bottom: 1em;
+        text-transform: none;
+        text-decoration: none;
+    }
+    /* undo the quotes from booki-new.css */
+    
+    p.quote:before {
+        display: none;
+    }
+    
+    /* citation ***********************************************/
+    cite, 
+    p.bk-cite {
+        font-style: italic;
+        display: inline;
+    }
+    /* Headlines ************************************************/
+    
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        -webkit-hyphens: none;
+        hyphens: none;
+        adobe-hyphenate: none;
+        page-break-after: avoid;
+        color: black;
+    }
+    .aloha-block-TitleBlock h1 {
+        font-family: "roboto-light";
+        font-size: 3.33em;
+        text-align: left;
+        font-weight: normal;
+        text-transform: uppercase;
+        border-bottom: none solid black;
+        text-decoration: none;
+        padding-top: 52.5pt;
+        margin-bottom: 52.5pt;
+        line-height: 1.1em;
+    }
+    h1 {
+        font-family: "roboto-light";
+        font-size: 2.66em;
+        text-align: left;
+        font-weight: normal;
+        text-transform: none;
+        border-bottom: none solid black;
+        text-decoration: none;
+        padding-top: 15.75pt;
+        margin-bottom: 5.25pt;
+        line-height: 1.1em;
+    }
+    h2 {
+        font-family: "roboto-light";
+        font-size: 2em;
+        text-align: left;
+        font-weight: normal;
+        text-transform: uppercase;
+        border-bottom: none solid black;
+        text-decoration: none;
+        padding-top: 13.97pt;
+        margin-bottom: 6.93pt;
+        line-height: 1.1em;
+    }
+    h3 {
+        font-family: "roboto-light";
+        font-size: 1.33em;
+        text-align: left;
+        font-weight: normal;
+        text-transform: uppercase;
+        border-bottom: none solid black;
+        text-decoration: none;
+        padding-top: 5.25pt;
+        margin-bottom: 5.25pt;
+        line-height: 1.1em;
+    }
+    h4 {
+        font-family: "roboto-light";
+        font-size: 1.33em;
+        text-align: left;
+        font-weight: normal;
+        text-transform: none;
+        border-bottom: none solid black;
+        text-decoration: none;
+        padding-top: 5.25pt;
+        margin-bottom: 5.25pt;
+        line-height: 1.1em;
+    }
+    h5 {
+        font-family: "roboto-light";
+        font-size: 1em;
+        text-align: left;
+        font-weight: normal;
+        text-transform: none;
+        border-bottom: none solid black;
+        text-decoration: none;
+        padding-top: 5.25pt;
+        margin-bottom: 5.25pt;
+        line-height: 1.1em;
+    }
+    h6 {
+        font-family: "roboto";
+        font-size: 1em;
+        text-align: left;
+        font-weight: normal;
+        text-transform: none;
+        border-bottom: none solid black;
+        text-decoration: none;
+        padding-top: 6.93pt;
+        margin-bottom: 3.47pt;
+        line-height: 1.1em;
+    }
+    /* Paragraph Styles *****************************************************/
+    
+    #contenteditor,
+    p {
+        widows: 2;
+        orphans: 2;
+    }
+    p {
+        font-family: "roboto";
+        text-align: justify;
+        font-weight: normal;
+        font-size: inherit;
+        line-height: inherit;
+    }
+    /* First paragraph *******************************************************/
+    
+    .aloha-block-TitleBlock + p,
+    h2 + p,
+    h3 + p,
+    h4 + p,
+    h5 + p,
+    h6 + p {
+        font-family: "roboto";
+        font-weight: normal;
+        font-size: inherit;
+        line-height: inherit;
+        text-indent: 0;
+        margin-bottom: 0.7em;
+    }
+    /* Not first paragraph **************************************************/
+    
+    p+p,
+    ul+p,
+    ol+p,
+    div.group_img+p,
+    div.aloha-table+p {
+        margin-top: 0;
+        text-indent: 0em;
+        margin-bottom: 1em;
+    }
+    /* Hanging paragraph: first line not indented, rest of paragraph indented */
+    
+    p.hanging {
+        text-indent: -2em;
+        padding-left: 2em;
+    }
+    /* Info Box ****************************************************/
+    
+    .bk-box {
+        font-family: "roboto";
+        font-size: 0.9em;
+        color: #000000;
+        background-color: #eeeeee;
+        padding-bottom: 1em;
+        margin-top: 1em;
+        margin-bottom: 1em;
+        border-left: 0pt solid #000000;
+        border-top: 0.5pt solid #000000;
+        border-right: 0pt solid #000000;
+        border-bottom: 0.5pt solid #000000;
+    }
+    .bk-box p {
+        padding: 0 1em;
+        text-indent: 0em;
+        margin-bottom: 0;
+    }
+    .bk-box .box-caption {
+        color: #000000;
+        font-weight: bold;
+        background-color: #aaaaaa;
+        padding: 1em;
+        border-bottom: 0.5pt solid #000000;
+        margin-bottom: 1em;
+    }
+    /* if p tag inside caption, this is needed */
+    
+    .bk-box .box-caption p {
+        padding: 0em;
+        font-weight: bold;
+    }
+    .bk-box .box-caption span.icon-trash {
+        color: #000000;
+    }
+    /* Lists *****************************************************************/
+    
+    ul,
+    ol {
+        margin-top: 1em;
+        margin-bottom: 1em;
+        font-size: inherit;
+        line-height: inherit;
+    }
+    ul,
+    ol,
+    li {
+        font-family: "roboto";
+    }
+    /* Preformatted text *******************************/
+    
+    pre {
+        font-family: "ubuntu-mono";
+        margin-top: 1em;
+        margin-bottom: 1em;
+        font-size: inherit;
+        line-height: inherit;
+    }
+    /* Table *****************************************/
+    
+    table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 1em;
+        margin-bottom: 2em;
+    }
+    table,
+    th,
+    td {
+        border: 0.5mm solid black;
+    }
+    table td {
+        font-family: "roboto";
+        font-weight: normal;
+        font-size: 0.8em;
+        margin: 0;
+    }
+    th,
+    td {
+        padding: .6em .8em;
+    }
+    /* IMAGES ***********************************************/
+    
+    img,
+    div.image {
+        max-width: 100%;
+        height: auto;
+        margin: 0px auto;
+    }
+    .group_img {
+        page-break-inside: avoid;
+        margin-top: 1em;
+        margin-bottom: 1em;
+    }
+    .center {
+        text-align: center;
+    }
+    caption,
+    .caption_small,
+    .caption_table,
+    .caption_img,
+    .caption_fig,
+    .caption_image,
+    .caption_figure {
+        margin-top: 0.5em;
+        font-size: 0.9em;
+        font-style: italic;
+        font-weight: normal;
+        color: #000000;
+    }
+    /* Endnotes ******************************************/
+    
+    .endnotes-container {
+        font-size: 0.9em;
+        margin-top: 2em;
+    }
+    .endnotes-container .endnote-counter,
+    .endnotes-container .endnoteText {
+        font-family: "roboto";
+        font-weight: normal;
+        font-size: inherit;
+        line-height: normal;
+    }
+    .endnotes-container .endnoteText p {
+        text-indent: 0px;
+    }
+}

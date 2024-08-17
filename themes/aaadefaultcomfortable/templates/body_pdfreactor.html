@@ -1,0 +1,72 @@
+{% load booktype_tags convert_tags %}
+
+<!DOCTYPE HTML>
+<html lang="{{ language }}">
+<head>
+  <title>{{ title }}</title>
+  <link rel="stylesheet" type="text/css" href="{{ style_css }}">
+</head>
+{#{% if show_header %}{% endif %}#}
+{#{% if show_footer %}{% endif %}#}
+<body>
+
+<!-- START FRONTMATTER -->
+{% include 'themes/aaadefaultcomfortable/frontmatter_pdfreactor.html' %}
+<!-- END FRONTMATTER -->
+
+<!-- START TABLE OF CONTENTS -->
+<div class="ro-toc ro-toc-acc" id="table-of-contents">
+{% if toc_technique == "BOOKTYPE_PY" %}
+  {% if toc_title %}
+  <h2 dir="{{ toc_title_dir }}" class="ro-toc-heading">{{ toc_title }}</h2>
+  {% endif %}
+  {{ toc_body }}
+{% endif %}
+</div>
+<!-- END TABLE OF CONTENTS -->
+
+{% if toc_technique == "BOOKTYPE_PY" and tot_body %}
+<!-- START TABLE OF TABLES -->
+<div class="ro-tot" id="table-of-tables">
+  {% if tot_title %}
+    <h2 dir="{{ tot_title_dir }}" class="ro-tot-heading">{{ tot_title }}</h2>
+  {% endif %}
+  {{ tot_body }}
+</div>
+<!-- END TABLE OF TABLES -->
+{% endif %}
+
+{% if toc_technique == "BOOKTYPE_PY" and tof_body %}
+<!-- START TABLE OF FIGURES -->
+<div class="ro-tof" id="table-of-figures">
+  {% if tof_title %}
+    <h2 dir="{{ tof_title_dir }}" class="ro-tof-heading">{{ tof_title }}</h2>
+  {% endif %}
+  {{ tof_body }}
+</div>
+<!-- END TABLE OF FIGURES -->
+{% endif %}
+
+{% for item in book_items %}
+{% if item.type == 'chapter' %}
+<!-- START CHAPTER -->
+<div data-type="chapter" class="chapter mainmatter{% if item.section_number %} in_section section_{{ item.section_number }}{% endif %}">
+{{ item.content|safe }}
+</div>
+<!-- END CHAPTER -->
+{% elif item.type == 'section' %}
+<!-- START SECTION -->
+<div class="bookpart" {% if item.anchor %}id="{{ item.anchor }}"{% endif %}>
+<h1 class="section">{{ item.title }}</h1>
+</div>
+<!--section class="pagebreak">&nbsp;</section-->
+<div data-type="singlepage" class="emptypage">
+<!-- empty page -->
+</div>
+<!-- END SECTION -->
+{% endif %}
+{% endfor %}
+
+
+</body>
+</html>

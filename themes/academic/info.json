@@ -1,0 +1,78 @@
+{
+  "version": "0.4",
+  "name": "Academic (Compact)",
+  "author": "Darko Tomić, Daniel James",
+  "date": "14th of November 2016",
+  "output": {  
+    "pdfreactor": {
+      "options": {},
+      "body": "body_pdfreactor.html",
+      "assets": {
+        "fonts": [
+          "static/fonts/Roboto-Regular.ttf",
+          "static/fonts/Roboto-Bold.ttf",
+          "static/fonts/Roboto-Italic.ttf",
+          "static/fonts/Roboto-BoldItalic.ttf",
+          "static/fonts/TeXGyreCursor-Regular.ttf",
+          "static/fonts/TeXGyreCursor-Bold.ttf",
+          "static/fonts/TeXGyreCursor-Italic.ttf",
+          "static/fonts/TeXGyreCursor-BoldItalic.ttf",
+          "static/fonts/RobotoCondensed-Regular.ttf",
+          "static/fonts/RobotoCondensed-Bold.ttf",
+          "static/fonts/RobotoCondensed-Italic.ttf",
+          "static/fonts/RobotoCondensed-BoldItalic.ttf"  
+        ]
+      }
+    },  
+    "pdfreactor-screenpdf": {
+      "options": {},
+      "body": "body_pdfreactor.html",
+      "assets": {
+        "fonts": [
+          "static/fonts/Roboto-Regular.ttf",
+          "static/fonts/Roboto-Bold.ttf",
+          "static/fonts/Roboto-Italic.ttf",
+          "static/fonts/Roboto-BoldItalic.ttf",
+          "static/fonts/TeXGyreCursor-Regular.ttf",
+          "static/fonts/TeXGyreCursor-Bold.ttf",
+          "static/fonts/TeXGyreCursor-Italic.ttf",
+          "static/fonts/TeXGyreCursor-BoldItalic.ttf",
+          "static/fonts/RobotoCondensed-Regular.ttf",
+          "static/fonts/RobotoCondensed-Bold.ttf",
+          "static/fonts/RobotoCondensed-Italic.ttf",
+          "static/fonts/RobotoCondensed-BoldItalic.ttf"  
+        ]
+      }
+    },
+    "mpdf": {
+      "options": {},
+      "frontmatter": "frontmatter_mpdf.html",
+      "endmatter": "endmatter_mpdf.html",
+      "body": "body_mpdf.html"
+    },
+    "screenpdf": {
+      "options": {},
+      "frontmatter": "frontmatter_screenpdf.html",
+      "endmatter": "endmatter_screenpdf.html",
+      "body": "body_screenpdf.html"
+    },
+    "epub": {
+      "assets": {
+        "fonts": [
+          "static/fonts/Roboto-Regular.ttf",
+          "static/fonts/Roboto-Bold.ttf",
+          "static/fonts/Roboto-Italic.ttf",
+          "static/fonts/Roboto-BoldItalic.ttf",
+          "static/fonts/TeXGyreCursor-Regular.ttf",
+          "static/fonts/TeXGyreCursor-Bold.ttf",
+          "static/fonts/TeXGyreCursor-Italic.ttf",
+          "static/fonts/TeXGyreCursor-BoldItalic.ttf",
+          "static/fonts/RobotoCondensed-Regular.ttf",
+          "static/fonts/RobotoCondensed-Bold.ttf",
+          "static/fonts/RobotoCondensed-Italic.ttf",
+          "static/fonts/RobotoCondensed-BoldItalic.ttf"
+        ]
+      }
+    }
+  }
+}

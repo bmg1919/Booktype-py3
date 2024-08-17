@@ -42,6 +42,9 @@ RUN pip install pip setuptools wheel uwsgi -U \
     && pip install --no-cache-dir -r Booktype/requirements/req_prod.txt \
     && Booktype/scripts/createbooktype --database postgresql ${INSTANCENAME}
 
+# copy themes
+COPY ./themes /code/${INSTANCENAME}/themes
+
 # Install more recent mpdf without including in source
 RUN cd /code/${INSTANCENAME} && composer require mpdf/mpdf:8.2.3
 

@@ -1,0 +1,78 @@
+{
+  "version": "0.2",
+  "name": "Artsy Bold (Compact)",
+  "author": "Micz Flor",
+  "date": "11th August 2016",
+  "output": {  
+    "pdfreactor": {
+      "options": {},
+      "body": "body_pdfreactor.html",
+      "assets": {
+        "fonts": [
+          "static/fonts/DejaVuSans.ttf",
+          "static/fonts/DejaVuSans-Bold.ttf",
+          "static/fonts/DejaVuSans-Oblique.ttf",
+          "static/fonts/DejaVuSans-BoldOblique.ttf",
+          "static/fonts/UbuntuMono-R.ttf",
+          "static/fonts/UbuntuMono-B.ttf",
+          "static/fonts/UbuntuMono-RI.ttf",
+          "static/fonts/UbuntuMono-BI.ttf",
+          "static/fonts/Roboto-Light.ttf",
+          "static/fonts/Roboto-Regular.ttf",
+          "static/fonts/Roboto-LightItalic.ttf",
+          "static/fonts/Roboto-Italic.ttf"  
+        ]
+      }
+    },  
+    "pdfreactor-screenpdf": {
+      "options": {},
+      "body": "body_pdfreactor.html",
+      "assets": {
+        "fonts": [
+          "static/fonts/DejaVuSans.ttf",
+          "static/fonts/DejaVuSans-Bold.ttf",
+          "static/fonts/DejaVuSans-Oblique.ttf",
+          "static/fonts/DejaVuSans-BoldOblique.ttf",
+          "static/fonts/UbuntuMono-R.ttf",
+          "static/fonts/UbuntuMono-B.ttf",
+          "static/fonts/UbuntuMono-RI.ttf",
+          "static/fonts/UbuntuMono-BI.ttf",
+          "static/fonts/Roboto-Light.ttf",
+          "static/fonts/Roboto-Regular.ttf",
+          "static/fonts/Roboto-LightItalic.ttf",
+          "static/fonts/Roboto-Italic.ttf"  
+        ]
+      }
+    },
+    "mpdf": {
+      "options": {},
+      "frontmatter": "frontmatter_mpdf.html",
+      "endmatter": "endmatter_mpdf.html",
+      "body": "body_mpdf.html"
+    },
+    "screenpdf": {
+      "options": {},
+      "frontmatter": "frontmatter_screenpdf.html",
+      "endmatter": "endmatter_screenpdf.html",
+      "body": "body_screenpdf.html"
+    },
+    "epub": {
+      "assets": {
+        "fonts": [
+          "static/fonts/DejaVuSans.ttf",
+          "static/fonts/DejaVuSans-Bold.ttf",
+          "static/fonts/DejaVuSans-Oblique.ttf",
+          "static/fonts/DejaVuSans-BoldOblique.ttf",
+          "static/fonts/UbuntuMono-R.ttf",
+          "static/fonts/UbuntuMono-B.ttf",
+          "static/fonts/UbuntuMono-RI.ttf",
+          "static/fonts/UbuntuMono-BI.ttf",
+          "static/fonts/Roboto-Light.ttf",
+          "static/fonts/Roboto-Regular.ttf",
+          "static/fonts/Roboto-LightItalic.ttf",
+          "static/fonts/Roboto-Italic.ttf"
+        ]
+      }
+    }
+  }
+}

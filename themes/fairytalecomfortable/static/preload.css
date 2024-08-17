@@ -1,0 +1,58 @@
+/* Created with www.booktype.pro */
+/* Theme 'Fairy Tale (Comfortable)' Version 0.2 update: 2017-03-27T18:37:42+02:00 */
+
+@font-face {
+    font-family: 'texgyrepagella';
+    src: url('fonts/TeXGyrePagella-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'texgyrepagella';
+    src: url('fonts/TeXGyrePagella-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'texgyrepagella';
+    src: url('fonts/TeXGyrePagella-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'texgyrepagella';
+    src: url('fonts/TeXGyrePagella-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'texgyrecursor';
+    src: url('fonts/TeXGyreCursor-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'texgyrecursor';
+    src: url('fonts/TeXGyreCursor-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'texgyrecursor';
+    src: url('fonts/TeXGyreCursor-Italic.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'texgyrecursor';
+    src: url('fonts/TeXGyreCursor-BoldItalic.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
