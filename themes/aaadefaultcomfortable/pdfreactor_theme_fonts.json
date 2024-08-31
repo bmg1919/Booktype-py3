@@ -1,0 +1,52 @@
+{
+  "fonts": [
+    {
+      "family": "roboto",
+      "source": "Roboto-Regular.ttf",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "family": "roboto",
+      "source": "Roboto-Bold.ttf",
+      "bold": true,
+      "italic": false
+    },
+    {
+      "family": "roboto",
+      "source": "Roboto-Italic.ttf",
+      "bold": false,
+      "italic": true
+    },
+    {
+      "family": "roboto",
+      "source": "Roboto-BoldItalic.ttf",
+      "bold": true,
+      "italic": true
+    },
+    {
+      "family": "freemono",
+      "source": "FreeMono.ttf",
+      "bold": false,
+      "italic": false
+    },
+    {
+      "family": "freemono",
+      "source": "FreeMonoBold.ttf",
+      "bold": true,
+      "italic": false
+    },
+    {
+      "family": "freemono",
+      "source": "FreeMonoOblique.ttf",
+      "bold": false,
+      "italic": true
+    },
+    {
+      "family": "freemono",
+      "source": "FreeMonoBoldOblique.ttf",
+      "bold": true,
+      "italic": true
+    }
+  ]
+}

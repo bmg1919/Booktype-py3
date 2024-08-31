@@ -1,0 +1,58 @@
+/* Created with www.booktype.pro */
+/* Theme 'New Fiction (Comfortable)' Version 0.1 update: 2017-03-27T18:37:46+02:00 */
+
+@font-face {
+    font-family: 'ubuntu';
+    src: url('fonts/Ubuntu-R.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'ubuntu';
+    src: url('fonts/Ubuntu-B.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'ubuntu';
+    src: url('fonts/Ubuntu-RI.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'ubuntu';
+    src: url('fonts/Ubuntu-BI.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'ubuntu-mono';
+    src: url('fonts/UbuntuMono-R.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'ubuntu-mono';
+    src: url('fonts/UbuntuMono-B.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'ubuntu-mono';
+    src: url('fonts/UbuntuMono-RI.ttf') format('truetype');
+    font-weight: normal;
+    font-style: italic;
+}
+
+@font-face {
+    font-family: 'ubuntu-mono';
+    src: url('fonts/UbuntuMono-BI.ttf') format('truetype');
+    font-weight: bold;
+    font-style: italic;
+}

@@ -1,0 +1,66 @@
+{
+  "version": "0.2",
+  "name": "Fairy Tale (Compact)",
+  "author": "Micz Flor",
+  "date": "11th August 2016",
+  "output": {  
+    "pdfreactor": {
+      "options": {},
+      "body": "body_pdfreactor.html",
+      "assets": {
+        "fonts": [
+          "static/fonts/TeXGyrePagella-Regular.ttf",
+          "static/fonts/TeXGyrePagella-Bold.ttf",
+          "static/fonts/TeXGyrePagella-Italic.ttf",
+          "static/fonts/TeXGyrePagella-BoldItalic.ttf",
+          "static/fonts/TeXGyreCursor-Regular.ttf",
+          "static/fonts/TeXGyreCursor-Bold.ttf",
+          "static/fonts/TeXGyreCursor-Italic.ttf",
+          "static/fonts/TeXGyreCursor-BoldItalic.ttf"  
+        ]
+      }
+    },  
+    "pdfreactor-screenpdf": {
+      "options": {},
+      "body": "body_pdfreactor.html",
+      "assets": {
+        "fonts": [
+          "static/fonts/TeXGyrePagella-Regular.ttf",
+          "static/fonts/TeXGyrePagella-Bold.ttf",
+          "static/fonts/TeXGyrePagella-Italic.ttf",
+          "static/fonts/TeXGyrePagella-BoldItalic.ttf",
+          "static/fonts/TeXGyreCursor-Regular.ttf",
+          "static/fonts/TeXGyreCursor-Bold.ttf",
+          "static/fonts/TeXGyreCursor-Italic.ttf",
+          "static/fonts/TeXGyreCursor-BoldItalic.ttf"  
+        ]
+      }
+    },
+    "mpdf": {
+      "options": {},
+      "frontmatter": "frontmatter_mpdf.html",
+      "endmatter": "endmatter_mpdf.html",
+      "body": "body_mpdf.html"
+    },
+    "screenpdf": {
+      "options": {},
+      "frontmatter": "frontmatter_screenpdf.html",
+      "endmatter": "endmatter_screenpdf.html",
+      "body": "body_screenpdf.html"
+    },
+    "epub": {
+      "assets": {
+        "fonts": [
+          "static/fonts/TeXGyrePagella-Regular.ttf",
+          "static/fonts/TeXGyrePagella-Bold.ttf",
+          "static/fonts/TeXGyrePagella-Italic.ttf",
+          "static/fonts/TeXGyrePagella-BoldItalic.ttf",
+          "static/fonts/TeXGyreCursor-Regular.ttf",
+          "static/fonts/TeXGyreCursor-Bold.ttf",
+          "static/fonts/TeXGyreCursor-Italic.ttf",
+          "static/fonts/TeXGyreCursor-BoldItalic.ttf"
+        ]
+      }
+    }
+  }
+}

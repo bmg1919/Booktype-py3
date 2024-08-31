@@ -1,0 +1,1543 @@
+/* Created with www.booktype.pro */
+/* Theme 'AAA Default (Comfortable)' Version 0.1 update: 2017-05-19T15:16:41+02:00 */
+/* START PDFreactor specific CSS */
+/* page header and footer */
+
+@-ro-preferences {
+    /* The first page of the document should be a right page */
+    first-page-side: right;
+    /* two pages should be next to each other */
+    page-layout: 2 page;
+}
+/* scaling content to fit page | to be done for scaling tables on final PDF */
+/* @page {    -ro-scale-content: auto; } */
+
+@page
+{
+  @top-left { 
+    content: none; 
+    margin-top: 8mm;
+    font-family: "roboto"; 
+    font-size: 8.4pt; 
+    white-space:pre-wrap;
+  }
+  @top-center { 
+    content: none; 
+    margin-top: 8mm;
+    font-family: "roboto"; 
+    font-size: 8.4pt; 
+    white-space:pre-wrap;
+  }
+  @top-right { 
+    content: none; 
+    margin-top: 8mm;
+    font-family: "roboto"; 
+    font-size: 8.4pt; 
+    white-space:pre-wrap;
+  }
+  @bottom-left { 
+    content: none; 
+    margin-bottom: 15mm;
+    font-family: "roboto"; 
+    font-size: 10.5pt; 
+    white-space:pre-wrap;
+  }
+  @bottom-center { 
+    content: none; 
+    margin-bottom: 15mm;
+    font-family: "roboto"; 
+    font-size: 10.5pt; 
+    white-space:pre-wrap;
+  }
+  @bottom-right { 
+    content: none; 
+    margin-bottom: 15mm;
+    font-family: "roboto"; 
+    font-size: 10.5pt; 
+    white-space:pre-wrap;
+  }
+}
+
+/* Header and Footer content */
+/* page numbering: content: counter(page); */
+
+
+/**************************************************************/
+/* frontmatter page header and footer */
+
+div.frontmatter {
+  page: frontmatter;
+}
+/* odd pages 1,3,5, etc. */
+@page frontmatter:left {
+  @bottom-center { 
+    content: counter(page, lower-roman);
+  }
+}
+/* even pages 2,4,6, etc. */
+@page frontmatter:right {
+  @bottom-center { 
+    content: counter(page, lower-roman);
+  }
+}
+
+/**************************************************************/
+/* mainmatter page header and footer */
+
+div.mainmatter {
+  page: mainmatter;
+}
+/* odd pages 1,3,5, etc. */
+@page mainmatter:right {
+  @top-left { 
+    content: "";
+  }
+  @top-center { 
+    content: "";
+  }
+  @top-right { 
+    content: string(chaptertitle);
+  }
+  @bottom-left { 
+    content: "";
+  }
+  @bottom-center { 
+    content: counter(page);
+  }
+  @bottom-right { 
+    content: "";
+  }
+}
+/* even pages 2,4,6, etc. */
+@page mainmatter:left {
+  @top-left { 
+    content: string(chaptertitle);
+  }
+  @top-center { 
+    content: "";
+  }
+  @top-right { 
+    content: "";
+  }
+  @bottom-left { 
+    content: "";
+  }
+  @bottom-center { 
+    content: counter(page);
+  }
+  @bottom-right { 
+    content: "";
+  }
+}
+
+/**************************************************************/
+/* page breaks for Frontmatter */
+div#frontmatter-dedication,
+div#frontmatter-title-page,
+div#frontmatter-collophon,
+div.bookpart
+{
+    page-break-before: always; /* The chapter should always start on a new page */
+}
+
+/**************************************************************/
+/* section counter, chapter counter and title */
+div.bookpart {
+    counter-increment: sectionCounter 1;
+}
+div[data-type="chapter"] {
+    counter-increment: chapterCounter 1;
+    /* Reset counters for tables and figures */ 
+    counter-reset: tables 0 figures 0;  
+    /* Reset counters for subsections */
+    counter-reset: body-h1 0 body-h2 0 body-h3 0 body-h4 0 body-h5 0 body-h6 0;  
+}
+.body-h1 { 
+    counter-increment: body-h1 1; 
+    counter-reset: body-h2 0 body-h3 0 body-h4 0 body-h5 0 body-h6 0;  /* Reset counters for subsections */
+}
+.body-h2 { 
+    counter-increment: body-h2 1; 
+    counter-reset: body-h3 0 body-h4 0 body-h5 0 body-h6 0;  /* Reset counters for subsections */
+}
+.body-h3 { 
+    counter-increment: body-h3 1; 
+    counter-reset: body-h4 0 body-h5 0 body-h6 0;  /* Reset counters for subsections */
+}
+.body-h4 { 
+    counter-increment: body-h4 1; 
+    counter-reset: body-h5 0 body-h6 0;  /* Reset counters for subsections */
+}
+.body-h5 { 
+    counter-increment: body-h5 1; 
+    counter-reset: body-h6 0;  /* Reset counters for subsections */
+}
+.body-h6 { 
+    counter-increment: body-h6 1; 
+}
+/* header for pages */
+.chapter-h1 {
+  string-set: chaptertitle self;  /* Set the current chapter title as string for the header */
+}
+
+
+/**************************************************************/
+/* BASELINE GRID */
+/* set baseline grid for line height in all document */
+body {
+  -ro-line-grid: create;
+  line-height: 14.7pt;
+  counter-reset: figuresTotal tablesTotal;
+}
+/* snapping to baseline for the paragraphs which are text */
+p.normal-first, 
+p.normal,       
+p.body-first,
+p.body {
+  -ro-line-snap: baseline;
+  margin-top: 0pt;
+  padding-top: 0pt;
+  margin-bottom: 0pt;
+  /* fixing the first line spacing with baseline grid beneath the headlines */
+  line-height: 14.7pt;
+}
+/* uncomfortable fix: sometimes formatted fonts force empty lines in baseline grid - because they are that little bit taller */
+/* such fonts should be fixed in font forge, this CSS does not always work... */
+p i,  p i em,
+p em, p em i,
+p b, p b i,
+p strong, p strong i
+{
+  -ro-line-grid: create;
+  -ro-line-snap: contain;
+    line-height: 1em!important;
+}
+p b, p b i,
+p strong, p strong i
+{
+  -ro-line-grid: create;
+  -ro-line-snap: contain;
+    line-height: 1em!important;
+}
+/* do NOT snap to baseline in captions and the like */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+caption, 
+.caption,
+.caption_small, 
+.caption_table,
+.caption_img, 
+.caption_fig, 
+.caption_image, 
+.caption_figure,
+.toc_contents,
+.toc_tables,
+.toc_figures,
+.bk-box p,
+.bk-box .box-caption,
+.bk-box .box-caption p,
+.bk-box .box-caption p.body-first,
+.bk-box .box-caption p.body,
+.bk-box .box-content,
+.bk-box .box-content p,
+.bk-box .box-content p.body-first,
+.bk-box .box-content p.body,
+.group_table,
+.endnotes,
+.endnotes p,
+.endnotes li,
+.endnotes li p,
+.cpytxt,
+.chapter-h1,
+.body-h1,
+.body-h2,
+.body-h3,
+.body-h4,
+.body-h5,
+.body-h6,
+.chapterdateline,
+.chapterauthor,
+.chapterabstract
+{
+  -ro-line-grid: create;
+  line-height: auto;
+  -ro-line-snap: contain;
+}
+/* For elements like figures and tables, set bottom margin to 0 to avoid big gaps */
+/* / BASELINE GRID */
+
+/**************************************************************/
+/* widows and orphans */
+p.body, p.body-first, p.hanging, p.noindent, li {
+  orphans: 2;
+  widows: 2;
+}
+
+/* hyphenation */
+p.body, p.body-first, p.hanging, p.noindent {
+  hyphens: auto;
+}
+
+/* multi-columns */
+
+/* line break after multi-columns */
+.bk-columns {
+    margin-bottom: 14.7pt;
+}
+
+/* column count */
+div.bk-columns[data-column="2"] {
+  column-count: 2;
+}
+
+div.bk-columns[data-column="3"] {
+  column-count: 3;
+}
+
+div.bk-columns[data-column="4"] {
+  column-count: 4;
+}
+
+div.bk-columns[data-column="5"] {
+  column-count: 5;
+}
+
+div.bk-columns[data-column="6"] {
+  column-count: 6;
+}
+
+div.bk-columns[data-column="7"] {
+  column-count: 7;
+}
+
+div.bk-columns[data-column="8"] {
+  column-count: 8;
+}
+
+div.bk-columns[data-column="9"] {
+  column-count: 9;
+}
+
+div.bk-columns[data-column="10"] {
+  column-count: 10;
+}
+
+/* column gap */
+
+div.bk-columns[data-gap="0"] {
+  column-gap: 0;
+}
+
+div.bk-columns[data-gap="1"] {
+  column-gap: 1mm;
+}
+
+div.bk-columns[data-gap="2"] {
+  column-gap: 2mm;
+}
+
+div.bk-columns[data-gap="3"] {
+  column-gap: 3mm;
+}
+
+div.bk-columns[data-gap="4"] {
+  column-gap: 4mm;
+}
+
+div.bk-columns[data-gap="5"] {
+  column-gap: 5mm;
+}
+
+div.bk-columns[data-gap="6"] {
+  column-gap: 6mm;
+}
+
+div.bk-columns[data-gap="7"] {
+  column-gap: 7mm;
+}
+
+div.bk-columns[data-gap="8"] {
+  column-gap: 8mm;
+}
+
+div.bk-columns[data-gap="9"] {
+  column-gap: 9mm;
+}
+
+div.bk-columns[data-gap="10"] {
+  column-gap: 10mm;
+}
+
+div.bk-columns[data-gap="12"] {
+  column-gap: 12mm;
+}
+
+div.bk-columns[data-gap="14"] {
+  column-gap: 14mm;
+}
+
+div.bk-columns[data-gap="16"] {
+  column-gap: 16mm;
+}
+
+div.bk-columns[data-gap="18"] {
+  column-gap: 18mm;
+}
+
+div.bk-columns[data-gap="20"] {
+  column-gap: 20mm;
+}
+
+div.bk-columns[data-gap="25"] {
+  column-gap: 25mm;
+}
+
+div.bk-columns[data-gap="30"] {
+  column-gap: 30mm;
+}
+
+
+/* page breaks single page */
+div[data-type="singlepage"] {
+    page-break-before: always;
+    page-break-after: always;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6
+{
+    page-break-after:avoid;
+    break-after:avoid;
+}
+
+/* print chapter title */
+@page {
+  @top-center { 
+    /*content: string(chaptertitle); /* chapter title */
+  }
+}
+
+/**************************************************************/
+/* BoD frontmatter styling */
+
+
+div.frontmatter-dedication {
+  font-family: "roboto"; 
+  font-weight: normal; 
+  font-size: 10.5pt;
+  text-align: center; 
+  line-height: 1.1em;
+  padding: 0mm;
+  margin: 0mm;
+}
+
+div.frontmatter-dedication p {
+  text-align: center; 
+    hyphens: none;
+}
+
+div.frontmatter-subtitle {
+  text-align: left; 
+  font-family: "roboto"; 
+  font-size: 21pt;
+  font-weight: normal;
+  line-height: 1.1em;
+  padding: 0mm;
+  margin: 0mm;  
+    hyphens: none;
+}
+/* is this still needed? */
+p.frontmatter-copyright {
+  font-family: inherit;
+  font-size: 9pt;
+  font-weight: normal;
+  padding-top: 10mm;
+}
+/* is this still needed? */
+h1.frontmatter-inhalt {
+  font-family: inherit;
+  font-size: 15pt;
+  font-weight: bold;
+  text-align: inherit;
+  hyphens: auto;
+}
+
+
+/* / BoD frontmatter styling */
+/**************************************************************/
+
+
+/**************************************************************/
+/* table of contents */
+/* toc - contents, tof - figures, tot - tables */
+
+.ro-toc a[href]::after, 
+.ro-tot a[href]::after, 
+.ro-tof a[href]::after  
+{
+    content: "   " leader(dotted) " " target-counter(attr(href), page);
+}
+.ro-toc a[href].frontmatter::after, 
+.ro-tot a[href].frontmatter::after, 
+.ro-tof a[href].frontmatter::after  
+{
+    content: "   " leader(dotted) " " target-counter(attr(href), page, lower-roman);
+}
+.ro-toc a[href].backmatter::after, 
+.ro-tot a[href].backmatter::after, 
+.ro-tof a[href].backmatter::after  
+{
+    content: "   " leader(dotted) " " target-counter(attr(href), page, upper-roman);
+}
+
+.ro-tot-level-0, 
+.ro-tof-level-0  
+{
+  font-family: "roboto"; 
+  font-size: 10.5pt;
+  font-weight: normal;
+  text-indent: 0;
+  padding: 0;
+  margin: 0; 
+  width: auto;
+  padding-left: 0mm;
+}
+
+.ro-toc a, 
+.ro-tot a, 
+.ro-tof a  
+{
+    color: #000000;
+    text-decoration: none;
+    /* whitespace prevails in PDF table of content */
+    white-space: pre-wrap;
+}
+
+/**************************************************************/
+/* numbering for all toc levels */
+/* sections = level 0 */
+.ro-toc .ro-toc-level-0.countershow a[href]::before {
+    content: target-counter(-ro-attr(href url), sectionCounter, decimal)
+    ". ";
+}
+/* sections = level 1 */
+.ro-toc .ro-toc-level-1.countershow a[href]::before {
+    content: target-counter(-ro-attr(href url), chapterCounter, decimal)
+    ". ";
+}
+.ro-toc .ro-toc-level-2.countershow a[href]::before{
+    content: target-counter(-ro-attr(href url), chapterCounter, decimal)
+    "." target-counter(-ro-attr(href url), body-h1, decimal)
+    ". ";
+}
+.ro-toc .ro-toc-level-3.countershow a[href]::before{
+    content: target-counter(-ro-attr(href url), chapterCounter, decimal)
+    "." target-counter(-ro-attr(href url), body-h1, decimal)
+    "." target-counter(-ro-attr(href url), body-h2, decimal)
+    ". ";
+}
+.ro-toc .ro-toc-level-4.countershow a[href]::before{
+    content: target-counter(-ro-attr(href url), chapterCounter, decimal)
+    "." target-counter(-ro-attr(href url), body-h1, decimal)
+    "." target-counter(-ro-attr(href url), body-h2, decimal)
+    "." target-counter(-ro-attr(href url), body-h3, decimal)
+    ". ";
+}
+.ro-toc .ro-toc-level-5.countershow a[href]::before{
+    content: target-counter(-ro-attr(href url), chapterCounter, decimal)
+    "." target-counter(-ro-attr(href url), body-h1, decimal)
+    "." target-counter(-ro-attr(href url), body-h2, decimal)
+    "." target-counter(-ro-attr(href url), body-h3, decimal)
+    "." target-counter(-ro-attr(href url), body-h4, decimal)
+    ". ";
+}
+.ro-toc .ro-toc-level-6.countershow a[href]::before{
+    content: target-counter(-ro-attr(href url), chapterCounter, decimal)
+    "." target-counter(-ro-attr(href url), body-h1, decimal)
+    "." target-counter(-ro-attr(href url), body-h2, decimal)
+    "." target-counter(-ro-attr(href url), body-h3, decimal)
+    "." target-counter(-ro-attr(href url), body-h4, decimal)
+    "." target-counter(-ro-attr(href url), body-h5, decimal)
+    ". ";
+}
+.ro-toc .ro-toc-level-7.countershow a[href]::before{
+    content: target-counter(-ro-attr(href url), chapterCounter, decimal)
+    "." target-counter(-ro-attr(href url), body-h1, decimal)
+    "." target-counter(-ro-attr(href url), body-h2, decimal)
+    "." target-counter(-ro-attr(href url), body-h3, decimal)
+    "." target-counter(-ro-attr(href url), body-h4, decimal)
+    "." target-counter(-ro-attr(href url), body-h5, decimal)
+    "." target-counter(-ro-attr(href url), body-h6, decimal)
+    ". ";
+}
+/**************************************************************/
+/* all pages which start on the right */
+h1.section, 
+.ro-toc {
+  break-before: right;
+}
+div.chapter,
+.ro-tot,
+.ro-tof {
+  page-break-before: always;
+}
+
+/**************************************************************/
+/* Add the Chapter numbers inside chapter */
+h1.section.countershow::before { content: counter(sectionCounter, decimal) ". "; }
+.chapter-h1.countershow::before { content: counter(chapterCounter, decimal) ". "; }
+.body-h1.countershow::before { content: counter(chapterCounter, decimal) "." counter(body-h1, decimal) ". "; }
+.body-h2.countershow::before { content: counter(chapterCounter, decimal) "." counter(body-h1, decimal) "." counter(body-h2, decimal) ". "; }
+.body-h3.countershow::before { content: counter(chapterCounter, decimal) "." counter(body-h1, decimal) "." counter(body-h2, decimal) "." counter(body-h3, decimal) ". "; }
+.body-h4.countershow::before { content: counter(chapterCounter, decimal) "." counter(body-h1, decimal) "." counter(body-h2, decimal) "." counter(body-h3, decimal) "." counter(body-h4, decimal) ". "; }
+.body-h5.countershow::before { content: counter(chapterCounter, decimal) "." counter(body-h1, decimal) "." counter(body-h2, decimal) "." counter(body-h3, decimal) "." counter(body-h4, decimal) "." counter(body-h5, decimal) ". "; }
+.body-h6.countershow::before { content: counter(chapterCounter, decimal) "." counter(body-h1, decimal) "." counter(body-h2, decimal) "." counter(body-h3, decimal) "." counter(body-h4, decimal) "." counter(body-h5, decimal) "." counter(body-h6, decimal) ". "; }
+
+/* numbering of figures and tables */
+
+div.group_img {
+  counter-increment: figures figuresTotal 1;
+  break-inside: avoid-page;
+}
+div.group_table {
+  counter-increment: tables tablesTotal 1;
+  break-inside: avoid-page;
+}
+{% if settings.tof_numbering == "chapterwise" %}
+div.group_img > .caption_small::before {
+  content: "Fig. " counter(chapterCounter) "." counter(figures) ": "; /* Add figure numbering */
+}
+{% else %}
+div.group_img > .caption_small::before {
+  content: "Fig. " counter(figuresTotal) ": "; /* Add figure numbering */
+}
+{% endif %}
+{% if settings.tot_numbering == "chapterwise" %}
+div.group_table > .caption_table::before {
+  content: "Tab. " counter(chapterCounter) "." counter(tables) ": "; /* Add figure numbering */
+}
+{% else %}
+div.group_table > .caption_table::before {
+  content: "Tab. " counter(tablesTotal) ": "; /* Add figure numbering */
+}
+{% endif %}
+
+
+/* TABLE *****************************************************************/
+/* for caption styling see images section */
+table {
+  border-collapse: collapse;
+  max-width: 100%;
+  margin-top: 14.7pt; 
+  margin-bottom: 14.7pt; 
+  border-top: 0.1mm solid #000000;
+  border-bottom: 0.1mm solid #000000;
+}
+th, td {
+  padding: 0.6em 0.8em;
+  vertical-align: top;
+}
+tr {
+  border-top: 0.1mm solid #000000;
+}
+
+/* END PDFreactor specific CSS */
+/* START generic Print CSS */
+
+body {
+    font-size: 10.5pt;
+    /*uncomment4mpdf_line-height: 14.7pt;/**/
+    margin: 0;
+    padding: 0;
+    color: #000000;
+    font-family: "roboto";
+    widows: 2;
+    orphans: 2;
+}
+/**************************************************************/
+/* table of contents */
+/* toc - contents, tof - figures, tot - tables */
+
+div.mpdf_toc,
+.ro-toc,
+.ro-tot,
+.ro-tof {
+    font-family: "roboto";
+    padding-top: 0pt;
+}
+/* sections = top level book parts */
+
+div.mpdf_toc_level_0,
+.ro-toc-level-0 {
+    padding: 0;
+    margin: 0;
+    padding-top: 1em;
+    padding-bottom: 0em;
+    margin-left: 0em;
+    font-family: "roboto";
+    font-size: 10.5pt;
+    font-weight: normal;
+    font-variant: normal;
+    font-style: normal;
+    text-transform: uppercase;
+    color: #000000;
+    width: auto;
+}
+/* chapter titles */
+
+div.mpdf_toc_level_1,
+.ro-toc-level-1 {
+    margin: 0;
+    padding: 0;
+    padding-top: 1em;
+    padding-bottom: 0em;
+    margin-left: 0pt;
+    font-family: "roboto";
+    font-size: 10.5pt;
+    font-weight: normal;
+    font-variant: normal;
+    font-style: normal;
+    text-transform: none;
+    color: #000000;
+    width: auto;
+}
+/* TableOfContentsBodyH1 */
+
+div.mpdf_toc_level_2,
+.ro-toc-level-2 {
+    padding: 0;
+    margin: 0;
+    margin-left: 10.5pt;
+    font-family: "roboto";
+    font-size: 10.5pt;
+    font-weight: normal;
+    font-variant: normal;
+    font-style: normal;
+    text-transform: none;
+    color: #000000;
+    width: auto;
+}
+/* TableOfContentsBodyH2 */
+
+div.mpdf_toc_level_3,
+.ro-toc-level-3 {
+    padding: 0;
+    margin: 0;
+    margin-left: 21pt;
+    font-family: "roboto";
+    font-size: 10.5pt;
+    font-weight: normal;
+    font-variant: normal;
+    font-style: normal;
+    text-transform: none;
+    color: #000000;
+    width: auto;
+}
+/* TableOfContentsBodyH3 */
+
+div.mpdf_toc_level_4,
+.ro-toc-level-4 {
+    padding: 0;
+    margin: 0;
+    margin-left: 31.5pt;
+    font-family: "roboto";
+    font-size: 10.5pt;
+    font-weight: normal;
+    font-variant: normal;
+    font-style: normal;
+    text-transform: none;
+    color: #000000;
+    width: auto;
+}
+/* TableOfContentsBodyH4 */
+
+div.mpdf_toc_level_5,
+.ro-toc-level-5 {
+    padding: 0;
+    margin: 0;
+    margin-left: 42pt;
+    font-family: "roboto";
+    font-size: 10.5pt;
+    font-weight: normal;
+    font-variant: normal;
+    font-style: normal;
+    text-transform: none;
+    color: #000000;
+    width: auto;
+}
+/* TableOfContentsBodyH5 */
+
+div.mpdf_toc_level_6,
+.ro-toc-level-6 {
+    padding: 0;
+    margin: 0;
+    margin-left: 52.5pt;
+    font-family: "roboto";
+    font-size: 10.5pt;
+    font-weight: normal;
+    font-variant: normal;
+    font-style: normal;
+    text-transform: none;
+    color: #000000;
+    width: auto;
+}
+/* TableOfContentsBodyH6 */
+
+div.mpdf_toc_level_7,
+.ro-toc-level-7 {
+    padding: 0;
+    margin: 0;
+    margin-left: 63pt;
+    font-family: "roboto";
+    font-size: 10.5pt;
+    font-weight: normal;
+    font-variant: normal;
+    font-style: normal;
+    text-transform: none;
+    color: #000000;
+    width: auto;
+}
+/* heading, title of toc, tof, tot */
+
+div.toc-title,
+.ro-toc-heading,
+.ro-tot-heading,
+.ro-tof-heading {
+    line-height: 1.1em;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 2em;
+    font-family: "roboto";
+    font-size: 17.43pt;
+    font-weight: bold;
+    font-style: normal;
+    text-transform: none;
+    text-align: left;
+    hyphens: auto;
+}
+/* mpdf only - are these still needed ?
+.mpdf_toc_t_level_0,
+.mpdf_toc_t_level_1,
+.mpdf_toc_t_level_2,
+.mpdf_toc_t_level_3,
+.mpdf_toc_t_level_4,
+.mpdf_toc_t_level_5,
+.mpdf_toc_t_level_6
+{
+  font-size: 10.5pt;
+  padding: 0px;
+  margin: 0px;
+}
+
+.mpdf_toc_p_level_0,
+.mpdf_toc_p_level_1,
+.mpdf_toc_p_level_2,
+.mpdf_toc_p_level_3,
+.mpdf_toc_p_level_4,
+.mpdf_toc_p_level_5,
+.mpdf_toc_p_level_6
+{
+  font-size: 10.5pt;
+  padding: 0px;
+  margin: 0px;
+}
+/**/
+/* / Table of contents */
+/***************************************/
+/* Body paragraphs */
+
+p {
+    font-weight: normal;
+    padding: 0;
+    margin-top: 0;
+    /*uncomment4mpdf_margin-bottom: 10.5pt; /**/
+    margin-bottom: 1em; /**/
+    
+    hyphens: auto;
+}
+/* first paraqraph bold? */
+
+.body-h1 + .normal-first,
+.chapter-h1 + .body-first {
+    font-weight: normal;
+}
+p.normal-first,
+p.body-first {
+    font-style: normal;
+    text-indent: 0;
+    /* font-weight: normal; */
+    /*uncomment4mpdf_margin-bottom: 10.5pt; /**/
+    margin-bottom: 1em; /**/
+    
+    text-align: justify;
+    hyphens: auto;
+}
+p.normal,
+p.body {
+    font-style: normal;
+    /*uncomment4mpdf_margin-bottom: 10.5pt; /**/
+    margin-bottom: 1em; /**/
+    
+    text-indent: 0pt;
+    text-align: justify;
+    hyphens: auto;
+}
+p.hanging {
+    font-style: normal;
+    /*uncomment4mpdf_margin-bottom: 10.5pt; /**/
+    margin-bottom: 1em; /**/
+    
+    text-indent: -29.4pt;
+    padding-left: 29.4pt;
+    text-align: justify;
+    hyphens: auto;
+}
+p.noindent {
+    font-style: normal;
+    /*uncomment4mpdf_margin-bottom: 10.5pt; /**/
+    margin-bottom: 1em; /**/
+    
+    text-indent: 0;
+    padding-left: 0;
+    text-align: justify;
+    hyphens: auto;
+}
+/* Impressum front matter */
+
+.cpytxt,
+/* bod legacy */
+
+.cpytxt2,
+/* bod legacy */
+
+.impl {
+    hyphens: none;
+    font-family: "roboto";
+    font-size: 9.45pt;
+    text-align: left;
+    font-weight: normal;
+    margin: 0;
+    text-indent: 0;
+    margin-top: 0em;
+    margin-bottom: 0em;
+}
+.impl-bold {
+    font-family: "roboto";
+    font-size: 9.45pt;
+    text-align: left;
+    margin: 0;
+    text-indent: 0;
+    font-weight: bold;
+    margin-top: 0em;
+    margin-bottom: 0em;
+}
+
+/* align impressum top or bottom */
+.colophon-valign {
+    position: fixed;
+    overflow: visible;
+    left: 0;
+    right: 0;
+    top: 0;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+/* align impressum at bottom of page, if need to */
+/* this is legacy 20170502 */
+.align-bottom {
+    position: fixed;
+    overflow: visible;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: auto;
+    margin-right: auto;
+}
+/* / Impressum front matter */
+/* SECTIONS (or parts, as they are called in LaTeX) */
+
+h1.section {
+    line-height: 1.1em;
+    margin-top: 0;
+    padding-top: 44.1pt;
+    font-family: "roboto";
+    text-align: left;
+    font-style: normal;
+    font-weight: bold;
+    font-size: 31.5pt;
+    text-transform: none;
+    border-bottom: 0em solid black;
+    text-decoration: none;
+}
+/* FRONT MATTER (half-title) **********************************************/
+/* Add class 'frontmatter-paddingtop' for padding from top in frontmatter */
+
+p.frontmatter-spacingtop,
+div.frontmatter-spacingtop {
+    display: block;
+    padding-top: 44.1pt!important;
+}
+div.frontmatter-half-title {
+    hyphens: none;
+    /*uncomment4mpdf_page: frontmatter; /* needed for mpdf pdf rendering */
+    
+    line-height: 1.1em;
+    /*margin: 0;*/
+    /*padding: 0;*/
+    font-weight: bold;
+    text-align: left;
+    text-transform: uppercase;
+    font-family: "roboto";
+    text-decoration: none;
+    font-size: 21pt;
+    padding-bottom: 21pt;
+}
+div.frontmatter-author {
+    line-height: 1.1em;
+    margin: 0;
+    padding: 0;
+    font-weight: normal;
+    text-align: left;
+    font-family: "roboto";
+    font-size: 21pt;
+    font-weight: normal;
+    padding-bottom: 21pt;
+}
+/* FRONT MATTER (title) *****************************************************/
+
+h1.frontmatter-book-title,
+div.frontmatter-title {
+    hyphens: none;
+    line-height: 1.1em;
+    margin: 0;
+    padding: 0;
+    margin-bottom: 2em;
+    text-align: left;
+    font-weight: bold;
+    text-transform: uppercase;
+    font-family: "roboto";
+    text-decoration: none;
+    font-size: 31.5pt;
+    padding-bottom: 21pt;
+}
+div.frontmatter-line {
+    display: block;
+    width: 33%;
+    background-color: black;
+    height: 0.3em;
+    margin-bottom: 31.5pt;
+}
+div.frontmatter-subtitle {
+    line-height: 1.1em;
+    text-align: left;
+    font-family: "roboto";
+    font-size: 21pt;
+    text-transform: none;
+    font-weight: bold;
+    padding-bottom: 21pt;
+}
+div.frontmatter-author-name,
+/* bod active, not legacy */
+
+div.frontmatter-author-title {
+    hyphens: none;
+    line-height: 1.1em;
+    text-align: left;
+    font-family: "roboto";
+    font-size: 21pt;
+    text-transform: none;
+    font-weight: normal;
+    padding-bottom: 21pt;
+}
+.frontmatter-bottom,
+.frontmatter-publisher {
+    position: fixed;
+    overflow: visible;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    margin-top: auto;
+    margin-bottom: auto;
+    margin-left: auto;
+    margin-right: auto;
+    font-weight: normal;
+    font-size: 0.9em;
+    line-height: 1.1em;
+    text-align: left;
+    font-family: "roboto";
+}
+/* DEDICATION  ***********************************************************/
+
+div.dedication {
+    /*padding-top: 44.1pt;/* done now with class frontmatter-spacingtop */
+}
+div.dedication {
+    font-family: roboto;
+    font-weight: normal;
+    text-align: center;
+    font-style: italic;
+    font-size: 10.5pt;
+    line-height: 1.1em;
+    display: inline;
+    margin-left: 10%;
+    margin-right: 10%;
+}
+/* Body styling ************************************************************/
+/* Info Box */
+
+.bk-box {
+    page-break-inside: avoid;
+    font-family: "roboto";
+    font-size: 0.9em;
+    color: #000000;
+    padding-bottom: 0;
+    padding-top: 14.7pt;
+    margin-bottom: 14.7pt;
+}
+.bk-box .box-content p {
+    padding: 0;
+    margin-top: 0;
+    /*uncomment4mpdf_margin-bottom: 10.5pt; /**/
+    margin-bottom: 1em; /**/
+    hyphens: auto;
+}
+.bk-box .box-content p.body {
+    text-indent: 0pt;
+}
+.bk-box .box-caption p {
+    font-weight: bold;
+    text-indent: 0pt;
+    margin-bottom: 0em;
+}
+.bk-box .box-caption {
+    color: #000000;
+    font-weight: bold;
+    background-color: #aaaaaa;
+    padding: 0.5em;
+    border-left: 0pt solid #000000;
+    border-top: 0.5pt solid #000000;
+    border-right: 0pt solid #000000;
+    border-bottom: 0.5pt solid #000000;
+    margin-bottom: 0;
+}
+.bk-box .box-content {
+    color: #000000;
+    background-color: #eeeeee;
+    padding: 0.5em;
+    /*margin-bottom: 0.5em;*/
+    border-left: 0pt solid #000000;
+    border-right: 0pt solid #000000;
+    border-bottom: 0.5pt solid #000000;
+}
+/* dropcaps*/
+
+.dropcap {
+    /*font-size: inheritpt; /* for the future */
+}
+/* 
+* CHAPTER HEAD
+*/
+/***********************************************************************/
+/* CHAPTER TITLE / HEADER */
+/* dateline above chapter title */
+
+.bod-date,
+div.chapterdateline {
+    page-break-after: avoid;
+    hyphens: none;
+    display: block;
+    font-family: "roboto";
+    color: #000000;
+    text-align: left;
+    font-weight: normal;
+    font-style: normal;
+    font-variant: normal;
+    font-size: 10.5pt;
+    line-height: 14.7pt;
+    text-transform: none;
+    border-bottom: 0pt solid #000000;
+    margin-bottom: 1em;
+    padding-top: 1em;
+    padding-bottom: 0pt;
+    margin-left: 0%;
+    margin-right: 0%;
+}
+/* abstract or description beneath chapter title */
+
+.bod-description,
+.sub,
+div.chapterabstract {
+    page-break-after: avoid;
+    hyphens: none;
+    display: block;
+    font-family: "roboto";
+    color: #000000;
+    text-align: left;
+    font-weight: normal;
+    font-style: normal;
+    font-variant: normal;
+    font-size: 5.25pt;
+    line-height: 14.7pt;
+    text-transform: none;
+    border-bottom: 0pt solid #000000;
+    margin-bottom: 0em;
+    padding-top: 0em;
+    padding-bottom: 0pt;
+    margin-left: 0%;
+    margin-right: 0%;
+}
+/* author in chapter title, last item before chapter text */
+
+.bod-author,
+div.chapterauthor {
+    page-break-after: avoid;
+    hyphens: none;
+    display: block;
+    font-family: "roboto";
+    color: #000000;
+    text-align: left;
+    font-weight: normal;
+    font-style: normal;
+    font-variant: normal;
+    font-size: 10.5pt;
+    line-height: 14.7pt;
+    text-transform: none;
+    border-bottom: 0pt solid #000000;
+    margin-bottom: 1em;
+    padding-top: 1em;
+    padding-bottom: 0pt;
+    margin-left: 0%;
+    margin-right: 0%;
+}
+/* spacing beneath chapter header, no matter what the content (i.e. dateline and title and author etc.) */
+
+.chapterheader-paddingbottom {
+    margin-bottom: 0pt!important;
+}
+h1.bod-title,
+h1.chapter-h1 {
+    page-break-after: avoid;
+    margin-top: 0;
+    color: #000000;
+    text-align: left;
+    font-weight: normal;
+    font-style: normal;
+    font-variant: normal;
+    font-family: "roboto";
+    font-size: 27.93pt;
+    padding-top: 31.5pt;
+    padding-bottom: 0pt;
+    margin-bottom: 31.5pt;/**/
+    margin-left: 0%;
+    margin-right: 0%;
+    /*uncomment4mpdf_line-height: 29.4pt; /**/
+    line-height: 1.1em; /**/
+    
+    text-transform: none;
+    border-bottom: 0pt solid #000000;
+    text-decoration: none;
+}
+h1.body-h1 {
+    margin-top: 0;
+    padding-bottom: 0;
+    color: #000000;
+    text-align: left;
+    font-weight: normal;
+    font-style: normal;
+    font-variant: normal;
+    font-family: "roboto";
+    font-size: 24.47pt;
+    padding-top: 21pt;
+    /*uncomment4mpdf_margin-bottom: 10.5pt;/**/
+    margin-bottom: 1pt;/**/
+    /*uncomment4mpdf_line-height: 29.4pt; /**/
+    line-height: 1.1em; /**/
+    
+    text-transform: none;
+    border-bottom: 0em solid #000000;
+    text-decoration: none;
+}
+h2.body-h2 {
+    margin-top: 0;
+    padding-bottom: 0;
+    color: #000000;
+    text-align: left;
+    font-weight: normal;
+    font-style: normal;
+    font-variant: normal;
+    font-family: "roboto";
+    font-size: 21pt;
+    padding-top: 6.93pt;
+    /*uncomment4mpdf_margin-bottom: 3.47pt;/**/
+    margin-bottom: 1pt;/**/
+    /*uncomment4mpdf_line-height: 29.4pt; /**/
+    line-height: 1.1em; /**/
+    
+    text-transform: none;
+    border-bottom: 0em solid #000000;
+    text-decoration: none;
+}
+h3.body-h3 {
+    margin-top: 0;
+    padding-bottom: 0;
+    color: #000000;
+    text-align: left;
+    font-weight: normal;
+    font-style: normal;
+    font-variant: normal;
+    font-family: "roboto";
+    font-size: 15.75pt;
+    padding-top: 6.93pt;
+    /*uncomment4mpdf_margin-bottom: 3.47pt;/**/
+    margin-bottom: 1pt;/**/
+    /*uncomment4mpdf_line-height: 14.7pt; /**/
+    line-height: 1.1em; /**/
+    
+    text-transform: none;
+    border-bottom: 0em solid #000000;
+    text-decoration: none;
+}
+h4.body-h4 {
+    margin-top: 0;
+    padding-bottom: 0;
+    color: #000000;
+    text-align: left;
+    font-weight: normal;
+    font-style: normal;
+    font-variant: normal;
+    font-family: "roboto";
+    font-size: 13.97pt;
+    padding-top: 6.93pt;
+    /*uncomment4mpdf_margin-bottom: 3.47pt;/**/
+    margin-bottom: 1pt;/**/
+    /*uncomment4mpdf_line-height: 14.7pt; /**/
+    line-height: 1.1em; /**/
+    
+    text-transform: none;
+    border-bottom: 0em solid #000000;
+    text-decoration: none;
+}
+h5.body-h5 {
+    margin-top: 0;
+    padding-bottom: 0;
+    color: #000000;
+    text-align: left;
+    font-weight: normal;
+    font-style: normal;
+    font-variant: normal;
+    font-family: "roboto";
+    font-size: 10.5pt;
+    padding-top: 6.93pt;
+    /*uncomment4mpdf_margin-bottom: 3.47pt;/**/
+    margin-bottom: 1pt;/**/
+    /*uncomment4mpdf_line-height: 14.7pt; /**/
+    line-height: 1.1em; /**/
+    
+    text-transform: none;
+    border-bottom: 0em solid #000000;
+    text-decoration: none;
+}
+h6.body-h6 {
+    margin-top: 0;
+    padding-bottom: 0;
+    color: #000000;
+    text-align: left;
+    font-weight: normal;
+    font-style: normal;
+    font-variant: normal;
+    font-family: "roboto";
+    font-size: 10.5pt;
+    padding-top: 6.93pt;
+    /*uncomment4mpdf_margin-bottom: 3.47pt;/**/
+    margin-bottom: 1pt;/**/
+    /*uncomment4mpdf_line-height: 14.7pt; /**/
+    line-height: 1.1em; /**/
+    
+    text-transform: none;
+    border-bottom: 0em solid #000000;
+    text-decoration: none;
+}
+
+/* Quote */
+
+p.quote:first-child:first-letter {
+    float: left;
+    margin-top: 7px;
+    font-size: 70px;
+    margin-right: 5px;
+    color: #3D3529;
+}
+.quote-before {
+    display: none;
+}
+.quote {
+    font-family: "roboto";
+    display: block;
+    font-weight: normal;
+    font-size: 10.5pt;
+    font-style: italic;
+    text-indent: 0;
+    border-left: 0.5em solid #ccc;
+    padding-left: 2em;
+    margin-left: 29.4pt;
+    margin-top: 14.7pt;
+    margin-bottom: 14.7pt;
+    /**/
+    
+    text-align: left;
+    line-height: 14.7pt;
+    text-transform: none;
+    text-decoration: none;
+}
+/* citation */
+
+cite,
+p.bk-cite {
+    font-style: italic;
+    display: inline;
+}
+/* Lists ****************************************************************/
+
+ul,
+ol {
+    line-height: 14.7pt;
+    margin-top: 14.7pt;
+    margin-bottom: 14.7pt;
+}
+li {
+    padding: 0;
+    margin: 0;
+    line-height: auto;
+    font-style: normal;
+    font-weight: normal;
+}
+/* IMAGE (plus captions) ************************************************/
+
+img,
+div.image {
+    max-width: 100%;
+    height: auto;
+    margin: 0px auto;
+}
+.group_img {
+    page-break-inside: avoid;
+    padding-top: 14.7pt;
+    margin-bottom: 14.7pt;
+}
+caption,
+.caption,
+.caption_small,
+.caption_table,
+.caption_img,
+.caption_fig,
+.caption_image,
+.caption_figure {
+    font-family: "roboto";
+    font-size: 9.45pt;
+    /*line-height: 14.7pt; /**/
+    text-align: left;
+    
+    font-style: italic;
+    font-weight: normal;
+    color: #000000;
+    margin-top: 0.5em;
+}
+.center {
+    text-align: center;
+}
+/* PREFORMATTED  ******************************************************/
+
+pre,
+code {
+    padding-bottom: 0;
+    padding-top: 0;
+    text-align: left;
+    /* no matter what the main alignment says: long, wrapped lines should not justify */
+    
+    font-family: "freemono";
+    font-weight: normal;
+    color: #000000;
+    line-height: 14.7pt;
+    margin-top: 14.7pt;
+    margin-bottom: 14.7pt;
+}
+/* additional CSS to wrap long lines */
+/*css-3 which works well with PDFreactor */
+
+pre,
+code {
+    white-space: pre-wrap;
+}
+/* ENDNOTES **********************************************************/
+/* in side text body */
+
+.endnote {
+    vertical-align: middle;
+    font-style: italic;
+    font-size: 0.75em;
+}
+/* list at bottom of chapter */
+
+ol.endnotes {
+    margin-top: 2em;
+    padding-left: 1.2em;
+    border-top: 1px solid black; /**/
+}
+ol.endnotes li {
+    font-family: "roboto";
+    font-size: 8.4pt;
+    font-weight: normal;
+    line-height: inherit;
+    margin-bottom: 0em;
+    text-align: left;
+}
+/* make sure there are no indents in the endnotes coming from paragraph styling */
+
+ol.endnotes li p {
+    font-family: "roboto";
+    font-size: 8.4pt;
+    margin-bottom: 0pt;
+    text-indent: 0;
+    text-align: left;
+}
+/* sub and sup formatting to keep line-height intact */
+/* see also .endnote which works for MPDF. The below works for CSS2PDF renderers */
+
+sub,
+sup {
+    /* Specified in % so that the sup/sup is the
+     right size relative to the surrounding text */
+    font-size: 75%;
+    /* Zero out the line-height so that it doesn't
+     interfere with the positioning that follows */
+    line-height: 0;
+    /* Where the magic happens: makes all browsers position
+     the sup/sup properly, relative to the surrounding text */
+    position: relative;
+    /* Note that if you're using Eric Meyer's reset.css, this
+     is already set and you can remove this rule */
+    /*vertical-align: baseline;*/
+}
+sup {
+    /* Move the superscripted text up */
+    top: -0.5em;
+}
+sub {
+    /* Move the subscripted text down, but only
+     half as far down as the superscript moved up */
+    bottom: -0.25em;
+}
+/* END generic Print CSS */

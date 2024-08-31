@@ -1,0 +1,78 @@
+{
+  "version": "0.2",
+  "name": "Common Sense (Comfortable)",
+  "author": "Micz Flor",
+  "date": "11th August 2016",
+  "output": {  
+    "pdfreactor": {
+      "options": {},
+      "body": "body_pdfreactor.html",
+      "assets": {
+        "fonts": [
+          "static/fonts/Ubuntu-R.ttf",
+          "static/fonts/Ubuntu-B.ttf",
+          "static/fonts/Ubuntu-RI.ttf",
+          "static/fonts/Ubuntu-BI.ttf",
+          "static/fonts/UbuntuMono-R.ttf",
+          "static/fonts/UbuntuMono-B.ttf",
+          "static/fonts/UbuntuMono-RI.ttf",
+          "static/fonts/UbuntuMono-BI.ttf",
+          "static/fonts/Ubuntu-L.ttf",
+          "static/fonts/Ubuntu-M.ttf",
+          "static/fonts/Ubuntu-LI.ttf",
+          "static/fonts/Ubuntu-MI.ttf"  
+        ]
+      }
+    },  
+    "pdfreactor-screenpdf": {
+      "options": {},
+      "body": "body_pdfreactor.html",
+      "assets": {
+        "fonts": [
+          "static/fonts/Ubuntu-R.ttf",
+          "static/fonts/Ubuntu-B.ttf",
+          "static/fonts/Ubuntu-RI.ttf",
+          "static/fonts/Ubuntu-BI.ttf",
+          "static/fonts/UbuntuMono-R.ttf",
+          "static/fonts/UbuntuMono-B.ttf",
+          "static/fonts/UbuntuMono-RI.ttf",
+          "static/fonts/UbuntuMono-BI.ttf",
+          "static/fonts/Ubuntu-L.ttf",
+          "static/fonts/Ubuntu-M.ttf",
+          "static/fonts/Ubuntu-LI.ttf",
+          "static/fonts/Ubuntu-MI.ttf"  
+        ]
+      }
+    },
+    "mpdf": {
+      "options": {},
+      "frontmatter": "frontmatter_mpdf.html",
+      "endmatter": "endmatter_mpdf.html",
+      "body": "body_mpdf.html"
+    },
+    "screenpdf": {
+      "options": {},
+      "frontmatter": "frontmatter_screenpdf.html",
+      "endmatter": "endmatter_screenpdf.html",
+      "body": "body_screenpdf.html"
+    },
+    "epub": {
+      "assets": {
+        "fonts": [
+          "static/fonts/Ubuntu-R.ttf",
+          "static/fonts/Ubuntu-B.ttf",
+          "static/fonts/Ubuntu-RI.ttf",
+          "static/fonts/Ubuntu-BI.ttf",
+          "static/fonts/UbuntuMono-R.ttf",
+          "static/fonts/UbuntuMono-B.ttf",
+          "static/fonts/UbuntuMono-RI.ttf",
+          "static/fonts/UbuntuMono-BI.ttf",
+          "static/fonts/Ubuntu-L.ttf",
+          "static/fonts/Ubuntu-M.ttf",
+          "static/fonts/Ubuntu-LI.ttf",
+          "static/fonts/Ubuntu-MI.ttf"
+        ]
+      }
+    }
+  }
+}
