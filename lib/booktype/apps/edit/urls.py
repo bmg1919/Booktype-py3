@@ -30,9 +30,9 @@ urlpatterns = [
     re_path(r'^_upload/$', upload_attachment, name='upload_attachment'),
     re_path(r'^_upload_cover/$', upload_cover, name='upload_cover'),
     re_path(r'^_cover/(?P<cid>[\w\s\_\d\.\-]+)/(?P<fname>.*)$', cover, name='view_cover'),
-    re_path(r'^_edit/static/(?P<attachment>.*)$', staticattachment),
+    path('_edit/static/<attachment>', staticattachment),
 
-    re_path(r'^_edit/$', EditBookPage.as_view(), name='editor'),
+    path('_edit/', EditBookPage.as_view(), name='editor'),
     re_path(r'^_history/$', BookHistoryPage.as_view(), name='history'),
     re_path(r'^_history/download/$', DownloadBookHistory.as_view(), name='download_history'),
     re_path(r'^_history/(?P<chapter>[\w\s\_\.\-]+)/download/$',

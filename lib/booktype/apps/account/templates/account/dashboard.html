@@ -155,9 +155,12 @@
 								{# <p><a href="#">{% trans "Track updates by RSS" %}</a> <img src="{% static 'core/img/rss.png' %}"></p>#}
 
                 <div class="box-bottom-white">
-                    <button id="user-settings" data-href="{% url 'accounts:user_settings' user.username %}" role="button" class="btn btn-default float-left" rel="tooltip" title="" data-placement="bottom" data-original-title="{% trans "Click this button to update your personal settings and Booktype account password" %}">{% trans "Settings" as set_text %} {{ set_text|upper }}</button>
-                    <button data-href="{% url 'accounts:signout' %}" role="button" class="btn btn-success float-right" rel="tooltip" title="" data-placement="bottom" data-original-title="{% trans "Click this button to log out of your Booktype account" %}">{% trans "Log out" as log_text %} {{ log_text|upper }}</button>
 
+                    <button id="user-settings" data-href="{% url 'accounts:user_settings' user.username %}" role="button" class="btn btn-default float-left" rel="tooltip" title="" data-placement="bottom" data-original-title="{% trans "Click this button to update your personal settings and Booktype account password" %}">{% trans "Settings" as set_text %} {{ set_text|upper }}</button>
+                    <form id="logout-form" method="POST" action="{% url 'accounts:signout' %}" style="margin-bottom: 1px">
+                    {% csrf_token %}
+                    <button role="button" class="btn btn-success float-right" rel="tooltip" title="" data-placement="bottom" data-original-title="{% trans "Click this button to log out of your Booktype account" %}">{% trans "Log out" as log_text %} {{ log_text|upper }}</button>
+                  </form>
                 </div>
             </div>
             {% endif %}

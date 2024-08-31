@@ -9,7 +9,10 @@
           {% endif %}
           <li><a href="//sourcefabric.booktype.pro/booktype-24-for-authors-and-publishers/" target="_blank"><i class="fa fa-book"></i>{% trans "User Manual" %}</a></li>
           <li class="divider"></li>
-          <li><a href="{% url "accounts:signout" %}"><i class="fa fa-sign-out"></i>{% trans "Log out" %}</a></li>
+          <form id="logout-form" method="POST" action="{% url 'accounts:signout' %}" style="margin-bottom: 1px">
+              {% csrf_token %}
+            <li><button type="submit" style="background: none; margin-bottom: none; padding-bottom: none; color: black; border: none; margin-left: 5px"><i class="fa fa-sign-out"></i>{% trans " Log out" %}</button></li>
+            </form>
         </ul>
     {% else %}
   <button class="btn btn-inverse dropdown-toggle" data-toggle="dropdown">{%  trans "Log in" %}<span class="caret"></span></button>

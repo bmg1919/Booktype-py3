@@ -2,7 +2,7 @@ from rest_framework import routers
 # from rest_framework_swagger.views import get_swagger_view
 from rest_framework.schemas import get_schema_view
 
-from django.urls import re_path, include
+from django.urls import re_path, include, path
 
 from ..account import views as account_views
 from ..editor import views as editor_views
@@ -22,7 +22,7 @@ urlpatterns = [
     re_path(r'^$', schema_view),
 
     # auth login/logout
-    re_path(r'^auth/', include('rest_framework.urls', namespace='rest_framework')),
+    path('auth/', include('rest_framework.urls', namespace='rest_framework')),
 
-    re_path(r'^v1/', include('booktype.api.urls.v1', namespace='v1')),
+    path('v1/', include('booktype.api.urls.v1', namespace='v1')),
 ]
