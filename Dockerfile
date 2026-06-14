@@ -6,19 +6,19 @@ RUN DEBIAN_FRONTEND=noninteractive apt update && apt upgrade -y \
 # create booktype group, booktype user and assign it to the group
 RUN groupadd booktype && useradd booktype -g booktype -u 1000
 
-ENV INSTANCENAME mybook
-ENV BOOKTYPE_SERVER 127.0.0.1:8000
-ENV BOOKTYPE_URL http://127.0.0.1:8000
-ENV BOOKTYPE_REDIS_HOST redis
-ENV BOOKTYPE_BROKER_URL amqp://guest:guest@rabbit:5672/
-ENV BOOKTYPE_DATABASE_ENGINE django.db.backends.postgresql_psycopg2
-ENV BOOKTYPE_DATABASE_HOST db
-ENV BOOKTYPE_DATABASE_PORT 5432
-ENV BOOKTYPE_DATABASE_NAME booktype
-ENV BOOKTYPE_DATABASE_USER booktype
-ENV BOOKTYPE_DATABASE_PASSWORD booktype
-ENV BOOKTYPE_PANDOC_PATH /usr/bin/pandoc
-ENV BOOKTYPE_MPDF_DIR /code/mpdf60
+ENV INSTANCENAME=mybook
+ENV BOOKTYPE_SERVER=127.0.0.1:8000
+ENV BOOKTYPE_URL=http://127.0.0.1:8000
+ENV BOOKTYPE_REDIS_HOST=redis
+ENV BOOKTYPE_BROKER_URL=amqp://guest:guest@rabbit:5672/
+ENV BOOKTYPE_DATABASE_ENGINE=django.db.backends.postgresql_psycopg2
+ENV BOOKTYPE_DATABASE_HOST=db
+ENV BOOKTYPE_DATABASE_PORT=5432
+ENV BOOKTYPE_DATABASE_NAME=booktype
+ENV BOOKTYPE_DATABASE_USER=booktype
+ENV BOOKTYPE_DATABASE_PASSWORD=booktype
+ENV BOOKTYPE_PANDOC_PATH=/usr/bin/pandoc
+ENV BOOKTYPE_MPDF_DIR=/code/mpdf60
 
 RUN mkdir -p /var/log/supervisor
 
@@ -46,7 +46,7 @@ RUN pip install pip setuptools wheel uwsgi -U \
 COPY ./themes /code/${INSTANCENAME}/themes
 
 # Install more recent mpdf without including in source
-RUN cd /code/${INSTANCENAME} && composer require mpdf/mpdf:8.2.3
+RUN cd /code/${INSTANCENAME} && composer require mpdf/mpdf
 
 # make scripts executable
 RUN chmod ug+x scripts/celery.sh scripts/web.sh scripts/manage_py.sh scripts/wait-for-it.sh ${INSTANCENAME}/manage_prod.py
