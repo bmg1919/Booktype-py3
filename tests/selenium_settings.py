@@ -2,6 +2,8 @@ import os
 import django
 from pathlib import Path
 
+ALLOWED_HOSTS = ['*']
+
 BASE_DIR = Path(os.path.abspath(__file__))
 
 # PROFILE
@@ -30,7 +32,8 @@ EMAIL_PORT = 25
 import booki
 
 # static
-STATIC_ROOT = BOOKTYPE_ROOT.child('static')
+# STATIC_ROOT = BOOKTYPE_ROOT.child('static')
+STATIC_ROOT = BOOKTYPE_ROOT / 'static'
 STATIC_URL = '{}/static/'.format(BOOKTYPE_URL)
 
 # Additional locations of static files
@@ -38,7 +41,7 @@ STATICFILES_DIRS = (
     # Put strings here, like "/home/html/static" or "C:/www/django/static".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    BOOKTYPE_ROOT.child(BOOKTYPE_SITE_NAME).child('static'),
+    # BOOKTYPE_ROOT / 'static',
 )
 
 # List of finder classes that know how to find static files in
@@ -51,7 +54,7 @@ STATICFILES_FINDERS = (
 )
 
 # data
-DATA_ROOT = BOOKTYPE_ROOT.child('data')
+DATA_ROOT = BOOKTYPE_ROOT / 'data'
 DATA_URL = '{}/data/'.format(BOOKTYPE_URL)
 
 # profile images
@@ -79,9 +82,9 @@ USE_L10N = True
 USE_TZ = False
 
 LOCALE_PATHS = (
-    BOOKTYPE_ROOT.child(BOOKTYPE_SITE_NAME).child('locale'),
-    Path(booki.__file__).parent.child('locale'),
-    Path(booki.__file__).parent.child('booktype').child('locale')
+    BOOKTYPE_ROOT / 'locale',
+    Path(booki.__file__).parent / 'locale',
+    Path(booki.__file__).parent / 'booktype' / 'locale'
 )
 
 # Make this unique, and don't share it with anybody.
@@ -90,25 +93,29 @@ SECRET_KEY = 'enc*ln*vp^o2p1p6of8ip9v5_tt6r#fh2-!-@pl0ur^6ul6e)l'
 # Storage for messages framework
 MESSAGE_STORAGE = 'django.contrib.messages.storage.session.SessionStorage'
 
-# List of callables that know how to import templates from various sources.
-
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-    # 'django.template.loaders.eggs.Loader',
-)
-
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.core.context_processors.tz",
-    "django.contrib.messages.context_processors.messages",
-    "django.core.context_processors.csrf"
-)
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            BOOKTYPE_ROOT / 'templates',
+            Path(booki.__file__).parent / 'templates', 
+        ],
+        'APP_DIRS': True,  
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.media",
+                "django.template.context_processors.static",
+                "django.template.context_processors.tz",
+                "django.template.context_processors.csrf"
+            ],
+        },
+    },
+]
 
 MIDDLEWARE = (
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -116,18 +123,12 @@ MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.middleware.transaction.TransactionMiddleware',
+    'django.middleware.security.SecurityMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'booktype.apps.core.middleware.StrictAuthentication',
     'booktype.apps.core.middleware.SecurityMiddleware',
 )
-
-
-TEMPLATE_DIRS = (
-    BOOKTYPE_ROOT.child(BOOKTYPE_SITE_NAME).child('templates'),
-    Path(booki.__file__).parent.child('templates')
-)
-
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -153,6 +154,7 @@ INSTALLED_APPS = (
     'booktype.apps.convert',
     'booktype.apps.edit',
     'booktype.apps.account',
+    'booktype.apps.reader',
 
     # to be removed
     'booki.messaging',
@@ -163,7 +165,7 @@ INSTALLED_APPS = (
 
 if django.VERSION[:2] < (1, 6):
     TEST_RUNNER = 'discover_runner.DiscoverRunner'
-    TEST_DISCOVER_TOP_LEVEL = BASE_DIR.parent.parent.child('lib')
+    TEST_DISCOVER_TOP_LEVEL = BASE_DIR.parent.parent / 'lib'
     TEST_DISCOVER_PATTERN = 'seltest*.py'
 
 if django.VERSION[:2] < (1, 7):
@@ -213,7 +215,8 @@ DATABASES = {
         'USER': '',
         'PASSWORD': '',
         'HOST': 'localhost',
-        'PORT': ''
+        'PORT': '',
+        'ATOMIC_REQUESTS': True,
     }
 }
 
