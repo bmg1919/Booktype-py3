@@ -4,19 +4,21 @@ import django
 
 from pathlib import Path
 
-BASE_DIR = Path(os.path.abspath(__file__))
+ALLOWED_HOSTS = ['*']
+
+BASE_DIR = Path(os.path.abspath(__file__)).parent
 
 BOOKTYPE_SITE_NAME = ''
 BOOKTYPE_SITE_DIR = 'tests'
 THIS_BOOKTYPE_SERVER = ''
 BOOKTYPE_URL = ''
 
-BOOKTYPE_ROOT = BASE_DIR.parent
+BOOKTYPE_ROOT = BASE_DIR
 
-STATIC_ROOT = BASE_DIR.parent.child("static")
+STATIC_ROOT = BASE_DIR / "static"
 STATIC_URL = '{}/static/'.format(BOOKTYPE_URL)
 
-DATA_ROOT = BASE_DIR.parent.child("data")
+DATA_ROOT = BASE_DIR / "data"
 DATA_URL = '{}/data/'.format(BOOKTYPE_URL)
 
 MEDIA_ROOT = DATA_ROOT
@@ -30,7 +32,7 @@ PROFILE_ACTIVE = 'test'
 
 if django.VERSION[:2] < (1, 6):
     TEST_RUNNER = 'discover_runner.DiscoverRunner'
-    TEST_DISCOVER_TOP_LEVEL = BASE_DIR.parent.parent.child('lib')
+    TEST_DISCOVER_TOP_LEVEL = BASE_DIR / 'lib'
     TEST_DISCOVER_PATTERN = 'functest_*.py'
 
 ROOT_URLCONF = 'urls'
@@ -86,7 +88,6 @@ MIDDLEWARE = (
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.middleware.transaction.TransactionMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'booktype.apps.core.middleware.StrictAuthentication',
     'booktype.apps.core.middleware.SecurityMiddleware',
@@ -111,6 +112,7 @@ INSTALLED_APPS = (
     'booktype.apps.core',
     'booktype.apps.portal',
     'booktype.apps.loadsave',
+    'booktype.apps.export',
     'booktype.apps.importer',
     'booktype.apps.convert',
     'booktype.apps.edit',
@@ -191,9 +193,33 @@ BOOKI_MAINTENANCE_MODE = False
 AUTH_PROFILE_MODULE = 'account.UserProfile'
 
 STATICFILES_FINDERS = (
-    # 'django.contrib.staticfiles.finders.FileSystemFinder',
-    # 'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    # 'booktype.apps.themes.finder.ThemeFinder',
-    # 'django.contrib.staticfiles.finders.DefaultStorageFinder',
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'booktype.apps.themes.finder.ThemeFinder',
+    'django.contrib.staticfiles.finders.DefaultStorageFinder',
     'compressor.finders.CompressorFinder'
 )
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        'DIRS': [
+            BOOKTYPE_ROOT / 'templates',
+            # Path(booki.__file__).parent / 'templates',
+        ],
+        'APP_DIRS': True,            
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                "django.template.context_processors.i18n",
+                "django.template.context_processors.media",
+                "django.template.context_processors.static",
+                "django.template.context_processors.tz",
+                "django.template.context_processors.csrf"
+            ],
+        },
+    },
+]

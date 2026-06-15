@@ -62,7 +62,6 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': ':memory:',
-        # 'NAME': 'db.sqlite3',
         'USER': '',
         'PASSWORD': '',
         'HOST': '',
@@ -111,6 +110,7 @@ INSTALLED_APPS = (
     'booktype.apps.core',
     'booktype.apps.portal',
     'booktype.apps.loadsave',
+    'booktype.apps.export',
     'booktype.apps.importer',
     'booktype.apps.convert',
     'booktype.apps.edit',

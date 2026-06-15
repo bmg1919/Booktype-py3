@@ -150,6 +150,7 @@ INSTALLED_APPS = (
     'booktype.apps.core',
     'booktype.apps.portal',
     'booktype.apps.loadsave',
+    'booktype.apps.export',
     'booktype.apps.importer',
     'booktype.apps.convert',
     'booktype.apps.edit',
